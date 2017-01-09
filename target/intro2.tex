@@ -1,0 +1,185 @@
+\section{Introduction}\label{sec:intro}
+
+Should the programmer spend her time writing \emph{better types}
+or \emph{thorough tests}?  
+%
+Types have long been the most pervasive means of describing the 
+intended behavior of code. However, a type signature is often a 
+very coarse description; the actual inputs and outputs
+may be a subset of the values described by the types. 
+%
+For example, the set of ordered integer lists is a very 
+sparse subset of the set of all integer lists. 
+%
+Thus, to validate functions that produce or consume such values, 
+the programmer must painstakingly enumerate these values by hand 
+or via ad-hoc generators for unit tests.
+
+We present a new technique called \emph{type targeted testing}, 
+abbreviated to \toolname, that enables the generation of unit
+tests from precise \emph{refinement types}.
+%
+Over the last decade, various groups have shown how refinement 
+types -- which compose the usual types with logical refinement predicates
+that characterize the subset of actual type inhabitants -- 
+can be used to specify and formally verify a wide variety 
+of correctness properties of programs~\cite{pfenningxi98,Dunfield07,fstar,VazouICFP14}.
+%
+Our insight is that through the lens of SMT
+solvers, refinement types can be viewed as a high-level, 
+declarative, test generation technique.
+
+\toolname tests an implementation function against a refinement 
+type specification using a \emph{query-decode-check} loop.
+%
+% NV: input implies the types TARGET gets as input
+First, \toolname translates the argument types into a logical
+\emph{query} for which we obtain a satisfying assignment 
+(or model) from the SMT solver.
+%
+Next, \toolname \emph{decodes} the SMT solver's model to obtain
+concrete input values for the function.
+%
+Finally, \toolname executes the function on the inputs 
+to get the corresponding output, which we \emph{check} 
+belongs to the specified result type. 
+%
+If the check fails, the inputs are returned as a counterexample, 
+otherwise
+%
+\toolname refutes the given model to force the SMT solver to 
+return a different set of inputs. 
+%
+This process is repeated for a given number of 
+iterations, or until \emph{all} inputs up to a certain size 
+have been tested.
+
+% Vs. Testing
+\toolname offers several benefits over other testing techniques.
+%
+Refinement types provide a succinct description of the 
+input and output requirements, eliminating the need to 
+enumerate individual test cases by hand or to write 
+custom generators.
+%
+Furthermore, \toolname generates \emph{all} 
+values (up to a given size) that inhabit a type, and thus
+does not skip any corner cases that a hand-written generator 
+might miss.
+%
+Finally, while the above advantages can be recovered by a brute-force
+generate-and-filter approach that discards inputs that do not meet
+some predicate, we show that our SMT-based method can be significantly
+more efficient for enumerating valid inputs in a highly-constrained space.
+% and hence, sparse space.
+
+% Vs. Verification 
+\toolname paves a \emph{gradual path} from testing to verification, 
+that affords several advantages over verification.
+%
+First, the programmer has an \emph{incentive} to write formal 
+specifications using refinement types. \toolname provides the 
+immediate gratification of an automatically generated, 
+exhaustive suite of unit tests that can expose errors.
+Thus, the programmer is rewarded without paying, up front, 
+the extra price of annotations, hints, strengthened 
+inductive invariants, or tactics needed for formally 
+verifying the specification.
+%
+Second, our approach makes it possible to use refinement 
+types to formally verify \emph{some} parts of the program, 
+while using tests to validate other parts that may
+be too difficult to verify
+%
+\toolname integrates the two modes by using refinement
+types as the uniform specification mechanism. 
+Functions in the verified half can be formally checked 
+\emph{assuming} the functions in the tested half adhere 
+to their specifications. 
+We could even use refinements to generate dynamic 
+contracts~\cite{Findler01} around the tested half 
+if so desired.
+%
+Third, even when formally verifying the type specifications, 
+the generated tests can act as valuable \emph{counterexamples} 
+to help \emph{debug} the specification or implementation in 
+the event that the program is rejected by the verifier.
+
+% Vs. SymEx 
+Finally, \toolname offers several concrete advantages over previous
+property-based testing techniques, which also have the potential for 
+gradual verification.
+%
+First, instead of specifying properties with arbitrary code 
+\cite{claessen_quickcheck:_2000,runciman_smallcheck_2008} 
+which complicates the task of subsequent formal verification, 
+with \toolname the properties are specified via refinement 
+types, for which there are already several existing formal 
+verification algorithms~\cite{VazouICFP14}.
+%
+Second, while symbolic execution tools~\cite{DART,CUTE,Veanes08} 
+can generate tests from arbitrary code contracts (\eg assertions) 
+we find that highly constrained inputs trigger path explosion 
+which precludes the use of such tools for gradual verification.
+
+% In the rest of the paper...
+In the rest of this paper, we start with an overview of 
+how \toolname can be used and how its query-decode-check 
+loop is implemented (\S~\ref{sec:overview}).
+%
+Next, we formalize a general framework for type-targeted 
+testing (\S~\ref{sec:framework}) and show how it can be 
+instantiated to generating tests for lists (\S~\ref{sec:list}), 
+and then automatically generalized to other 
+types (\S~\ref{sec:generic}).
+%
+All the benefits of \toolname come at a price; 
+we are limited to properties that can be specified with 
+refinement types. 
+%
+We present an empirical evaluation that shows
+\toolname is efficient and expressive enough to capture 
+a variety of sophisticated properties,
+%
+demonstrating that type-targeted 
+testing is
+a sweet spot between automatic testing 
+and verification (\S~\ref{sec:evaluation}).
+
+%%% Second, \toolname's symbolic, SMT-based approach makes it possible
+%%% to systematically generate values that satisfy highly constrained 
+%%% pre-conditions which otherwise thwart the generate-and-filter 
+%%% approach of traditional property-based tools.
+%%% %
+%%% While this work shows a great deal of promise for making 
+%%% formal verification practical, it does not obviate the 
+%%% need for testing.
+%%% %
+%%% First, it can take a great deal of effort and expertise 
+%%% to write down the annotations (beyond the end-to-end 
+%%% specification) needed to verify a program 
+%%% %
+%%% Second, there maybe requirements (\eg performance) that 
+%%% are not easily specified via refinements.
+%%% ES INTRO We present \toolname, an automatic test-generator that uses SMT-solvers 
+%%% ES INTRO to generate test-cases, taking advantange of their efficient decision 
+%%% ES INTRO procedures to quickly prune the search space of all inputs. 
+%%% ES INTRO 
+%%% ES INTRO We observe based on prior work that many interesting properties of
+%%% ES INTRO functions can be specified in an SMT-decidable logic, in our case the
+%%% ES INTRO logic of linear arithetic, equality, and uninterpreted functions
+%%% ES INTRO (\smtlogic).
+%%% ES INTRO 
+%%% ES INTRO Building on top of the \liquidhaskell program verification
+%%% ES INTRO tool~\cite{VazouRealWorld14}, we show how a single data generator can
+%%% ES INTRO be used to produce values of a type that satisfy disparate
+%%% ES INTRO constraints, thereby easing the tedium of testing
+%%% ES INTRO (\S~\ref{sec:liquidcheck}). 
+%%% ES INTRO 
+%%% ES INTRO We further show how to use a single generator to generically produce
+%%% ES INTRO values of \emph{any} algebraic datatype (\S~\ref{sec:generic-generation}). 
+%%% ES INTRO 
+%%% ES INTRO Finally, we note that due to our shared specification language with
+%%% ES INTRO \liquidhaskell, our properties are immediately ammenable to formal
+%%% ES INTRO verification, should the developer wish to invest the extra time
+%%% ES INTRO (\S~\ref{sec:discussion}).

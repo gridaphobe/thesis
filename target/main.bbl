@@ -1,0 +1,124 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+
+\bibitem{ICSE04BLAST}
+Beyer, D., Chlipala, A.J., Henzinger, T.A., Jhala, R., Majumdar, R.: Generating
+  tests from counterexamples. In: ICSE 04: Software Engineering. pp. 326--335
+  (2004)
+
+\bibitem{Boyapati02}
+Boyapati, C., Khurshid, S., Marinov, D.: Korat: {A}utomated testing based on
+  {Java} predicates. In: ISSTA 02: Software Testing and Analysis. pp. 123--133.
+  ACM (2002)
+
+\bibitem{Claessen14Flops}
+Claessen, K., Dureg{\aa}rd, J., Palka, M.H.: Generating constrained random data
+  with uniform distribution. pp. 18--34. FLOPS '14 (2014)
+
+\bibitem{claessen_quickcheck:_2000}
+Claessen, K., Hughes, J.: {QuickCheck:} a lightweight tool for random testing
+  of haskell programs. In: ICFP. ACM (2000)
+
+\bibitem{jcrasher}
+Csallner, C., Smaragdakis, Y.: Check 'n' crash: combining static checking and
+  testing. In: ICSE. pp. 422--431 (2005)
+
+\bibitem{DiasNeto:2007:SMT:1353673.1353681}
+Dias~Neto, A.C., Subramanyan, R., Vieira, M., Travassos, G.H.: A survey on
+  model-based testing approaches: A systematic review. In: WEASELTech '07. ACM
+  (2007)
+
+\bibitem{Dunfield07}
+Dunfield, J.: Refined typechecking with {Stardust}. In: PLPV (2007)
+
+\bibitem{sbv}
+Erk\"{o}k, L.: {SBV}: {SMT} based verification in haskell,
+  \url{http://leventerkok.github.io/sbv/}
+
+\bibitem{Findler01}
+Findler, R.B., Felleisen, M.: Contract soundness for object-oriented languages.
+  In: OOPSLA. pp. 1--15 (2001)
+
+\bibitem{ESCJava}
+Flanagan, C., Leino, K., Lillibridge, M., Nelson, G., Saxe, J.B., Stata, R.:
+  Extended static checking for {Java}. In: PLDI (2002)
+
+\bibitem{gill2007haskell}
+Gill, A., Runciman, C.: Haskell program coverage. pp. 1--12. Haskell '07, ACM
+  (2007)
+
+\bibitem{DART}
+Godefroid, P., Klarlund, N., Sen, K.: Dart: directed automated random testing.
+  In: PLDI. pp. 213--223 (2005)
+
+\bibitem{jackson2002alloy}
+Jackson, D.: Alloy: a lightweight object modelling notation. ACM Transactions
+  on Software Engineering and Methodology (TOSEM)  11(2),  256--290 (2002)
+
+\bibitem{Koksal:2012:CC:2103656.2103675}
+K\"{o}ksal, A.S., Kuncak, V., Suter, P.: Constraints as control. pp. 151--164.
+  POPL '12, ACM, New York, NY, USA (2012)
+
+\bibitem{magalhaes_generic_2010}
+Magalh{\~a}es, J.P., Dijkstra, A., Jeuring, J., L{\"o}h, A.: A generic deriving
+  mechanism for haskell. In: Haskell Symposium. ACM (2010)
+
+\bibitem{marick1999misuse}
+Marick, B.: How to misuse code coverage. In: Proceedings of the 16th
+  Interational Conference on Testing Computer Software. pp. 16--18 (1999)
+
+\bibitem{Marinov:2001:TNF:872023.872551}
+Marinov, D., Khurshid, S.: Testera: A novel framework for automated testing of
+  java programs. ASE '01, IEEE Computer Society, Washington, DC, USA (2001)
+
+\bibitem{arrayZ3}
+de~Moura, L., Bj{\o}rner, N.: Generalized, efficient array decision procedures.
+  In: FMCAD (2009)
+
+\bibitem{Nelson81}
+Nelson, G.: Techniques for program verification. Tech. Rep. CSL81-10, Xerox
+  Palo Alto Research Center (1981)
+
+\bibitem{SaraswatX10}
+Nystrom, N., Saraswat, V.A., Palsberg, J., Grothoff, C.: Constrained types for
+  object-oriented languages. In: OOPSLA. pp. 457--474 (2008)
+
+\bibitem{runciman_smallcheck_2008}
+Runciman, C., Naylor, M., Lindblad, F.: Smallcheck and lazy smallcheck:
+  Automatic exhaustive testing for small values. In: Haskell Symposium. ACM
+  (2008)
+
+\bibitem{CUTE}
+Sen, K., Marinov, D., Agha, G.: Cute: A concolic unit testing engine for c. In:
+  ESEC/FSE. ACM (2005)
+
+\bibitem{fstar}
+Swamy, N., Chen, J., Fournet, C., Strub, P.Y., Bhargavan, K., Yang, J.: Secure
+  distributed programming with value-dependent types. In: ICFP (2011)
+
+\bibitem{tillmann_pexwhite_2008}
+Tillmann, N., Halleux, J.d.: {Pex{\textendash}White} box test generation for
+  {.NET}. In: Tests and Proofs, pp. 134--153 (2008)
+
+\bibitem{Vazou13}
+Vazou, N., Rondon, P., Jhala, R.: Abstract refinement types. In: ESOP (2013)
+
+\bibitem{VazouRealWorld14}
+Vazou, N., Seidel, E.L., Jhala, R.: Liquidhaskell: Experience with refinement
+  types in the real world. In: Haskell Symposium (2014)
+
+\bibitem{VazouICFP14}
+Vazou, N., Seidel, E.L., Jhala, R., Vytiniotis, D., Peyton-Jones, S.:
+  Refinement types for haskell. In: ICFP (2014)
+
+\bibitem{Veanes08}
+Veanes, M., Campbell, C., Grieskamp, W., Schulte, W., Tillmann, N., Nachmanson,
+  L.: Model-based testing of object-oriented reactive systems with spec
+  explorer. In: Formal Methods and Testing. Springer-Verlag (2008)
+
+\bibitem{pfenningxi98}
+Xi, H., Pfenning, F.: Eliminating array bound checking through dependent types.
+  In: PLDI (1998)
+
+\end{thebibliography}

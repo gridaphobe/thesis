@@ -1,0 +1,209 @@
+\section{A Framework for Type Targeted Testing}\label{sec:framework}
+
+Next, we describe a framework for type targeted testing, by formalizing
+an abstract representation of refinement types~(\S~\ref{sec:reftypes}), 
+describing the operations needed to generate tests from types~(\S~\ref{sec:targetable}), 
+and then using the above to implement \toolname via a query-decode-check 
+loop~(\S~\ref{sec:loop}). 
+%
+Subsequently, we instantiate the framework to obtain tests
+for refined primitive types, lists, algebraic datatypes and higher-order 
+functions~(\S~\ref{sec:list}).
+
+%% Next, we describe an (abstract) representation of refinement types,
+%% and show how to use them to implement the @query@, @decode@ and @check@ 
+%% steps from Figure~\ref{fig:arch}.
+ 
+\subsection{Refinement Types}\label{sec:reftypes}
+
+\begin{figure}[t!]
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code}
+-- Manipulating Refinements
+refinement :: RefType -> Refinement
+subst      :: RefType -> [(Var, Var)] -> RefType
+
+-- Manipulating Types
+unfold     :: Ctor  -> RefType -> [(Var, RefType)]
+binder     :: RefType -> Var
+proxy      :: RefType -> Proxy a 
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Refinement Type API}\label{fig:rtype}
+\end{figure}
+
+A refinement type is a type, where each component is 
+decorated with a predicate from a refinement logic. 
+%
+For clarity, we describe refinement types and refinements 
+abstractly as @RefType@ and @Refinement@ respectively.
+%
+We write @Var@ as an alias for @Refinement@ that is 
+typically used to represent logical variables appearing
+within the refinement.
+
+\mypara{Notation} 
+In the sequel, we will use % backticks
+double brackets $\meta{}$ to represent the 
+various entities in the meta-language used to describe \toolname. 
+%
+For example, 
+|$\meta{k}$|,
+|$\meta{k \leq len\ v}$|, and
+|$\meta{\reft{v}{[Score]}{k \leq len\ v}}$|
+% \hbox{@`{v:[Score] | x0 <= len v}`@}
+are the @Var@, @Refinement@, and @RefType@
+representing the corresponding entities written in the brackets.
+
+
+Next, we describe the various operations over them 
+needed to implement \toolname.
+These operations, summarized in Figure~\ref{fig:rtype}, 
+fall into two categories: those which manipulate the 
+\emph{refinements} and those which manipulate the 
+\emph{types}.
+
+\mypara{Operating on Refinements} 
+To generate constraints and check inhabitation, we use 
+the function @refinement@ which returns the (top-level) refinement
+that decorates the given refinement type.
+%
+We will generate fresh @Var@s to name values of components, and will 
+use @subst@ to replace the free occurrences of variables in a given \hbox{@RefType@.}
+%
+Suppose that @t@ is the @RefType@ represented by
+\hbox{|$\meta{\reft{v}{[Score]}{k \leq len\ v}}$|.} Then,
+%
+\begin{itemize}
+\item{@refinement t@} evaluates to |$\meta{k \leq len\ v}$| and
+\item{|subst t [($\meta{k}$, $\meta{x_0}$)]|} evaluates to |$\meta{\reft{v}{[Score]}{x_0 \leq len\ v}}$|.
+\end{itemize}
+
+\mypara{Operating on Types} 
+To build up compound values (\eg lists) from components 
+(\eg an integer and a list), 
+%
+@unfold@ breaks a @RefType@ (\eg a list of integers) into its 
+constituents (\eg an integer and a list of integers) at a given 
+constructor (\eg ``cons'').
+%
+@binder@ simply extracts the @Var@ representing the
+value being refined from the \hbox{@RefType@.}
+%
+To write generic functions over @RefType@s and use Haskell's
+type class machinery to @query@ and @decode@ components of
+types, we associate with each refinement type a \emph{proxy}
+representing the corresponding Haskell type (in practice
+this must be passed around as a separate argument).
+%
+For example, if @t@ is \hbox{|$\meta{\reft{v}{[Score]}{k \leq len\ v}}$|,} 
+%
+\begin{itemize}
+\item{|unfold $\meta{:}$ t|} evaluates to |[($\meta{x}$, $\meta{Score}$), ($\meta{xs}$, $\meta{[Score]}$)]|,
+\item{@binder t@} evaluates to |$\meta{v}$|, and
+\item{@proxy t@} evaluates to a value of type @Proxy [Int]@.
+\end{itemize}
+
+\subsection{The \texttt{Targetable} Type Class}\label{sec:targetable}
+
+% query  :: Haskell-Logic -> Gen SMT-Logic
+% decode :: SMT-Value     -> Haskell-Value
+% encode :: Haskell-Value -> SMT-Logic 
+
+Following \quickcheck, we encapsulate the key operations needed
+for type-targeted testing in a type class @Targetable@ 
+(Figure~\ref{fig:targetable}). 
+%
+\begin{figure}
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code}
+class Targetable a where
+  query  :: Proxy a -> Int -> RefType -> SMT Var
+  decode :: Var -> SMT a
+  check  :: a -> RefType -> SMT (Bool, Var)
+  toReft :: a -> Refinement
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{The class of types that can be tested by \toolname}\label{fig:targetable}
+\end{figure}
+%
+This class characterizes the set of types which can be tested 
+by \toolname. All of the operations can interact with an external SMT 
+solver, and so return values in an @SMT@ monad.
+
+\begin{itemize}
+\item{@query@} takes a \emph{proxy} for the Haskell type
+   for which we are generating values, an integer 
+   \emph{depth} bound, and a \emph{refinement type}
+   describing the desired constraints, and generates a set of 
+   logical constraints and a @Var@ that represents the 
+   constrained value.
+
+\item{@decode@} takes a @Var@, generated via a previous 
+   @query@ and queries the model returned by the SMT solver
+   to construct a Haskell value of type @a@.
+ 
+\item{@check@} takes a value of type @a@, translates 
+   it back into logical form, and verifies that it inhabits
+   the output type @t@.
+   
+\item{@toReft@} takes a value of type @a@ and translates it
+   back into logical form (a specialization of @check@).
+\end{itemize}
+
+\subsection{The Query-Decode-Check Loop}\label{sec:loop}
+
+
+
+Figure~\ref{fig:arch} summarizes the overall implementation of 
+\toolname, which takes as input a function @f@ and its refinement 
+type specification @t@ and proceeds to test the function against 
+the specification via a \emph{query-decode-check} loop:
+%
+(1) First, we translate the refined @inputTypes@ into a logical \emph{query}.
+%
+(2) Next, we \emph{decode} the model (\ie satisfying assignment) for the 
+    query returned by the SMT solver to obtain concrete @inputs@.
+%
+(3) Finally, we @execute@ the function @f@ on the @inputs@ to get the 
+    corresponding @output@, which we @check@ belongs to the specified 
+    @outputType@. If the @check@ fails, we return the @inputs@ as a counterexample.
+%
+After each test, \toolname, refutes the given test to force the SMT 
+solver to return a different set of inputs, and this process is repeated until 
+a user specified number of iterations. The @checkSMT@ call may fail
+to find a model meaning that we have exhaustively tested all inputs upto
+a given @testDepth@ bound. If all iterations succeed, \ie no counterexamples
+are found, then \toolname returns @Ok@, indicating that @f@ satisfies @t@ 
+up to the given depth bound.
+
+\begin{figure}[ht!]
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code} 
+target f t = do 
+  let txs = inputTypes t
+  vars  <- forM txs $ \tx -> 
+             query (proxy tx) testDepth tx -- Query
+  forM [1 .. testNum] $ \_ -> do
+    hasModel <- checkSMT 
+    when hasModel $ do
+      inputs <- forM vars decode           -- Decode
+      output <- execute f inputs                        
+      let su = zip (map binder txs) (map toReft inputs)
+      let to = outputType t `subst` su
+      (ok,_) <- check output to            -- Check
+      if ok then 
+        refuteSMT 
+      else 
+        throw (CounterExample inputs)     
+  return Ok
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Implementing \toolname via a \emph{query-decode-check} loop}\label{fig:arch}
+\end{figure}

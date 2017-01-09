@@ -1,0 +1,284 @@
+\section{Instantiating \toolname Generically}\label{sec:genericapp}
+
+\GhcGenerics defines separate types for products, data constructors, sums, and
+datatypes; and uses the @TypeFamilies@ extension~\cite{Chakravarty_ATS_2005} to define an 
+associated generic representation @Rep a@ for any algebraic datatype. For 
+example, the standard Haskell list would be represented by the generic type
+%
+\begin{code}
+  Rep [a] = C1 U1 :+: C1 (Rec0 a :*: Rec0 [a])
+\end{code}
+%
+where @C1@ denotes a data constructor, @U1@ an empty product (\eg for a nullary
+constructor), @:+:@ a sum, and @:*:@ a product. Additionally, @Rec0@ indicates a
+reference to a user-defined type, \ie values are translated to and from the
+universal representation \emph{as-needed}. We omit some of the metadata to
+highlight the structural similarity between the generic representation and the
+original data definition.
+
+\ES{TODO: explain that insight of ghc-generics is that you can treat all sums
+  equally and all products equally, so general approach is to define two
+  type-classes: one that handles sums and another that handles products.}
+
+\ES{TODO: explain that generic rep is tree-structured, NOT list.}
+
+% 3 type-specific pieces of overall approach:
+%   1. obtaining list of @Con@s to unfold at a given depth
+%   2. decoding a specific @Con@
+%   3. encoding a @Con@ 
+
+Recall that our implementation from \S~\ref{sec:list} contained three
+pieces of type-specific logic, namely
+%
+(1) obtaining a list of @Ctor@s to unfold at a given depth (@ctors@),
+%
+(2) decoding a specific @Ctor@ (@decodeCtor@), and
+%
+(3) encoding a Haskell value as a logical expression (@encode@).
+%
+We now demonstrate how to generically implement these three steps for any
+algebraic datatype, but first we will need two extensions to our refinement type
+API, which we describe in Figure~\ref{fig:rtype-ext}.
+
+\begin{figure}
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code} 
+ctorArity :: Ctor -> Int
+mkCtor    :: Proxy (C1 c f) -> Ctor
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Extensions to the refinement type API from Figure~\ref{fig:rtype}}\label{fig:rtype-ext}
+\end{figure}
+
+\begin{itemize}
+\item{@ctorArity@} returns the number of fields that a @Ctor@ has.
+\item{@mkCtor@} constructs a @Ctor@ from a \emph{proxy} for the constructor.
+\end{itemize}
+
+\subsection{Listing Constructors}\label{sec:generic-constructors}
+Let us begin by writing a function @gCtors@ that will work just like @ctors@,
+but for any datatype, \ie it will return a list of @Ctor@s that should be
+unfolded at the given depth @d@. As is standard for \GhcGenerics we will define
+a type-class for @gCtors@ and provide instances for sums, products, etc.
+\GhcGenerics uses a number of different types for which we must provide class
+instances, but only a few of the instances are interesting, which we show in
+Figure~\ref{fig:generic-query}.
+%
+\begin{figure}[ht]
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code}
+  class GCtors f where
+    gCtors :: Proxy f -> Int -> [Ctor]
+
+  instance (GCtors f, GCtors g) => GCtors (f :+: g) where
+    gCtors _ d = gCtors (Proxy :: Proxy f) d 
+              ++ gCtors (Proxy :: Proxy g) d
+
+  instance GCtors f => GCtors (C1 c f) where
+    gCtors p 0
+      | conArity c == 0 = [c]
+      | otherwise       = []
+      where
+        c = mkCtor p
+    gCtors p d
+      = [mkCtor p]
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Generic query generation}\label{fig:generic-query}
+\end{figure}
+%
+For example, to obtain the list of @Ctor@s for a sum we simply concatenate the
+lists obtained from the left- and right-hand sides of the sum.  When we reach a
+specific constructor, we compare the constructor's arity with the depth; when we
+reach depth 0 we only want to unfold \emph{nullary} constructors~\footnote{In
+  practice one might want to do something smarter, like checking the minimum
+  depth required to unfold the constructor.}.
+\ES{The (C1 c f) might be confusing because the "c" was omitted in the "Rep [a]"
+  example above...}
+Now we can replace the call to @ctors@ in @queryList@ with
+%
+\begin{code}
+  -- reproxyRep :: Proxy a -> Proxy (Rep a)
+  let cs = gCtors (reproxyRep $ proxy t) d
+\end{code}
+%
+\ES{i'm pretty sure (reproxyRep \$ proxy t) won't typecheck due to the existential..}
+making our @query@ implementation fully datatype-generic.
+
+% instance GCons f => GCons (D1 d f) where
+%   gCons _ d = gCons (Proxy :: Proxy f) d
+
+% class GHasDepth f where
+%   gHasDepth :: Proxy f -> Int -> Bool
+
+% instance (GHasDepth f, GHasDepth g) => GHasDepth (f :*: g) where
+%   gHasDepth _ d = gHasDepth (Proxy :: Proxy f) d 
+%                && gHasDepth (Proxy :: Proxy g) d
+
+% instance GHasDepth U1 where
+%   gHasDepth _ _ = True
+  
+% instance GHasDepth (Rec0 a) where
+%   gHasDepth _ 0 = False
+%   gHasDepth _ _ = True
+
+\subsection{Decode}\label{sec:generic-decode}
+Next we will tackle the process of \emph{decoding} a specific constructor from
+the model. As above, we will define a type-class and show only the interesting
+instances in Figure~\ref{fig:generic-decode}.
+%
+\begin{figure}[ht]
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code}
+  class GDecode f where
+    gDecode :: Ctor -> [Var] -> Gen f
+
+  instance (GDecode f, GDecode g) => GDecode (f :+: g) where
+    gDecode c vs =  L1 <$> gDecode c vs
+                <|> R1 <$> gDecode c vs
+
+  instance GDecodeFields f => GDecode (C1 c f) where
+    gDecode c vs 
+      | c == mkCtor (Proxy :: Proxy (C1 c f))
+      = C1 . snd <$> gDecodeFields vs
+      | otherwise
+      = empty
+
+  class GDecodeFields f where
+    gDecodeFields :: [Var] -> Gen ([Var], f)
+
+  instance Targetable a => GDecodeFields (Rec0 a) where
+    gDecodeFields (v:vs) = do
+      x <- decode v
+      return (vs, Rec0 x)
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Generic decoding of Haskell values}\label{fig:generic-decode}
+\end{figure}
+
+Given an arbitrary sum, we do not know whether the constructor we are looking
+for is in the left or right sub-sum, so we must try both.
+%
+Once we reach an individual constructor, we can check whether it is the correct
+constructor using the forementioned @mkCtor@ function. If the check is
+successful, we can go ahead and decode the constructor's fields using
+@gDecodeFields@ and wrap them up, otherwise we signal that the next element of
+the sum should be tried.
+
+@gDecodeFields@ comes from an auxiliary type-class that we use to decode the
+fields of a product. As \GhcGenerics represents sums and products as
+\emph{trees} instead of lists, we have @gDecodeFields@ return the list of
+@Var@s that still need to be decoded in addition to the decoded value.
+%
+Again, most of the instances are uninteresting and simply involve traversing the
+product while decoding each field. The interesting instance arises when we want
+to encode an individual field. Recall that products are represented with
+recursive references to the user-defined type, \eg @Rec0 [a]@. So when we reach
+an individual field, we will have to decode a value of the \emph{user-defined}
+type.
+
+We can now replace the @decodeCtor c fs'@ in our original implementation of @decode@
+with
+%
+\begin{code}
+  -- to :: Generic a => Rep a -> a
+  to <$> gDecode c xs
+\end{code}
+%
+% instance GDecode f => GDecode (D1 d f) where
+%   gDecode c vs = D1 <$> gDecode c vs
+%
+% instance (GDecodeFields f, GDecodeFields g) => GDecodeFields (f :*: g) where
+%   gDecodeFields vs = do
+%     (vs', ls)  <- gDecodeFields vs
+%     (vs'', rs) <- gDecodeFields vs'
+%     return (vs'', ls :*: rs)
+%     
+% instance GDecodeFields U1 where
+%   gDecodeFields vs = return (vs, U1)
+%
+\subsection{Check}\label{sec:generic-check}
+Finally, let us examine how to generically \emph{check} that Haskell value 
+inhabits a refinement type with the type-class in Figure~\ref{fig:generic-check}.
+%
+\begin{figure}[ht]
+\begin{mdframed}
+\begin{CenteredBox}
+\begin{code}
+  class GCheck f where
+    gCheck :: f -> RefType -> Gen (Bool,Var)
+    
+  class GCheckFields f where
+    gCheckFields :: f -> [(Var, RefType)]
+                 -> SMT (Bool, [Var], [(Var, RefType)])
+                 
+  instance GCheckFields f => GCheck (C1 c f) where
+    gCheck (C1 f) t = do
+      let c       = mkCtor (Proxy :: Proxy (C1 c f))
+      let fts     = unfold c t
+      (b, vs, _) <- gCheckFields f fts
+      v          <- apply c vs
+      let t'      = t `subst` [(binder t, v)]
+      b'         <- eval t'
+      return (b', v)
+      
+  instance Targetable a => GCheckFields (Rec0 a) where
+    gCheckFields (Rec0 a) ((f, t) : fts) = do
+      (b, v)  <- check a t
+      let fts' = fts `subst` [(f, v)]
+      return (b, [v], fts')
+\end{code}
+\end{CenteredBox}
+\end{mdframed}
+\caption{Generic checking of Haskell values against refinement types.}\label{fig:generic-check}
+\end{figure}
+
+Checking a sum just involves stripping away levels of indirection until we reach
+the actual constructor, at which point we need to unfold the constructor and
+check its fields. We then @apply@ the constructor to the resulting symbolic
+values, @subst@itute the resulting @Refinement@ for @t@'s @binder@ and
+@eval@uate the result.
+
+@gCheckFields@ checks the fields of a product, and is itself a type-class method.
+%
+As with @gDecodeFields@ the only interesting instance of @GCheckFields@ deals
+with checking an individual field, where we have a value of the user-defined
+type and must use the original @check@ method.
+
+Now we can provide a default implementation for @check@
+%
+\begin{code}
+  -- from :: Generic a => a -> Rep a
+  check v t = gCheck (from v) t
+\end{code}
+%
+thus replacing the last bit of type-specific logic in our @Targetable@
+implementation.
+
+% instance GEncode f => GEncode (D1 d f) where
+%   gEncode (D1 f) t = gEncode f t
+
+% instance (GEncode f, GEncode g) => GEncode (f :+: g) where
+%   gEncode (L1 f) = gEncode f
+%   gEncode (R1 g) = gEncode g
+
+% instance (GEncodeFields f, GEncodeFields g) => GEncodeFields (f :*: g) where
+%   gEncodeFields (f :*: g) ts = do
+%     (fs,ts')  <- gEncodeFields f ts
+%     (gs,ts'') <- gEncodeFields g ts'
+%     return (fs ++ gs, ts'')
+
+% instance GEncodeFields U1 where
+%   gEncodeFields U1 = []
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

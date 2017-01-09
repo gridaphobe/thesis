@@ -1,0 +1,549 @@
+\section{Evaluation} \label{sec:evaluation}
+
+We have built a prototype implementation of \toolname\footnote{\url{http://hackage.haskell.org/package/target-0.1.1.0}} and next, 
+describe an evaluation on a series of benchmarks ranging from 
+textbook examples of algorithms and data structures to widely 
+used Haskell libraries like \textsc{containers} and \textsc{xmonad}.
+%
+Our goal in this evaluation is two-fold. 
+%
+First, we describe micro-benchmarks (\ie functions)
+that \emph{quantitatively compare} \toolname with 
+the existing state-of-the-art, property-based testing
+tools for Haskell -- namely \smallcheck and \quickcheck\ -- 
+to determine whether \toolname is indeed able to generate
+highly constrained inputs more effectively.
+%
+Second, we describe macro-benchmarks (\ie modules) that 
+evaluate the amount of \emph{code coverage} that we 
+get from type-targeted testing.
+%
+%% Third, using our results as a base, we present a 
+%% qualitative discussion of \toolname as a \emph{gradual} 
+%% approach that bridges informal and formal verification.
+
+%% ES: This doesn't actually make any sense..
+% An important optimization in our implementation is to 
+% perform the post-condition checking in Haskell instead of by querying
+% the SMT solver. We accomplish this by adding an additional @toReft@
+% method to @Targetable@ that translates the concrete inputs that we
+% @decode@ \emph{back} into logical expressions,
+% %
+% \begin{code}
+%   toReft :: a -> Var
+% \end{code}
+% %
+% which we then substitute into the output-type before checking the
+% concrete output. @toReft@ can be simply implemented as:
+% %
+% \begin{code}
+%   toReft v = app c (map toReft vs)
+%     where (c, vs) = splitCtor v
+%           -- app :: Ctor -> [Var] -> Var
+% \end{code}
+% %
+% where @app@ is a pure version of @apply@, \ie it constructs a
+% logical expression like @apply@ but does nothing else.
+
+\input{target/results}
+
+\subsection{Comparison with \quickcheck and \smallcheck}\label{sec:comparison}
+
+We compare \toolname with \quickcheck and \smallcheck by using 
+a set of benchmarks with highly constrained inputs. 
+%
+For each benchmark we compared \toolname with \smallcheck and
+\quickcheck, with the latter two using the generate-and-filter 
+approach, wherein a value is generated and subsequently discarded if
+it does not meet the desired constraint.
+%
+While one could possibly write custom ``operational'' generators 
+for each property, the point of this evaluation is compare the 
+different approaches ability to enable ``declarative'' specification 
+driven testing.
+%
+Next, we describe the benchmarks and then summarize the results of the comparison
+(Figure~\ref{fig:comparisonresults}).
+
+
+
+\mypara{Inserting into a sorted \List}
+%
+Our first benchmark is the \Insert function from the homonymous 
+sorting routine. We use the specification that given an element 
+and a sorted list, @insert x xs@ should evaluate to a sorted list.
+We express this with the type
+%
+\begin{code}
+  type Sorted a = List <{\hd v -> hd < v}> a
+  insert :: a -> Sorted a -> Sorted a
+\end{code}
+%
+where the ordering constraint is captured by an abstract 
+refinement~\cite{Vazou13} which states that \emph{each} 
+list head @hd@ is less than every element @v@ in its tail.
+
+\mypara{Inserting into a Red-Black Tree}
+%
+Next, we consider insertion into a Red-Black tree.
+%
+\begin{code}
+  data RBT a = Leaf  | Node Col a (RBT a) (RBT a)
+  data Col   = Black | Red
+\end{code}
+%
+Red-black trees must satisfy three invariants:
+%
+(1)~red nodes always have black children,
+(2)~the black height of all paths from the root to a leaf is the same, and
+(3)~the elements in the tree should be ordered.
+%
+We capture (1) via a measure that recursively checks each @Red@ node has @Black@ children.
+%
+\begin{code}
+  measure isRB :: RBT a -> Prop
+  isRB Leaf           = true
+  isRB (Node c x l r) = isRB l && isRB r &&
+                        (c == Red => isBlack l && isBlack r)
+\end{code}
+%
+We specify (2) by defining the @Black@ height as:
+%
+\begin{code}
+  measure bh :: RBT a -> Int
+  bh Leaf           = 0
+  bh (Node c x l r) = bh l + (if c == Red then 0 else 1)
+\end{code}
+%
+and then checking that the @Black@ height of both subtrees is the same:
+%
+\begin{code}
+  measure isBH :: RBT a -> Prop
+  isBH Leaf           = true
+  isBH (Node c x l r) = isBH l && isBH r && bh l == bh r
+\end{code}
+%
+Finally, we specify the (3), the ordering invariant as:
+%
+\begin{code}
+  type OrdRBT a = RBT <{\r v -> v < r}, {\r v -> r < v}> a
+\end{code}
+%
+\ie with two abstract refinements for the left and right subtrees
+respectively, which state that the root @r@ is greater than (resp. less than)
+each element @v@ in the subtrees. Finally, a valid Red-Black tree is:
+%
+\begin{code}
+  type OkRBT a = {v:OrdRBT a | isRB v && isBH v}
+\end{code}
+%
+Note that while the specification for the \emph{internal} invariants for Red-Black
+trees is tricky, the specification for the public API -- \eg the @add@ function -- 
+is straightforward:
+%
+\begin{code}
+  add :: a -> OkRBT a -> OkRBT a
+\end{code}
+
+\mypara{Deleting from a Data.Map}\label{sec:delete-from-map}
+%
+Our third benchmark is the @delete@ function from the \hbox{@Data.Map@} module in 
+the Haskell standard libraries. The @Map@ structure is a balanced binary
+search tree that implements purely functional key-value dictionaries:
+%
+\begin{code}
+  data Map k a = Tip | Bin Int k a (Map k a) (Map k a)
+\end{code}
+%
+A valid @Data.Map@ must satisfy two properties:
+%
+(1)~the size of the left and right sub-trees must be 
+    within a factor of three of each other, and
+(2)~the keys must obey a binary search ordering.
+%
+We specify the balancedness invariant~(1) with a measure
+%
+\begin{code}
+  measure isBal :: Map k a -> Prop
+  isBal (Tip)           = true
+  isBal (Bin s k v l r) = isBal l && isBal r &&
+                          (sz l + sz r <= 1 ||
+                           sz l <= 3 * sz r <= 3 * sz l)
+\end{code}
+%
+and combine it with an ordering invariant (like @OrdRBT@) to specify valid trees.
+%
+\begin{code}
+  type OkMap k a = {v : OrdMap k a | isBal v}
+\end{code}
+%
+We can check that @delete@ preserves the invariants by 
+checking that its output is an @OkMap k a@.
+However, we can also go one step further and check 
+the functional correctness property that @delete@ 
+removes the given key, with a type:
+%
+\begin{code}
+  delete :: Ord k => k:k -> m:OkMap k a 
+         -> {v:OkMap k a | MinusKey v m k}
+\end{code}
+%
+where the predicate @MinusKey@ is defined as:
+%
+\begin{code}
+  predicate MinusKey M1 M2 K 
+    = keys M1 = difference (keys M2) (singleton K)
+\end{code}
+%
+using the measure @keys@ describing the contents of the @Map@:
+%
+\begin{code}
+  measure keys :: Map k a -> Set k
+  keys (Tip)           = empty () 
+  keys (Bin s k v l r) = union (singleton k) 
+                               (union (keys l) (keys r))
+\end{code}
+
+\mypara{Refocusing XMonad StackSets} \label{sec:refocus-stackset}
+%
+Our last benchmark comes from the tiling window manager XMonad. 
+%
+The key invariant of XMonad's internal @StackSet@ data structure 
+is that the elements (windows) must all be \emph{unique}, \ie contain
+no duplicates.
+%
+XMonad comes with a test-suite of over 100 \quickcheck properties;
+we select one which states that moving the focus between windows 
+in a @StackSet@ should not affect the \emph{order} of the windows.
+%
+\begin{code}
+  prop_focus_left_master n s =
+    index (foldr (const focusUp) s [1..n]) == index s
+\end{code}
+%
+With \quickcheck, the user writes a custom generator for valid @StackSet@s
+and then runs the above function on test inputs created by the generator, 
+to check if in each case, the result of the above is @True@.
+
+With \toolname, it is possible to test such properties \emph{without} 
+requiring custom generators. Instead the user writes a declarative 
+specification:
+%
+\begin{code}
+  type OkStackSet = {v:StackSet | NoDuplicates v}
+\end{code}
+%
+(We refer the reader to~\cite{VazouRealWorld14} for a full 
+discussion of how to specify @NoDuplicates@).
+%
+Next, we define a refinement type:
+%
+\begin{code}
+  type TTrue = {v:Bool | Prop v}
+\end{code}
+%
+that is only inhabited by @True@, and use it to type the \quickcheck 
+property as:
+%
+\begin{code}
+  prop_focus_left_master :: Nat -> OkStackSet -> TTrue 
+\end{code}
+%
+This property is particularly difficult to \emph{verify}; however,
+\toolname is able to automatically
+generate valid inputs to \emph{test} that @prop_focus_left_master@
+always returns @True@.
+
+%%% The high level of abstraction inherent in the @StackSet@ definition
+%%% works in our favor here, as we can instantiate the relevant type parameter (the
+%%% window) to \Char and leave the others as @()@ to drastically reduce
+%%% the search space.
+
+
+\mypara{Results}
+%
+Figure~\ref{fig:comparisonresults} summarizes the results of the comparison.
+%
+\quickcheck was unable to successfully complete \emph{any} 
+benchmark to the low probability of generating properly 
+constrained values at random.
+
+\begin{description}
+\item[List Insert] \toolname is able to test @insert@ all the way to 
+   depth 20, whereas \lazysmallcheck times out at depth 19.
+
+\item[Red-Black Tree Insert] \toolname is able to test @add@ up to depth 12,
+  while \lazysmallcheck times out at depth 6.
+  
+\item[Map Delete] \toolname is able to check @delete@ up to depth 10, whereas
+   \lazysmallcheck times out at depth 7 if it checks ordering first,
+    or depth 6 if it checks balancedness first.
+
+\item[StackSet Refocus] \toolname and is able to check this property 
+    up to depth 8, while \lazysmallcheck times out at depth 7.
+\end{description}
+
+\toolname sees a performance hit with properties 
+that require reasoning with the theory of Sets \eg 
+the no-duplicates invariant of @StackSet@. 
+%
+While \lazysmallcheck times out at a higher depths, when it completes
+\eg at depth 6, it does so in 0.7s versus \toolname's 9 minutes.
+%
+We suspect this is because the theory of sets are a relatively recent
+addition to SMT solvers \cite{arrayZ3}, and with further improvements 
+in SMT technology, these numbers will get significantly better.
+
+
+Overall, we found that for \emph{small inputs} \lazysmallcheck 
+is substantially faster as exhaustive enumeration is tractable,
+and does not incur the overhead of communicating with an external 
+general-purpose solver.
+%
+Additionally, \lazysmallcheck benefits from pruning predicates 
+that exploit laziness and only force a small portion of the 
+structure (\eg ordering). 
+%
+However, we found that constraints that force the entire 
+structure (\eg balancedness), or composing predicates in the 
+wrong \emph{order}, can force \lazysmallcheck to enumerate 
+the entire exponentially growing search space.
+
+\toolname, on the other hand, scales nicely to larger input sizes,
+allowing systematic and exhaustive testing of larger, more complex
+inputs. This is because \toolname eschews \emph{explicit} 
+enumeration-and-filtering (which results in searching for 
+fewer needles in larger haystacks as the sizes increas), 
+in favor of \emph{symbolically} searching for valid models 
+via SMT, making \toolname robust to the strictness or ordering 
+of constraints.
+
+
+
+\subsection{Measuring Code Coverage}\label{sec:code-coverage}
+
+The second question we seek to answer is whether \toolname is suitable for testing entire
+libraries, \ie how much of the program can be automatically exercised using our
+system? Keeping in mind the well-known issues with treating code coverage as an
+indication of test-suite quality~\cite{marick1999misuse}, we
+consider this experiment a negative filter.
+
+To this end, we ran \toolname against the entire user-facing API of 
+\hbox{@Data.Map@,} our @RBTree@ library, and @XMonad.StackSet@ -- using 
+the constrained refined types (\eg @OkMap@, @OkRBT@, @OkStackSet@) as 
+the specification for the exposed types -- and measured the expression 
+and branch coverage, as reported by @hpc@~\cite{gill2007haskell}.
+%
+We used an increasing timeout ranging from one to thirty minutes
+per exported function.
+
+\mypara{Results}
+%
+The results of our experiments are shown in Figure~\ref{fig:coverage}. 
+Across all three libraries, \toolname achieved at least 70\% expression 
+and 64\% alternative coverage at the shortest timeout of one minute per function. 
+Interestingly, the coverage metrics for @RBTree@ and @Data.Map@ remain relatively constant as we increase
+the timeouts, with a small jump in expression coverage between 10 and 20 minutes.
+@XMonad@ on the other hand, jumps from 70\% expression and 64\% alternative
+coverage with a one minute timeout, to 96\% expression and 94\% alternative
+with a ten minute timeout.
+
+% @Data.Map@ and @RBTree@ show no change in coverage metrics 
+% beyond a 5 minute timeout, while @XMonad@ has another bump in coverage 
+% between 10 and 15 minutes.
+
+There are three things to consider when examining these results. 
+%
+First is that some expressions are not evaluated due to Haskell's 
+laziness (\eg the values contained in a @Map@). 
+%
+Second is that some expressions \emph{should not} be evaluated 
+and some branches \emph{should not} be taken, as these only happen
+when an unexpected error condition is triggered (\ie these expressions
+should be dead code).
+%
+\toolname considers any inputs that trigger an uncaught exception a 
+valid counterexample; the pre-conditions should rule out these inputs, 
+and so we expect not to cover those expressions with \toolname.
+
+The last remark is not intrinsically related to \toolname, 
+but rather our means of collecting the coverage data. @hpc@ includes 
+@otherwise@ guards in the ``always-true'' category, even though they 
+cannot evaluate to anything else. 
+%
+@Data.Map@ contained 56 guards, of which 24 were marked ``always-true''. We
+manually counted 21 \hbox{@otherwise@} guards, the remaining 3 ``always-true''
+guards compared the size of subtrees when rebalancing to determine whether a
+single or double rotation was needed; we were unable to trigger the double
+rotation in these cases.
+%
+\hbox{@XMonad@} contained 9 guards, of which 4 were ``always-true''. 3 of these
+were @otherwise@ guards; the remaining ``always-true'' guard dynamically checked
+a function's pre-condition. If the pre-condition check had failed an error would
+have been thrown by the next case, we consider it a success of \toolname that
+the error branch was not triggered.
+
+
+\begin{figure}[t!]
+\centering
+% \includegraphics[width=0.49\linewidth]{figs/MapCoverage}
+% \includegraphics[width=0.49\linewidth]{figs/XMonad-StackSetCoverage}
+% \includegraphics[width=0.49\linewidth]{figs/RBTreeCoverage}
+  \begin{tikzpicture}
+    \begin{groupplot}[
+      group style = {group size = 3 by 1, horizontal sep=15pt,},
+      groupplot ylabel={\% Coverage},
+      groupplot xlabel={Timeout (min)},
+      group/only outer labels,
+      ymin=0,
+      ymax=1
+    ]
+    % \begin{axis}[
+    \nextgroupplot[
+      title=\textsc{Data.Map},
+      legend columns=3,
+      legend entries={expressions,booleans,always-true,always-false,alternatives,local-functions},
+      legend to name=legend,
+    ]
+    \addplot table[smooth,col sep=comma,x index=0,y index=1] {target/csv/MapCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=2] {target/csv/MapCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=3] {target/csv/MapCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=4] {target/csv/MapCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=5] {target/csv/MapCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=6] {target/csv/MapCoverage.csv};
+    % \end{axis}
+  % \end{tikzpicture}
+  % \begin{tikzpicture}
+    % \begin{axis}[
+    \nextgroupplot[
+      title=\textsc{XMonad.StackSet},
+    ]
+    \addplot table[smooth,col sep=comma,x index=0,y index=1] {target/csv/StackSetCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=2] {target/csv/StackSetCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=3] {target/csv/StackSetCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=4] {target/csv/StackSetCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=5] {target/csv/StackSetCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=6] {target/csv/StackSetCoverage.csv};
+    % \end{axis}
+  % \end{tikzpicture}
+  % \begin{tikzpicture}
+    % \begin{axis}[
+    \nextgroupplot[
+      title=\textsc{RBTree}
+    ]
+    \addplot table[smooth,col sep=comma,x index=0,y index=1] {target/csv/RBTreeCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=5] {target/csv/RBTreeCoverage.csv};
+    \addplot table[smooth,col sep=comma,x index=0,y index=6] {target/csv/RBTreeCoverage.csv};
+    % \end{axis}
+    \end{groupplot}
+  \end{tikzpicture}\\
+  \ref{legend}
+% \begin{verbatim}
+% 81% expressions used (2202/2712)
+% 42% boolean coverage (24/57)
+%      41% guards (23/56), 26 always True,
+%          3 always False, 4 unevaluated
+%     100% 'if' conditions (1/1)
+%     100% qualifiers (0/0)
+% 95% alternatives used (370/388)
+% 98% local declarations used (49/50)
+% 92% top-level declarations used (134/145)
+% \end{verbatim}
+\caption{Coverage-testing of \texttt{Data.Map.Base}, \texttt{RBTree}, and
+  \texttt{XMonad.StackSet} using \toolname. Each exported function was tested
+  with increasing depth limits until a single run hit a timeout ranging from one
+  to thirty minutes. Lower is better for ``always-true'' and ``always-false'',
+  higher is better for everything else.}\label{fig:coverage}
+\end{figure}
+
+%%% NUKE \ES{can we use an hpc overlay to make it ignore the "always true" otherwise
+%%% NUKE   guards? seems the party line is that one should focus on expression and
+%%% NUKE   alternative coverage, not boolean... so perhaps we can report expression, alternative, and alwaysFalse}
+%%% NUKE \RJ{Dont know what you mean, is this note LIVE? or can we DELETE?}
+
+% Although
+% @hpc@ reports only 42\% boolean coverage for @Data.Map@, manual inspection
+% revealed that 22 of the guards marked by @hpc@ as ``always True'' are
+% @otherwise@ guards and can never be false. In that light, it would be more
+% accurate to consider 46/57 booleans as covered, \ie 82\% coverage. The remaining
+% ``always True'' branches compared the size of subtrees when rebalancing to
+% determine whether a single or double rotation was needed, in some cases we were
+% unable to generate sufficiently large trees in one minute to trigger a double
+% rotation. The two guards that were always false were due to the simplistic
+% generator we currently use for higher-order functions always returning false.
+
+\subsection{Discussion}\label{sec:discussion}
+
+To sum up, our experiments demonstrate that \toolname generates valid inputs:
+%
+(1) where \quickcheck fails outright, due to the low probability of
+    generating random values satisfying a property;
+%
+(2) more efficiently than \lazysmallcheck, which relies on lazy
+    pruning predicates; and
+%
+(3) providing high code coverage for real-world libraries with no
+    hand-written test cases.
+
+% \subsection{Limitations of \toolname}\label{sec:limitations}
+
+Of course our approach is not without drawbacks; we highlight five classes
+of pitfalls the user may encounter.
+
+\mypara{Laziness} in the function or in the output refinement can cause exceptions
+  to go un-thrown if the output value is not fully demanded. For example,
+  \toolname would decide that the result @[1, undefined]@ inhabits @[Int]@ but not
+  @[Score]@, as the latter would have to evaluate @0 <= undefined < 100@. This
+  limitation is not specific to our system, rather it is fundamental to any tool
+  that exercises lazy programs. Furthermore, \toolname only generates
+  inductively-defined values, it cannot generate infinite or cyclic structures,
+  nor will the generated values ever contain $\bot$.
+
+\mypara{Polymorphism} Like any other tool that actually runs the function under scrutiny,
+  \toolname can only test monomorphic instantiations of polymorphic
+  functions. For example, when testing @XMonad@ we instantiated the ``window''
+  parameter to @Char@ and all other type parameters to @()@, as the properties
+  we were testing only examined the window. This helped drastically reduce the
+  search space, both for \toolname and \smallcheck.
+
+  % Our monomorphism restriction simplifies \toolname's implementation as we do
+  % not have to consider type-class or equality constraints when generating test
+  % values, but it also reduces the generalizability of \toolname's
+  % result. 
+  % Parametricity helps by telling us that the choice of
+  % concrete instantiation will not affect the behavior of the function, but
+  % in the presence of type-classes the benefit is reduced as we only know that
+  % the specific instance we tested is correct.
+
+\mypara{Advanced type-system features} such as GADTs and Existential types
+  may prevent GHC from deriving a @Generic@ instance, which would force the
+  programmer to write her own @Targetable@ instance. Though tedious, the single
+  hand-written instance allows \toolname to automatically generate values
+  satisfying disparate constraints, which is still an improvement over the
+  generate-and-filter approach.
+  
+\mypara{Refinement types} are less expressive than properties written in the
+  host language. If the pre-conditions are not expressible in \toolname's logic,
+  the user will have to use the generate-and-filter approach, losing the benefits
+  of symbolic enumeration.
+  
+\mypara{Input explosion} \toolname excels when the space of valid inputs is
+  a sparse subset of the space of all inputs. If the input space is not
+  sufficiently constrained, \toolname may spend lose its competitive advantage
+  over other tools due to the overhead of using a general-purpose solver.
+
+%% 1. laziness
+%%    - potential for untriggered exceptions
+%%    - our generated values never include bot
+%% 2. Advanced type-system features
+%%    - we can only provide default instances for Generic types
+%%      - no GADTs or existentials
+%% 3. Polymorphic functions
+%%    - can only test monomorphic instantiation
+%%    - types must be defaulted either by user or GHC
+%%    - limitation shared by any testing tool
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

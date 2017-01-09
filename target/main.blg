@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2015)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: splncs03.bst
+Database file #1: sw.bib
+Warning--empty booktitle in Claessen14Flops
+Warning--empty booktitle in gill2007haskell
+Warning--empty booktitle in Koksal:2012:CC:2103656.2103675
+Warning--empty booktitle in Marinov:2001:TNF:872023.872551
+Warning--missing publisher in tillmann_pexwhite_2008
+You've used 29 entries,
+            2785 wiz_defined-function locations,
+            745 strings with 8480 characters,
+and the built_in function-call counts, 15147 in all, are:
+= -- 1239
+> -- 483
+< -- 14
++ -- 201
+- -- 170
+* -- 885
+:= -- 1993
+add.period$ -- 45
+call.type$ -- 29
+change.case$ -- 217
+chr.to.int$ -- 0
+cite$ -- 34
+duplicate$ -- 1377
+empty$ -- 1422
+format.name$ -- 194
+if$ -- 3319
+int.to.chr$ -- 0
+int.to.str$ -- 29
+missing$ -- 281
+newline$ -- 92
+num.names$ -- 58
+pop$ -- 600
+preamble$ -- 1
+purify$ -- 143
+quote$ -- 0
+skip$ -- 405
+stack$ -- 0
+substring$ -- 699
+swap$ -- 647
+text.length$ -- 14
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 116
+warning$ -- 5
+while$ -- 118
+width$ -- 31
+write$ -- 286
+(There were 5 warnings)
