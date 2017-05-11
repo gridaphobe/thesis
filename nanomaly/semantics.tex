@@ -190,15 +190,16 @@ an if-expression tells us the condition must be a boolean.
 When a hole appears in such a context, we know what type it must have
 in order to make progress and can fill it in with a concrete value.
 
-The evaluation relation is parameterized by a pair of functions:
-called \emph{narrow} (\forcesym) and \emph{generate} (\gensym),
+The evaluation relation is parameterized by a pair of functions,
+\emph{narrow} (\forcesym) and \emph{generate} (\gensym),
 that ``dynamically'' perform type-checking and hole-filling
 respectively.
 
-\paragraph{Narrowing Types} The procedure % $\force{v}{t}{\vsu}{\tsu}$,
-$$
+\paragraph{Narrowing Types}
+The procedure % $\force{v}{t}{\vsu}{\tsu}$,
+\[
 \forcesym : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu}
-$$
+\]%
 defined in Figure~\ref{fig:narrow}, takes as input a value $v$, a type
 $t$, and the current value and type substitutions, and refines $v$ to
 have type $t$ by yielding a triple of either the same value and
@@ -207,11 +208,11 @@ possible. In the case where $v$ is a hole, it first checks in the given
 $\vsu$ to see if the hole has already been instantiated and, if so,
 returns the existing instantiation.
 %
-\begin{figure*}[t]
-$$
-\begin{array}{lcl}
+\begin{figure}[t]
+\[
+\begin{array}{lll}
 %% \multicolumn{3}{l}{\forcesym \ :: \  (e, t) \rightarrow \pair{e}{\vsu}} \\
-\forcesym                  & : & v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu} \\
+\forcesym                  & : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu} \\
 % \force{v}{\thole}{\vsu}{\tsu}  & \defeq & \hspace{-1ex}
 % \begin{cases}
 %   \triple{v}{\vsu}{\tsu'} & \mbox{if } \tsu' = \unify{\{\typeof{v}, \thole\}}{\tsu} \\
@@ -220,13 +221,13 @@ $$
 %   % \force{v}{\subst{\tsu}{\thole}}{\vsu}{\tsu} & \mbox{if}\ \thole \in dom(\tsu) \\
 %   % \triple{v}{\vsu}{\extendsu{\tsu}{\thole}{\typeof{v}}} & \mbox{otherwise} \\
 % \end{cases} \\
-\force{\vhole{\thole}}{t}{\vsu}{\tsu} & \defeq & \hspace{-1ex}
+\force{\vhole{\thole}}{t}{\vsu}{\tsu} & \defeq % \hspace{-1ex}
 \begin{cases}
-  \triple{v}{\vsu}{\tsu'}    & \mbox{if } v = \lookupsu{\vsu}{\vhole{\thole}},
-                                         \tsu' = \unify{\{\thole, t, \typeof{v}\}}{\tsu}\\
-  \triple{\stuck}{\vsu}{\tsu} & \mbox{if } v = \lookupsu{\vsu}{\vhole{\thole}} \\
-  \triple{v}{\extendsu{\vsu}{\vhole{\thole}}{v}}{\tsu'} & \mbox{if}\ \tsu' = \unify{\{\thole, t\}}{\tsu}, v = \gen{t}{\tsu'}\\
-\end{cases} \\
+  \triple{v}{\vsu}{\tsu'}    &\ \textbf{if} \begin{array}{l} v = \lookupsu{\vsu}{\vhole{\thole}}, \\
+                                         \tsu' = \unify{\{\thole, t, \typeof{v}\}}{\tsu}\end{array} \\
+  \triple{\stuck}{\vsu}{\tsu} &\ \textbf{if} \begin{array}{l} v = \lookupsu{\vsu}{\vhole{\thole}}\end{array} \\
+  \triple{v}{\extendsu{\vsu}{\vhole{\thole}}{v}}{\tsu'} &\ \textbf{if} \begin{array}{l} \tsu' = \unify{\{\thole, t\}}{\tsu}, \\ v = \gen{t}{\tsu'} \end{array}\\
+\end{cases}  \\
 % \begin{cases}
 %   \triple{\lookupsu{\vsu}{\ehole}}{\vsu}{\tsu} & \mbox{if}\ \ehole \in dom(\vsu), \hastype{\lookupsu{\vsu}{\ehole}}{t} \\
 %   \triple{\stuck}{\vsu}{\tsu}                  & \mbox{if}\ \ehole \in dom(\vsu) \\
@@ -236,18 +237,18 @@ $$
     % \mathtt{if}\ i \in \vsu\ \mathtt{then}\ \triple{\vsu(i)}{\vsu}\ \mathtt{else} \\
          % \elet{v}{\gen{t}}{\triple{v}{\ehole{i} \mapsto v}}
   % \end{array} \\
-\force{n}{\tint}{\vsu}{\tsu}     & \defeq & \triple{n}{\vsu}{\tsu} \\
-\force{b}{\tbool}{\vsu}{\tsu}    & \defeq & \triple{b}{\vsu}{\tsu} \\
-\force{\efun{x}{e}}{\tfun}{\vsu}{\tsu} & \defeq & \triple{\efun{x}{e}}{\vsu}{\tsu} \\
-\force{\epair{v_1}{v_2}}{\tprod{t_1}{t_2}}{\vsu}{\tsu} & \defeq & \triple{\epair{v_1}{v_2}}{\vsu}{\tsu''}, \mbox{if}\ \tsu' = \unify{\{\typeof{v_1}, t_1\}}{\tsu}, \tsu'' = \unify{\{\typeof{v_2}, t_2\}}{\tsu'}  \\
-\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu} & \defeq & \triple{\vleaf{t_1}}{\vsu}{\tsu'}, \mbox{if}\ \tsu' = \unify{\{t_1, t_2\}}{\tsu} \\
-\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu} & \defeq & \triple{\vnode{t_1}{v_1}{v_2}{v_3}}{\vsu}{\tsu'}, \mbox{if}\ \tsu' = \unify{\{t_1, t_2\}}{\tsu} \\
-\force{v}{t}{\vsu}{\tsu} & \defeq & \triple{\stuck}{\vsu}{\tsu}
+\force{n}{\tint}{\vsu}{\tsu}     & \defeq \triple{n}{\vsu}{\tsu} \\
+\force{b}{\tbool}{\vsu}{\tsu}    & \defeq \triple{b}{\vsu}{\tsu} \\
+\force{\efun{x}{e}}{\tfun}{\vsu}{\tsu} & \defeq \triple{\efun{x}{e}}{\vsu}{\tsu} \\
+\force{\epair{v_1}{v_2}}{\tprod{t_1}{t_2}}{\vsu}{\tsu} & \defeq \triple{\epair{v_1}{v_2}}{\vsu}{\tsu''} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{\typeof{v_1}, t_1\}}{\tsu},\\ \tsu'' = \unify{\{\typeof{v_2}, t_2\}}{\tsu'} \end{array} \\
+\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu} & \defeq \triple{\vleaf{t_1}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array}\\
+\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu} \hspace{-3mm} & \defeq \triple{\vnode{t_1}{v_1}{v_2}{v_3}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array} \\
+\force{v}{t}{\vsu}{\tsu} & \defeq \triple{\stuck}{\vsu}{\tsu}
 \end{array}
-$$
+\]
 \caption{Narrowing values}
 \label{fig:narrow}
-\end{figure*}
+\end{figure}
 %
 %While a hole may map to a value that \emph{contains} another hole, \eg a
 %lambda or a tree, it may not map \emph{directly} to another hole,
@@ -279,7 +280,7 @@ in later, on demand.
 
 
 \begin{figure}[t]
-$$
+\[
 \begin{array}{lcll}
 \gensym       & :   & t \times \tsu \rightarrow v \\
 \gen{\thole}{\tsu}  & \defeq  & \gen{\subst{\tsu}{\thole}}{\tsu} &  \text{if } \thole \in dom(\tsu) \\
@@ -290,7 +291,7 @@ $$
 \gen{\tfun}{\tsu}   & \defeq & \efun{x}{\vhole{\thole}} &  \text{\ehole, \thole are fresh} \\
 \gen{\thole}{\tsu}  & \defeq & \vhole{\thole} & \text{\ehole is fresh} \\
 \end{array}
-$$
+\]
 \caption{Generating values}
 \label{fig:gen}
 \end{figure}
@@ -325,8 +326,8 @@ $\triple{\estuck_0}{\vsu_0}{\tsu_0}, \ldots, \triple{\estuck_n}{\vsu_n}{\tsu_n}$
 $\forall 0 \leq i < n$, we have
 $\step{\estuck_i}{\vsu_i}{\tsu_i}{\estuck_{i+1}}{\vsu_{i+1}}{\tsu_{i+1}}$.
 %
-We write \steptr{\trace}{\estuck}{\vsu}{\tsu}{\estuck'}{\vsu'}{\tsu'} if $\trace$ is
-a trace of the form $\triple{\estuck}{\vsu}{\tsu},\ldots,\triple{\estuck'}{\vsu'}{\tsu'}$.
+We write $\steptr{\trace}{\estuck}{\vsu}{\tsu}{\estuck'}{\vsu'}{\tsu'}$ if $\trace$ is
+a trace of the form $\triple{\estuck}{\vsu}{\tsu},\ldots,$ $\triple{\estuck'}{\vsu'}{\tsu'}$.
 %
 We write \steps{\estuck}{\vsu}{\tsu}{\estuck'}{\vsu'}{\tsu'} if
 \steptr{\trace}{\estuck}{\vsu}{\tsu}{\estuck'}{\vsu'}{\tsu'} for some trace $\trace$.
@@ -393,12 +394,12 @@ if we have $\steps{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\
 then \emph{for every} concrete type $t$, we can find a value
 $v$ of type $t$ such that $\eapp{f}{v}$ goes wrong.
 
-\begin{thm}{\textbf{[Witness Generality]}}
+\begin{thm}[Witness Generality]
 \label{thm:soundness}
   For any lambda-term $f$, if
   \hbox{$\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$,}
   then for every
-  (inhabited\footnote{All types in our formalism are inhabited, but in a larger language like \ocaml this may not be the case.})
+  (inhabited\footnote{All types in \lang are inhabited, but in a larger language like \ocaml this may not be true.})
   type
   % \footnote{We exclude builtin functions that subvert the type system, \eg \texttt{Obj.magic}, and thus consider the type $\forall a b. \tfun{a}{b}$ to be uninhabitable.}
   $t$ there exists a value $v$ of type $t$ such that
@@ -603,7 +604,7 @@ then $\tsu' = \tsu[\thole_1 \mapsto t_1] \ldots [\thole_n \mapsto t_n]$.
   $\thole$ does not change, so if the partial input types differ then
   $\tsu \neq \tsu'$.
   %
-  Note that only \forcesym\ can change \tsu,
+  Only \forcesym\ can change \tsu,
   %, and it can only do so via \unifysym
   via \unifysym, which can only extend \tsu.
   % and only the first case,
@@ -626,7 +627,7 @@ $\vsub{\ptype{\trace}{f}}{\resolve{\vhole{\thole}}{\vsu}}$.
   By induction on $\trace$.
   %
   In the base case $\trace = \triple{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}$
-  and $\thole$ is trivially a refinement of $\vhole{\thole}$.
+  and $\thole$ trivially refines $\vhole{\thole}$.
   %
   In the inductive case, consider the single-step extension of $\trace$,
   $\trace' = \trace,\triple{e'}{\vsu'}{\tsu'}$.
@@ -806,7 +807,6 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
 % \end{description}
 % \end{proof}
 
-\pagebreak
 \begin{proof}[\textbf{Proof of Theorem~\ref{thm:soundness}}]
 %
 Suppose $\trace$ witnesses that $f$ gets stuck,
@@ -827,7 +827,7 @@ compatible with $s$. %the partial type upto $\trace$.
 % \item [Case \tincompat{s}{t}:] By Lemma~\ref{lem:k-stuck}, every $v$
 %   such that \hastype{v}{t} demonstrates that $\eapp{f}{v}$ gets stuck.
 %   % \ES{do we need to say anythign else?}
-\qedhere
+% \qedhere
 \end{description}
 \end{proof}
 
@@ -840,8 +840,9 @@ wrong for at least one input of every type).
 In particular, we have shown how to non-deterministically find a witnesses
 for a function of a \emph{single} argument.
 
-In order to convert the semantics into a \emph{procedure} for finding
-witnesses, we must address two challenges.
+We must address two challenges
+to convert the semantics into a \emph{procedure} for finding
+witnesses.
 %
 First, we must resolve the non-determinism introduced by \gensym.
 %
@@ -870,7 +871,7 @@ traces are finite.} and
 (2) the target expression $e$ that contains the type error
 (which may be a curried function of multiple arguments).
 %
-The witness generation procedure returns as output a list of (general)
+The witness generation procedure returns a list of (general)
 witness expressions, each of which is of the form $e\ v_1 \ldots v_n$.
 %
 The \emph{empty} list is returned when no witness can be found after
@@ -958,15 +959,15 @@ The search proceeds as follows.
 %
 We obtain the following corollary of Theorem~\ref{thm:soundness}:
 
-\begin{cor}{\textbf{[Witness Generation]}}
+\begin{cor}[Witness Generation]
 \label{thm:generation}
-  If $$\genWitness{k}{e} = \triple{\eapp{e}{v_1 \ldots v_n}}{\vsu}{\tsu},\ldots$$
+  If $\genWitness{k}{e} = \triple{\eapp{e}{v_1 \ldots v_n}}{\vsu}{\tsu},\ldots$
   then for all types $t_1 \ldots t_n$ there exist values $w_1 \ldots w_n$ such that
   $\steps{\eapp{e}{w_1 \ldots w_n}}{\emptysu}{\emptysu}{\stuck}{\vsu'}{\tsu'}$.
 \end{cor}
 \begin{proof}
-  For any function $f$ of multiple arguments, we can define $f'$ to be
-  the uncurried version of $f$ that takes all of its arguments as a single
+  For any function $f$ of multiple arguments, we can define $f'$ as the
+  uncurried version of $f$ that takes all of its arguments as a single
   nested pair, and then apply Theorem~\ref{thm:soundness} to $f'$.
 \end{proof}
 

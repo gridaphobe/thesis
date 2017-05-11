@@ -14,7 +14,8 @@
 \newcommand\eg{\textit{e.g.}\xspace}
 \newcommand\ie{\textit{i.e.}\xspace}
 \newcommand\ala{\textit{a la}\xspace}
-\newcommand\etal{et al.\xspace}
+\newcommand\etal{\textit{et al.}\xspace}
+\newcommand\resp{\textit{resp.}\xspace}
 
 \def\emphbf#1{\textbf{\emph{#1}}}
 \def\spmid{\ \mid\ }
@@ -24,6 +25,7 @@
 \newcommand{\lang}{\ensuremath{\lambda^{H}}\xspace}
 \newcommand{\ocaml}{\textsc{OCaml}\xspace}
 \newcommand{\sherrloc}{\textsc{SHErrLoc}\xspace}
+\newcommand{\mycroft}{\textsc{Mycroft}\xspace}
 \newcommand{\haskell}{\textsc{Haskell}\xspace}
 \newcommand{\java}{\textsc{Java}\xspace}
 \newcommand{\ruby}{\textsc{Ruby}\xspace}
@@ -32,8 +34,8 @@
 \newcommand{\ucsdbench}{\textsc{UCSD}\xspace}
 % \newcommand{\ucsdbench}{\textsc{AUTHORS}\xspace}
 
-\newcommand{\uwsize}{284\xspace}
-\newcommand{\ucsdsize}{4,407\xspace}
+\newcommand{\uwsize}{291\xspace}
+\newcommand{\ucsdsize}{4,509\xspace}
 
 \newcommand\efun[2]{\ensuremath{\lambda #1. #2}\xspace}
 \newcommand\eapp[2]{\ensuremath{#1\ #2}\xspace}
@@ -86,7 +88,7 @@
 \newcommand\tincompat[2]{\ensuremath{#1 \nsim #2}}
 \newcommand\vincompat[2]{\tincompat{#1}{#2}}
 
-\newcommand\typeofsym{\ensuremath{\mathsf{typeof}}\xspace}
+\newcommand\typeofsym{\ensuremath{\mathsf{ty}}\xspace}
 \newcommand\typeof[1]{\ensuremath{\typeofsym(#1)}\xspace}
 \newcommand\ptype[2]{\ensuremath{\rho_{#1}(#2)}\xspace}
 
@@ -114,9 +116,10 @@
 \newcommand\inctx[1]{\ensuremath{C\left[#1\right]}\xspace}
 % \newcommand\invctx[1]{\ensuremath{V\left[#1\right]}\xspace}
 % \newcommand\intctx[1]{\ensuremath{T\left[#1\right]}\xspace}
+\newcommand\generalize[2]{\ensuremath{\mathsf{generalize}(#1,#2)}}
 
 
-\newcommand\dcolon{\ensuremath{\colon\!\!\colon}}
+% \newcommand\dcolon{\ensuremath{\colon\!\!\colon}}
 \newcommand\vsu{\ensuremath{\sigma}}
 \newcommand\su{\ensuremath{\vsu}}
 \newcommand\tsu{\ensuremath{\theta}}
@@ -134,27 +137,27 @@
 \newcommand\subst[2]{\ensuremath{#1(#2)}}
 \newcommand\sub[2]{\ensuremath{\left[#2/#1\right]}}
 \newcommand\rulename[1]{\textsc{#1}\xspace}
-\newcommand{\recontext}{\rulename{E-Context}}
-\newcommand{\restuck}{\rulename{E-Stuck}}
-\newcommand{\replusgood}{\rulename{E-Plus-Good}}
-\newcommand{\replusbadone}{\rulename{E-Plus-Bad1}}
-\newcommand{\replusbadtwo}{\rulename{E-Plus-Bad2}}
-\newcommand{\reifgoodone}{\rulename{E-If-Good1}}
-\newcommand{\reifgoodtwo}{\rulename{E-If-Good2}}
-\newcommand{\reifbad}{\rulename{E-If-Bad}}
-\newcommand{\reappgood}{\rulename{E-App-Good}}
-\newcommand{\reappbad}{\rulename{E-App-Bad}}
-\newcommand{\relet}{\rulename{E-Let}}
-\newcommand{\renodegood}{\rulename{E-Node-Good}}
-\newcommand{\renodebadone}{\rulename{E-Node-Bad1}}
-\newcommand{\renodebadtwo}{\rulename{E-Node-Bad2}}
-\newcommand{\releafgood}{\rulename{E-Leaf-Good}}
-\newcommand{\recasegoodone}{\rulename{E-Case-Good1}}
-\newcommand{\recasegoodtwo}{\rulename{E-Case-Good2}}
-\newcommand{\recasebad}{\rulename{E-Case-Bad}}
-\newcommand{\repcasegood}{\rulename{E-Case-Pair-Good}}
-\newcommand{\repcasebad}{\rulename{E-Case-Pair-Bad}}
-\newcommand{\reholegood}{\rulename{E-Hole-Good}}
+\newcommand{\recontext}{\rulename{Context}}
+\newcommand{\restuck}{\rulename{Stuck}}
+\newcommand{\replusgood}{\rulename{Plus-G}}
+\newcommand{\replusbadone}{\rulename{Plus-B1}}
+\newcommand{\replusbadtwo}{\rulename{Plus-B2}}
+\newcommand{\reifgoodone}{\rulename{If-G1}}
+\newcommand{\reifgoodtwo}{\rulename{If-G2}}
+\newcommand{\reifbad}{\rulename{If-B}}
+\newcommand{\reappgood}{\rulename{App-G}}
+\newcommand{\reappbad}{\rulename{App-B}}
+\newcommand{\relet}{\rulename{Let}}
+\newcommand{\renodegood}{\rulename{Node-G}}
+\newcommand{\renodebadone}{\rulename{Node-B1}}
+\newcommand{\renodebadtwo}{\rulename{Node-B2}}
+\newcommand{\releafgood}{\rulename{Leaf-G}}
+\newcommand{\recasegoodone}{\rulename{Case-G1}}
+\newcommand{\recasegoodtwo}{\rulename{Case-G2}}
+\newcommand{\recasebad}{\rulename{Case-B}}
+\newcommand{\repcasegood}{\rulename{Case-Pair-G}}
+\newcommand{\repcasebad}{\rulename{Case-Pair-B}}
+\newcommand{\reholegood}{\rulename{Hole-G}}
 
 
 \newcommand{\relDescription}[1]{\ensuremath{\textrm{\textbf{#1}}}}

@@ -6,18 +6,22 @@ import numpy as np
 UCSD = 'UCSD'
 
 BUCKETS = [0.1, 0.2, 1.0, 10.0, 60.0 ] # range(500, 3001, 500)
-COLORS=['#90B0D4', '#90D492', '#D4B490', '#D490D2']
-#COLORS=['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33']
+#COLORS=['#90B0D4', '#90D492', '#D4B490', '#D490D2']
+COLORS=['#8dd3c7','#bebada','#ffffb3','#fb8072','#80b1d3','#fdb462']
+COLORS_E=['#8dd3c7','#bebada','#80b1d3','#ffffb3','#fdb462','#fb8072']
 
-SAFE = ['S', 'T']
-SAFE_L = ['Safe', 'Timeout']
+SAFE = ['S', 'T', 'H']
+SAFE_L = ['Safe', 'Timeout', 'Hole']
 UNSAFE = ['U', 'B', 'D'] #, 'O']
 UNSAFE_L = ['Unsafe', 'Unbound', 'Diverge'] #, 'Output']
 ALL = UNSAFE + SAFE
 ALL_L = UNSAFE_L + SAFE_L
 
-ALL_D = [ ['U'], ['B'], ['D'], ['S', 'T']]
+ALL_D = [ ['U', 'O'], ['B'], ['D'], ['S', 'T', 'H']]
 ALL_DL = [ 'Witness', 'Unbound', 'Diverge', 'No Witness'] #   ['S', 'T'], ['U'], ['B'], ['D'] ]
+
+ALL_D_E = [ ['U', 'O', 'B', 'D'], ['H'], ['S', 'T']]
+ALL_DL_E = [ 'Witness Found', 'Ad-Hoc Polymorphism', 'Non-Parametric Function *', 'Dead Code *', 'Safe Call *', 'Witness Exists *'] #   ['S', 'T'], ['U'], ['B'], ['D'] ]
 
 
 def read_csv(f):
@@ -32,13 +36,13 @@ def autolabel(ax, rects):
     for rect in rects:
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width()/2., height,
-                '%d' % int(height),
+                '%d' % round(height),
                 ha='center', va='bottom')
 
 def cumulative_coverage(data):
     headers = data[0]
     data = data[1:]
-    return [(l, int(100 * len([r for r in data
+    return [(l, round(100 * len([r for r in data
                                if float(r[2]) <= l
                                and r[4] in UNSAFE])
                           / float(len(data))))
@@ -48,6 +52,8 @@ def plot_coverage(seminal, ucsd):
     xy_s = cumulative_coverage(seminal)
     xy_u = cumulative_coverage(ucsd)
 
+    print ('xy_s', xy_s)
+    print ('xy_u', xy_u)
 
     N = len(xy_s)
     ind = np.arange(N)    # the x locations for the groups
@@ -64,7 +70,7 @@ def plot_coverage(seminal, ucsd):
     plt.title('Cumulative Coverage', fontsize=24)
     plt.xticks(ind + width, [r[0] for r in xy_s], fontsize='large')
     plt.yticks(np.arange(0, 101, 10), fontsize='large')
-    plt.legend((p1[0], p2[0]), ('UW', UCSD), 'lower right', fontsize=16)
+    plt.legend((p1[0], p2[0]), ('UW', UCSD), loc='lower right', fontsize=16)
     # plt.legend((p1[0], p2[0]), ('Men', 'Women'))
     autolabel(plt, p1)
     autolabel(plt, p2)
@@ -113,20 +119,20 @@ def plot_user_study():
                   width,
                   color=COLORS[0],
                   yerr=map(err, [sumlist_b, append_a, digitsofint_a, wwhile_b]),
-                  error_kw={'linewidth': 5}
+                  error_kw={'linewidth': 3, 'ecolor': 'gray', 'capsize': 6, 'capthick': 3}
     )
     p_n = plt.bar(ind + width,
                   [100*np.average(sumlist_a), 100*np.average(append_b), 100*np.average(digitsofint_b), 100*np.average(wwhile_a)],
                   width,
                   color=COLORS[1],
                   yerr=map(err, [sumlist_a, append_b, digitsofint_b, wwhile_a]),
-                  error_kw={'linewidth': 5}
+                  error_kw={'linewidth': 3, 'ecolor': 'gray', 'capsize': 6, 'capthick': 3}
     )
 
     plt.title('Explanation',fontsize=24)
     # plt.xlabel('Problem', fontsize=20)
     plt.ylabel('% Correct', fontsize=20)
-    plt.xticks(ind + width, ['sumList', 'append', 'digitsOfInt', 'wwhile'], fontsize='large')
+    plt.xticks(ind + width, ['sumList\n(p = 0.061)', 'append\n(p = 0.018)', 'digitsOfInt\n(p = 0.12)', 'wwhile\n(p = 0.14)'], fontsize='large')
     plt.legend(('OCaml', 'NanoMaLy'), loc='lower right', fontsize=16)
     # autolabel(plt, p_o)
     # autolabel(plt, p_n)
@@ -155,20 +161,20 @@ def plot_user_study():
                   width,
                   color=COLORS[0],
                   yerr=map(err, [sumlist_b, append_a, digitsofint_a, wwhile_b]),
-                  error_kw={'linewidth': 5}
+                  error_kw={'linewidth': 3, 'ecolor': 'gray', 'capsize': 6, 'capthick': 3}
     )
     p_n = plt.bar(ind + width,
                   [100*np.average(sumlist_a), 100*np.average(append_b), 100*np.average(digitsofint_b), 100*np.average(wwhile_a)],
                   width,
                   color=COLORS[1],
                   yerr=map(err, [sumlist_a, append_b, digitsofint_b, wwhile_a]),
-                  error_kw={'linewidth': 5}
+                  error_kw={'linewidth': 3, 'ecolor': 'gray', 'capsize': 6, 'capthick': 3}
     )
 
     plt.title('Fix',fontsize=24)
     # plt.xlabel('Problem', fontsize=20)
     plt.ylabel('% Correct', fontsize=20)
-    plt.xticks(ind + width, ['sumList', 'append', 'digitsOfInt', 'wwhile'], fontsize='large')
+    plt.xticks(ind + width, ['sumList\n(p = 0.067)', 'append\n(p = 0.038)', 'digitsOfInt\n(p = 0.083)', 'wwhile\n(p = 0.20)'], fontsize='large')
     plt.legend(('OCaml', 'NanoMaLy'), loc='lower right', fontsize=16)
     # autolabel(plt, p_o)
     # autolabel(plt, p_n)
@@ -226,8 +232,8 @@ def plot_trace_size(seminal, ucsd):
     print('ucsd:\t\t{}\t{}\t{}'.format(c_step_u[0], c_step_u[1], len(step_u)))
     print('avg/med/max:\t{}\t{}\t{}'.format(np.mean(step_u), np.median(step_s), np.max(step_u)))
     p2 = plt.bar(ind + width, c_step_u, label=UCSD, width=width, color=COLORS[1])
-    plt.legend((p1[0],p2[0]), ('UW',UCSD), fontsize=16)
-    plt.title('Trace Complexity', fontsize=24)
+    plt.legend((p1[0],p2[0]), ('UW',UCSD), loc='lower right', fontsize=16)
+    plt.title('Step Complexity', fontsize=24)
     plt.xlabel('Total Steps', fontsize=20)
     plt.ylabel('Traces (%)', fontsize=20)
     # ax.set_xlim(0,6)
@@ -262,8 +268,8 @@ def plot_trace_size(seminal, ucsd):
     print('ucsd:\t\t{}\t{}\t{}'.format(c_jump_u[0], c_jump_u[1], len(jump_u)))
     print('avg/med/max:\t{}\t{}\t{}'.format(np.mean(jump_u), np.median(jump_s), np.max(jump_u)))
     p2 = plt.bar(ind + width, c_jump_u, label=UCSD, width=width, color=COLORS[1])
-    plt.legend((p1[0],p2[0]), ('UW',UCSD), fontsize=16)
-    # plt.title('Complexity of Traces (in jumps)', fontsize=24)
+    plt.legend((p1[0],p2[0]), ('UW',UCSD), loc='lower right', fontsize=16)
+    plt.title('Jump Complexity', fontsize=24)
     plt.xlabel('Total Jumps', fontsize=20)
     # plt.xlabel('Jumps', fontsize=20)
     plt.ylabel('Traces (%)', fontsize=20)
@@ -303,6 +309,9 @@ def plot_distrib(seminal, ucsd):
     rs_u = [len([r for r in ucsd[1:] if r[4] in o])
             for o in ALL_D]
 
+    print ('rs_s', rs_s)
+    print ('rs_u', rs_u)
+
     # N = len(xy)
     # ind = np.arange(N)    # the x locations for the groups
     # width = 0.5       # the width of the bars: can also be len(x) sequence
@@ -311,10 +320,11 @@ def plot_distrib(seminal, ucsd):
     #plt.figure(figsize=(1,1))
     #plt.axes(aspect=1)
     p1 = ax.pie(rs_s, labels=ALL_DL,
-                 autopct='%.1f%%',
+                 autopct='%.0f%%',
                  pctdistance=1.3,
                  labeldistance=10,
                  colors=COLORS,
+                 textprops={'fontsize':16},
                  shadow=True)
     ax.set_title('UW', fontsize=20)
 
@@ -322,17 +332,18 @@ def plot_distrib(seminal, ucsd):
     #ax.figure(figsize=(1,1))
     #plt.axes(aspect=1)
     p2 = ax.pie(rs_u, labels=ALL_DL,
-                 autopct='%.1f%%',
+                 autopct='%.0f%%',
                  pctdistance=1.3,
                  labeldistance=10,
                  colors=COLORS,
+                 textprops={'fontsize':16},
                  shadow=True)
     ax.set_title(UCSD, fontsize=20)
 
     #plt.tight_layout()
 
-    plt.suptitle('Distribution of Results', fontsize=24, y=0.9)
-    plt.figlegend(p1[0], ALL_DL, 'lower center', fontsize=16, ncol=4)
+    plt.suptitle('Distribution of Test Outcomes', fontsize=24, y=0.9)
+    plt.figlegend(p1[0], ALL_DL, 'lower center', fontsize=18, ncol=2)
 
 
     # p2 = plt.pie(rs, labels=ALL_L,
@@ -351,17 +362,85 @@ def plot_distrib(seminal, ucsd):
     plt.close()
 
 
+def plot_distrib_extended(ucsd):
+    # data = data[1:]
+    rs_u = [len([r for r in ucsd[1:] if r[4] in o])
+            for o in ALL_D_E] + [0,0,0]
+    missed = rs_u[2]
+    rs_u[2] = round(missed * 0.44) # Non-parametric fun
+    rs_u[3] = round(missed * 0.12) # Dead code
+    rs_u[4] = round(missed * 0.28) # Safe call
+    rs_u[5] = round(missed * 0.16) # True miss
+
+    print ('rs_u', rs_u)
+
+    plt.axes(aspect=1)
+    p1 = plt.pie(rs_u,
+                 labels=ALL_DL_E,
+                 explode=[0, 0.2, 0.2, 0.2, 0.2, 0.2],
+                 autopct='%.0f%%',
+                 pctdistance=1.3,
+                 labeldistance=10,
+                 colors=COLORS_E,
+                 textprops={'fontsize':16},
+                 shadow=True)
+
+    plt.title('Distribution of Programs Lacking a Witness', fontsize=24)
+    plt.legend(p1[0], ALL_DL_E,
+               loc='center left',
+               bbox_to_anchor=(0.5,0.75),
+               ncol=1)
+
+    # plt.show()
+    plt.savefig('distrib_ext.png')
+    plt.close()
+
+def plot_blame():
+    # xy_s = cumulative_coverage(seminal)
+    # xy_u = cumulative_coverage(ucsd)
+
+    # print ('xy_s', xy_s)
+    # print ('xy_u', xy_u)
+
+    # FIXME: load these numbers from csv...
+    tools = ['OCaml', 'NanoMaLy', 'Mycroft', 'SHErrLoc']
+    accs  = [49.0,    70.7,       71.0,      78.9      ]
+
+    N = len(tools)
+    ind = np.arange(N)    # the x locations for the groups
+    width = 0.5       # the width of the bars: can also be len(x) sequence
+
+    fig = plt.figure()
+    p1 = plt.bar(ind, accs, width,
+                 align='center',
+                 color=COLORS[0])
+
+    #plt.xlabel('Witness found in <= x seconds', fontsize=20)
+    plt.ylabel('Accuracy (%)', fontsize=20)
+    plt.title('Accuracy of Type Error Localization', fontsize=24)
+    plt.xticks(ind, tools, fontsize=20)
+    plt.yticks(np.arange(0, 101, 10), fontsize='large')
+    autolabel(plt, p1)
+    #autolabel(plt, p2)
+
+    # plt.show()
+    fig.savefig('blame.png')
+    plt.close()
+
 
 if __name__ == '__main__':
     seminal = read_csv('../../seminal.csv')
     ucsd = read_csv('../../ucsd.csv')
 
-    #plot_distrib(seminal, ucsd)
+    plot_distrib(seminal, ucsd)
+    plot_distrib_extended(ucsd)
 
-    #plot_trace_size(seminal, ucsd)
+    plot_trace_size(seminal, ucsd)
     # plot_trace_size(seminal, 'Seminal')
     # plot_trace_size(ucsd, UCSD)
 
-    #plot_coverage(seminal, ucsd)
+    plot_coverage(seminal, ucsd)
 
     plot_user_study()
+
+    plot_blame()
