@@ -7,6 +7,7 @@
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{subcaption}
 \usepackage{ragged2e}
 \usepackage{microtype}
 \usepackage[breaklinks=true,pdfborder={0 0 0}]{hyperref}
@@ -30,7 +31,6 @@
 \usepackage{courier}            % standard fixed width font
 \usepackage[scaled]{helvet} % see www.ctan.org/get/macros/latex/required/psnfss/psnfss2e.pdf
 \usepackage{url}                  % format URLs
-\usepackage{listings}          % format code
 \usepackage{enumitem}      % adjust spacing in enums
 %\usepackage[colorlinks=false,allcolors=blue,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
@@ -55,6 +55,42 @@
 \theoremstyle{definition}
 \newtheorem{defn}{Definition} % [section]
 
+\usepackage{listings}          % format code
+\lstnewenvironment{code}{
+\lstset{
+  language=Caml,
+  basicstyle=\ttfamily,
+  keywordstyle=\ttfamily,
+}}
+{}
+\lstnewenvironment{ecode}{
+\lstset{
+  language=Caml,
+  basicstyle=\ttfamily,
+  keywordstyle=\ttfamily,
+  numbers=left,
+  frame=leftline,
+  xleftmargin=7.5mm,
+  moredelim=[is][\bfseries]{==}{==},
+  moredelim=[is][\underbar]{__}{__},
+  moredelim=[is][\bfseries\underbar]{_=}{=_},
+  escapeinside={(*@}{@*)},
+}}
+{}
+\lstnewenvironment{mcode}{
+\lstset{
+  language=Caml,
+  basicstyle=\ttfamily,
+  keywordstyle=\ttfamily,
+  numbers=left,
+  frame=leftline,
+  xleftmargin=7.5mm,
+  escapeinside={(*}{*)},
+  mathescape=true,
+}}
+{}
+%\input{nanomaly/haskellListings}
+
 
 \usepackage[inference]{semantic}
 \usepackage{mdframed}
@@ -66,10 +102,14 @@
 \end{Sbox}\centerline{\parbox{\wd\@Sbox}{\TheSbox}}}% And output it centered
 \makeatother
 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
 \usepackage{pgfplots}
 \usepackage{pgfkeys}
 \pgfplotsset{width=0.38\linewidth,compat=1.11}
+%\pgfplotsset{compat=1.12}
 \usepgfplotslibrary{groupplots}
+\usepackage{pgfplotstable}
 
 % magic from http://tex.stackexchange.com/questions/117759/create-x-and-y-label-which-overlaps-for-multiple-plots
 \makeatletter
@@ -120,7 +160,22 @@ group/every plot/.code = {%
 \xspace}
 
 
-\input{nanomaly/haskellListings}
+\usepackage{tcolorbox}
+
+% colors from http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=3
+% \definecolor{tree}{HTML}{66C2A5}
+% \definecolor{sherrloc}{HTML}{FC8D62}
+% \definecolor{fix}{HTML}{8DA0CB}
+% \definecolor{sherrloc}{HTML}{FC8D62}
+\definecolor{tree}{HTML}{8dd3c7}
+\definecolor{sherrloc}{HTML}{FFFFB3}
+\definecolor{fix}{HTML}{bebada}
+
+\tcbset{every box/.style={on line,colframe=black,size=fbox,boxrule=1pt}}
+\newtcbox{\hlTree}{colback=tree,toprule=0pt,bottomrule=0pt}
+\newtcbox{\hlSherrloc}{colback=sherrloc,leftrule=0pt,rightrule=0pt}
+\newtcbox{\hlFix}{colback=fix!50}
+
 
 
 % Required information
@@ -167,32 +222,29 @@ I want to while still keeping my headings and margins consistent.
 \vskip0pt plus.5fil
 \setsinglespacing
 {\flushright
-True ease in writing comes from art, not chance,\\
-As those move easiest who have learn'd to dance.\\
-'T is not enough to no harshness gives offence,---\\
-The sound must seem an echo to the sense.
+Beware of bugs in the above code; I have only proved it correct, not tried it.
 
 \vskip\baselineskip
-\textit{Alexander Pope}\par}
+\textit{Donald Knuth}\par}
 \vfil
-\begin{center}
-You write with ease to show your breeding,\\
-But easy writing's curst hard reading.
+% \begin{center}
+% You write with ease to show your breeding,\\
+% But easy writing's curst hard reading.
 
-\vskip\baselineskip
-\textit{Richard Brinsley Sheridan}
-\end{center}
-\vfil
-\noindent Writing, at its best, is a lonely life. Organizations for
-writers palliate the writer's loneliness, but I doubt if they improve
-his writing. He grows in public stature as he sheds his loneliness and
-often his work deteriorates. For he does his work alone and if he is a
-good enough writer he must face eternity, or the lack of it, each day.
+% \vskip\baselineskip
+% \textit{Richard Brinsley Sheridan}
+% \end{center}
+% \vfil
+% \noindent Writing, at its best, is a lonely life. Organizations for
+% writers palliate the writer's loneliness, but I doubt if they improve
+% his writing. He grows in public stature as he sheds his loneliness and
+% often his work deteriorates. For he does his work alone and if he is a
+% good enough writer he must face eternity, or the lack of it, each day.
 
-\vskip\baselineskip
-\hskip0pt plus1fil\textit{Ernest Hemingway}\hskip0pt plus4fil\null
+% \vskip\baselineskip
+% \hskip0pt plus1fil\textit{Ernest Hemingway}\hskip0pt plus4fil\null
 
-\vfil
+% \vfil
 \end{epigraph}
 
 % Next comes the table of contents, list of figures, list of tables,
@@ -215,28 +267,18 @@ and may be omitted.
 % use. See the examples here. In addition, each chapter ack needs to
 % be repeated at the end of the relevant chapter.
 \begin{acknowledgements}
-I would like to acknowledge Professor Eta Theta for his support as the
-chair of my committee. Through multiple drafts and many long nights,
-his guidance has proved to be invaluable.
+PEOPLE TO ACKNOWLEDGE (not in order)
+\begin{itemize}
+\item Jhala (advisor)
+\item Griswold (quasi-advisor)
+\item Ingolf (recruiter)
+\item Weimer (great collaborator)
+\item Troeger (inspiring instructor)
+\item Gab (early mentor)
+\item PL\@UCSD (in particular Niki)
+\item Megan \& Family (support)
+\end{itemize}
 
-I would also like to acknowledge the ``Smith Clan'' of lab~28, without
-whom my research would have no doubt taken fives times as long. It is
-their support that helped me in an immeasureable way.
-
-Chapter 2, in full, is a reprint of the material as it appears in
-Numerical Grid Generational in Computational Fluid Mechanics~2009.
-Smith, Laura; Smith, Jane~D., Pineridge Press,~2009. The dissertation
-author was the primary investigator and author of this paper.
-
-Chapter 3, in part, has been submitted for publication of the material
-as it may appear in Education Mechanics,~2009, Smith, Laura; Smith,
-Jane~D., Trailor Press,~2009. The dissertation author was the primary
-investigator and author of this paper.
-
-Chapter 5, in part is currently being prepared for submission for
-publication of the material. Smith, Laura; Smith, Jane~D\@. The
-dissertation author was the primary investigator and author of this
-material.
 \end{acknowledgements}
 
 % Stupid vita goes next
@@ -302,6 +344,7 @@ like an ordinary chapter. It should appear after the
 
 
 \chapter{Dynamic Witnesses for Static Type Errors}
+\newcommand\toolname{\tool{Nate}}
 \input{nanomaly/introduction}
 \input{nanomaly/overview}
 \input{nanomaly/semantics}
@@ -310,6 +353,8 @@ like an ordinary chapter. It should appear after the
 \input{nanomaly/related}
 
 \chapter{Type Targeted Testing}
+\lstMakeShortInline{@}
+\renewcommand\toolname{\tool{NanoMaLy}}
 \input{target/intro2}
 \input{target/overview}
 \input{target/framework}
@@ -317,13 +362,29 @@ like an ordinary chapter. It should appear after the
 \input{target/generic2}
 \input{target/evaluation}
 \input{target/related}
+\lstDeleteShortInline{@}
 
+\chapter{Learning To Blame}
+\lstMakeShortInline{|}
+\renewcommand\toolname{\tool{Nate}}
+\input{nate/intro2}
+\input{nate/overview}
+\input{nate/learning}
+\input{nate/evaluation}
+\input{nate/qualitative}
+\input{nate/threats}
+\input{nate/discussion}
+\input{nate/related}
+\input{nate/conclusion}
+
+\clearpage
 
 \appendix
+\input{nanomaly/proofs}
 
 % Stuff at the end of the dissertation goes in the back matter
 \backmatter
 \bibliographystyle{abbrvnat} % Or whatever style you want like plainnat
-\bibliography{nanomaly/main,target/sw}
+\bibliography{nate/main,target/sw}
 
 \end{document}
