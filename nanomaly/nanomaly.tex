@@ -1,11 +1,11 @@
 \section{Our Implementation: \nanomaly}
-\label{sec:impl-nanomaly}
+\label{sec:nanomaly:impl-nanomaly}
 We have implemented our interactive semantics for the pure subset of
 \ocaml with a web-based visualization of the generated traces in a tool
 called \nanomaly.
 %
 It takes as input an \ocaml program and a function to check, searches
-for a witness as described in \S~\ref{sec:searching-witness}, and
+for a witness as described in \S~\ref{sec:nanomaly:searching-witness}, and
 produces as output an interactive trace of the (possibly buggy)
 execution~\footnote{If no witness could be found we simply return a trace
   of the last attempt.}.
@@ -16,7 +16,7 @@ by the stuck term (or the final value).
 The user can then progressively fill in the hidden steps of the
 computation by selecting a visible term and choosing one of the
 applicable traversal strategies -- described in
-\S~\ref{sec:traversing-graph} -- to insert another term into the
+\S~\ref{sec:nanomaly:traversing-graph} -- to insert another term into the
 visualization.
 
 A sample interaction of the student program in

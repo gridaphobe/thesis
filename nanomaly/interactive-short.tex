@@ -1,5 +1,5 @@
 \section{Explaining Type Errors With Traces}
-\label{sec:interactive}
+\label{sec:nanomaly:interactive}
 
 A trace, on its own, is too detailed to be
 a good explanation of the type error. One approach
@@ -21,18 +21,18 @@ on the important ones.
 In this section we present an interactive visualization of program
 executions.
 %
-First, we extend our semantics (\S~\ref{sec:inter-semant}) to record
+First, we extend our semantics (\S~\ref{sec:nanomaly:inter-semant}) to record
 each reduction step in a \emph{trace}, producing a \emph{reduction
   graph} alongside the witness.
 %
 Then we describe a set of common \emph{interactive debugging} steps that
 can be expressed as simple traversals over the reduction graph
-(\S~\ref{sec:traversing-graph}), yielding an interactive debugger that
+(\S~\ref{sec:nanomaly:traversing-graph}), yielding an interactive debugger that
 allows the user to visualize \emph{how} the program goes
 (wrong).
 
 \subsection{Tracing Semantics}
-\label{sec:inter-semant}
+\label{sec:nanomaly:inter-semant}
 %
 % \begin{figure*}[t]
 % %% \relDescription{Computing Sub-Terms}
@@ -84,7 +84,7 @@ $$\tr ::= \bullet \spmid \singlestep{e}{e}; \tr$$  %% \spmid \subterm{e}{e}; \tr
 
 \paragraph{Tracing Semantics}
 %
-We extend the transition relation (\S~\ref{sec:semantics}) to
+We extend the transition relation (\S~\ref{sec:nanomaly:semantics}) to
 collect the set of edges corresponding to the reduction graph.
 %
 Concretely, we extend the operational semantics to
@@ -117,7 +117,7 @@ becomes \stepg{e}{\vsu}{\tsu}{\tr}{e'}{\vsu'}{\tsu'}{\singlestep{e}{e'}; \tr}.
 
 
 \subsection{Interactive Debugging}
-\label{sec:traversing-graph}
+\label{sec:nanomaly:traversing-graph}
 
 Next, we show how to build a visual interactive debugger
 from the traced semantics, by describing the visualization

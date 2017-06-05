@@ -1,5 +1,5 @@
 \section{Introduction}
-\label{sec:introduction}
+\label{sec:nanomaly:introduction}
 
 Type errors are a common stumbling block for students
 trying to learn typed functional languages like \ocaml\
@@ -75,7 +75,7 @@ We achieve this via three concrete contributions.
 \paragraph{1. Finding Witnesses}
 Our first contribution is an algorithm for searching for
 \emph{witnesses} to type errors, \ie\ inputs that cause a
-program to go wrong~(\S~\ref{sec:searching-witness}).
+program to go wrong~(\S~\ref{sec:nanomaly:searching-witness}).
 %
 This problem is tricky when we cannot rely on
 static type information, as we must avoid the
@@ -116,7 +116,7 @@ details not relevant to the actual error.
 
 \paragraph{2. Visualizing Witnesses}
 Our second contribution is an interactive visualization of the
-execution of purely functional \ocaml\ programs, well-typed or not~(\S~\ref{sec:interactive}).
+execution of purely functional \ocaml\ programs, well-typed or not~(\S~\ref{sec:nanomaly:interactive}).
 %
 We extend the semantics to also build a \emph{reduction graph}
 which records all of the small-step reductions and the context
@@ -159,7 +159,7 @@ if it can find \emph{compact} witnesses for
 %
 Our third contribution is an extensive evaluation of our approach
 on two different sets of ill-typed programs obtained by instrumenting
-compilers used in beginner's classes~(\S~\ref{sec:evaluation}).
+compilers used in beginner's classes~(\S~\ref{sec:nanomaly:evaluation}).
 %
 The first is the \uwbench\ data set~\cite{Lerner2007-dt}
 comprising \uwsize\ ill-typed programs.
@@ -185,7 +185,7 @@ The ultimate purpose of an error report is to help the programmer
 %
 Thus, our final contribution is a user study that compares \toolname's
 dynamic witnesses against \ocaml's type errors along the dimension of
-comprehensibility~(\S~\ref{sec:user-study}).
+comprehensibility~(\S~\ref{sec:nanomaly:user-study}).
 %
 Our study finds that students given one of our witnesses are
 consistently more likely to correctly explain and fix a type
@@ -207,7 +207,7 @@ the \ocaml compiler.
 %
 % Thus, our final contribution is a user study that compares the utility
 % of our witnesses with that of the error messages provided by the \ocaml
-% compiler~(\S~\ref{sec:user-study}).
+% compiler~(\S~\ref{sec:nanomaly:user-study}).
 %
 
 \smallskip

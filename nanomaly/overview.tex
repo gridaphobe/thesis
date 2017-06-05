@@ -1,5 +1,5 @@
 \section{Overview}
-\label{sec:overview}
+\label{sec:nanomaly:overview}
 
 We start with an overview of our approach to
 explaining (static) type errors using \emph{witnesses}
@@ -17,7 +17,7 @@ Finally, we demonstrate our visualization of
 the synthesized witnesses.
 
 \subsection{Generating Witnesses}
-\label{sec:generating-witnesses}
+\label{sec:nanomaly:generating-witnesses}
 Our goal is to find concrete values
 that demonstrate how a program ``goes wrong''.
 
@@ -29,7 +29,7 @@ causes the program to go wrong.
 %
 Unfortunately, this approach quickly runs aground.
 Recall the erroneous @fac@ function from Figure~\ref{fig:factorial}.
-%~\S~\ref{sec:introduction}:
+%~\S~\ref{sec:nanomaly:introduction}:
 %
 % \begin{code}
   % let rec fac n =
@@ -120,7 +120,7 @@ concrete execution takes over entirely, leading us to the expected crash
 in the multiplication.
 
 \paragraph{Witness Generality}
-We show in \S~\ref{sec:soundness} that our lazy instantiation of holes
+We show in \S~\ref{sec:nanomaly:soundness} that our lazy instantiation of holes
 produces \emph{general witnesses}.
 %
 That is, we show that if ``executing''
@@ -167,7 +167,7 @@ until evaluating the application returns a value
 other than a lambda.
 
 \subsection{Visualizing Witnesses}
-\label{sec:visual-witness}
+\label{sec:nanomaly:visual-witness}
 We have described how to reliably find witnesses to type errors in \ocaml,
 but this does not fully address our original goal --- to \emph{explain}
 the errors.
@@ -223,7 +223,7 @@ witness followed by the stuck term.
 The user can then progressively fill in the hidden steps of the
 computation by selecting a visible term and choosing one of the
 applicable traversal strategies --- described in
-\S~\ref{sec:interactive} --- to insert another term into the
+\S~\ref{sec:nanomaly:interactive} --- to insert another term into the
 visualization.
 
 \paragraph{Jump-compressed Witnesses}

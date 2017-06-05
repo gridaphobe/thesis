@@ -1,0 +1,27 @@
+* Notes
+** Future Work
+*** Witnesses for Fancier Systems
+    - e.g. Deian's IFC stuff
+      - BOB owns X, allows SALLY and DAN to VIEW, but only SALLY to UPDATE
+    - e.g. LiquidHaskell
+      - TARGET is a baseline, but want witnesses to type errors INSIDE
+        function in addition to function not satisfying its contract
+      - see "Your Proof Fails? Tests Help Explain Why." ISSTA 2016
+    - probably need real symbolic execution for anything more interesting
+      - maybe see Nguyen / Van Horn "Higher-Order Symbolic Execution"?
+*** Synthesizing Fixes from Past Mistakes
+    - given that we can IDENTIFY buggy code, can we make structured
+      predictions about what should REPLACE it?
+      - extract features of replacement code from diffs
+        - type / syntax
+      - train separate classifier to predict them
+*** Improving / Generalizing NATE Models
+    - concerns about transferring NATE model from UCSD CSE 130 to other courses / professional
+      - to what extent is this a problem? (see UW SEMINAL data)
+    - potentially big limitation of NATE models are reliance on
+      knowledge of specific data/type constructors
+      - constructor-agnostic features?
+    - are witnesses a useful feature?
+      - take NANOMALY witness, add feature for whether expression was
+        stuck term, or produced value in stuck term
+      - see NANOMALY JFP paper for treating witnesses as localizations

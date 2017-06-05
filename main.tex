@@ -1,4 +1,5 @@
-\documentclass[12pt]{ucsddissertation}
+\documentclass[11pt]{ucsddissertation}
+
 % mathptmx is a Times Roman look-alike (don't use the times package)
 % It isn't clear if Times is required. The OGS manual lists several
 % "standard fonts" but never says they need to be used.
@@ -20,6 +21,11 @@
 \increasemargins{.1in}
 
 \usepackage[numbers,sort&compress,square]{natbib}
+\usepackage{bibentry}
+\nobibliography*
+% \usepackage[natbib=true,style=numeric,firstinits=true,isbn=false,doi=false,url=false]{biblatex}
+% \addbibresource{main.bib}
+
 
 
 %
@@ -28,8 +34,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 % \usepackage{SIunits}            % typset units correctly
-\usepackage{courier}            % standard fixed width font
-\usepackage[scaled]{helvet} % see www.ctan.org/get/macros/latex/required/psnfss/psnfss2e.pdf
+% \usepackage{courier}            % standard fixed width font
+% \usepackage[scaled]{helvet} % see www.ctan.org/get/macros/latex/required/psnfss/psnfss2e.pdf
 \usepackage{url}                  % format URLs
 \usepackage{enumitem}      % adjust spacing in enums
 %\usepackage[colorlinks=false,allcolors=blue,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
@@ -201,51 +207,53 @@ group/every plot/.code = {%
 \maketitle
 \makecopyright
 \makesignature
-% Optional
-\begin{dedication}
-\setsinglespacing
-\raggedright % It would be better to use \RaggedRight from ragged2e
-\parindent0pt\parskip\baselineskip
-In recognition of reading this manual before beginning to format the
-doctoral dissertation or master's thesis; for following the
-instructions written herein; for consulting with OGS Academic Affairs
-Advisers; and for not relying on other completed manuscripts, this
-manual is dedicated to all graduate students about to complete the
-doctoral dissertation or master's thesis.
 
-In recognition that this is my one chance to use whichever
-justification, spacing, writing style, text size, and/or textfont that
-I want to while still keeping my headings and margins consistent.
-\end{dedication}
 % Optional
-\begin{epigraph}
-\vskip0pt plus.5fil
-\setsinglespacing
-{\flushright
-Beware of bugs in the above code; I have only proved it correct, not tried it.
+% \begin{dedication}
+% \setsinglespacing
+% \raggedright % It would be better to use \RaggedRight from ragged2e
+% \parindent0pt\parskip\baselineskip
+% In recognition of reading this manual before beginning to format the
+% doctoral dissertation or master's thesis; for following the
+% instructions written herein; for consulting with OGS Academic Affairs
+% Advisers; and for not relying on other completed manuscripts, this
+% manual is dedicated to all graduate students about to complete the
+% doctoral dissertation or master's thesis.
 
-\vskip\baselineskip
-\textit{Donald Knuth}\par}
-\vfil
-% \begin{center}
-% You write with ease to show your breeding,\\
-% But easy writing's curst hard reading.
+% In recognition that this is my one chance to use whichever
+% justification, spacing, writing style, text size, and/or textfont that
+% I want to while still keeping my headings and margins consistent.
+% \end{dedication}
+
+% Optional
+% \begin{epigraph}
+% \vskip0pt plus.5fil
+% \setsinglespacing
+% {\flushright
+% Beware of bugs in the above code; I have only proved it correct, not tried it.
 
 % \vskip\baselineskip
-% \textit{Richard Brinsley Sheridan}
-% \end{center}
+% \textit{Donald Knuth}\par}
 % \vfil
-% \noindent Writing, at its best, is a lonely life. Organizations for
-% writers palliate the writer's loneliness, but I doubt if they improve
-% his writing. He grows in public stature as he sheds his loneliness and
-% often his work deteriorates. For he does his work alone and if he is a
-% good enough writer he must face eternity, or the lack of it, each day.
+% % \begin{center}
+% % You write with ease to show your breeding,\\
+% % But easy writing's curst hard reading.
 
-% \vskip\baselineskip
-% \hskip0pt plus1fil\textit{Ernest Hemingway}\hskip0pt plus4fil\null
+% % \vskip\baselineskip
+% % \textit{Richard Brinsley Sheridan}
+% % \end{center}
+% % \vfil
+% % \noindent Writing, at its best, is a lonely life. Organizations for
+% % writers palliate the writer's loneliness, but I doubt if they improve
+% % his writing. He grows in public stature as he sheds his loneliness and
+% % often his work deteriorates. For he does his work alone and if he is a
+% % good enough writer he must face eternity, or the lack of it, each day.
 
-% \vfil
-\end{epigraph}
+% % \vskip\baselineskip
+% % \hskip0pt plus1fil\textit{Ernest Hemingway}\hskip0pt plus4fil\null
+
+% % \vfil
+% \end{epigraph}
 
 % Next comes the table of contents, list of figures, list of tables,
 % etc. If you have code listings, you can use \listoflistings (or
@@ -256,12 +264,12 @@ Beware of bugs in the above code; I have only proved it correct, not tried it.
 \listoftables
 
 % Preface
-\begin{preface}
-Almost nothing is said in the manual about the preface. There is no
-indication about how it is to be typeset. Given that, one is forced to
-simply typeset it and hope it is accepted. It is, however, optional
-and may be omitted.
-\end{preface}
+% \begin{preface}
+% Almost nothing is said in the manual about the preface. There is no
+% indication about how it is to be typeset. Given that, one is forced to
+% simply typeset it and hope it is accepted. It is, however, optional
+% and may be omitted.
+% \end{preface}
 
 % Your fancy acks here. Keep in mind you need to ack each paper you
 % use. See the examples here. In addition, each chapter ack needs to
@@ -286,36 +294,51 @@ PEOPLE TO ACKNOWLEDGE (not in order)
 \noindent
 \begin{cv}{}
 \begin{cvlist}{}
-\item[1996] Bachelor of Arts, University of California, Berkeley
-\item[1996--2000] U.S. Marines
-\item[2000--2002] Teaching Assistant, Department of Mechanical
-Engineering\\University of California, San Diego
-\item[2002--2006] Research Assistant, University of California, San
-Diego
-\item[2010] Doctor of Philosophy, University of California, San Diego
+\item[2012] Bachelor of Science, City College of New York
+\item[2016] Master of Science, University of California, San Diego
+\item[2017] Doctor of Philosophy, University of California, San Diego
 \end{cvlist}
 \end{cv}
 
 % This puts in the PUBLICATIONS header. Note that it appears inside
 % the vita environment. It is optional.
 \publications
-\noindent``Distributions of Control Points in a System for Analysis of Stress
-Distribution'' IRE Transactions of the I.R.E\@. Professional Group on
-Automatic Control, vol. AC-7, pp 272--289, September 2005
+\noindent\bibentry{Seidel2016-ul}
+\vskip\baselineskip
+\noindent\bibentry{Elliott2015-xu}
+\vskip\baselineskip
+\noindent\bibentry{Seidel2015-pe}
+\vskip\baselineskip
+\noindent\bibentry{Vazou2014-gx}
+\vskip\baselineskip
+\noindent\bibentry{Vazou2014-xk}
+\vskip\baselineskip
+\noindent\bibentry{Seidel2012-fw}
+\vskip\baselineskip
+\noindent\bibentry{Khoo2012-tk}
+\vskip\baselineskip
+\noindent\bibentry{Allen2010-jr}
+\vskip\baselineskip
+\noindent\bibentry{Seidel2010-rx}
+
+
+% \noindent``Distributions of Control Points in a System for Analysis of Stress
+% Distribution'' IRE Transactions of the I.R.E\@. Professional Group on
+% Automatic Control, vol. AC-7, pp 272--289, September 2005
 
 % This puts in the FIELDS OF STUDY. Also inside vita and also
 % optional.
-\fieldsofstudy
-\noindent Major Field: Engineering (Specialization or Focused Studies)
-\vskip\baselineskip
-Studies in Applied Mathematics\par
-Professors Alpha Beta and Gamma Delta
-\vskip\baselineskip
-Studies in Mechanices\par
-Professors Epsilon Zeta and Eta Theta
-\vskip\baselineskip
-Studies in Electromagnetism\par
-Professors Iota Kappa and Lambda Mu
+% \fieldsofstudy
+% \noindent Major Field: Engineering (Specialization or Focused Studies)
+% \vskip\baselineskip
+% Studies in Applied Mathematics\par
+% Professors Alpha Beta and Gamma Delta
+% \vskip\baselineskip
+% Studies in Mechanices\par
+% Professors Epsilon Zeta and Eta Theta
+% \vskip\baselineskip
+% Studies in Electromagnetism\par
+% Professors Iota Kappa and Lambda Mu
 \end{vita}
 
 % Put your maximum 350 word abstract here.
@@ -332,19 +355,21 @@ text of the abstract must be double spaced.
 \mainmatter
 
 % Optional Introduction
-\begin{dissertationintroduction}
-This optional section is barely described in the OGS manual other than
-saying it is optional and that it appears in the table of contents
-between the Abstract and the first chapter.
+% \begin{dissertationintroduction}
+% This optional section is barely described in the OGS manual other than
+% saying it is optional and that it appears in the table of contents
+% between the Abstract and the first chapter.
 
-No formatting guidelines appear so presumably, it should be formatted
-like an ordinary chapter. It should appear after the
-\verb!\mainmatter! macro because it should start on page~1.
-\end{dissertationintroduction}
+% No formatting guidelines appear so presumably, it should be formatted
+% like an ordinary chapter. It should appear after the
+% \verb!\mainmatter! macro because it should start on page~1.
+% \end{dissertationintroduction}
 
+\part{Introduction}
 
+\part{Witnessing Type Errors}
 \chapter{Dynamic Witnesses for Static Type Errors}
-\newcommand\toolname{\tool{Nate}}
+\newcommand\toolname{\tool{NanoMaLy}}
 \input{nanomaly/introduction}
 \input{nanomaly/overview}
 \input{nanomaly/semantics}
@@ -352,18 +377,19 @@ like an ordinary chapter. It should appear after the
 \input{nanomaly/evaluation}
 \input{nanomaly/related}
 
-\chapter{Type Targeted Testing}
-\lstMakeShortInline{@}
-\renewcommand\toolname{\tool{NanoMaLy}}
-\input{target/intro2}
-\input{target/overview}
-\input{target/framework}
-\input{target/implementation}
-\input{target/generic2}
-\input{target/evaluation}
-\input{target/related}
-\lstDeleteShortInline{@}
+%\chapter{Type Targeted Testing}
+%\lstMakeShortInline{@}
+%\renewcommand\toolname{\tool{Target}}
+%\input{target/intro2}
+%\input{target/overview}
+%\input{target/framework}
+%\input{target/implementation}
+%\input{target/generic2}
+%\input{target/evaluation}
+%\input{target/related}
+%\lstDeleteShortInline{@}
 
+\part{Predicting Type Errors}
 \chapter{Learning To Blame}
 \lstMakeShortInline{|}
 \renewcommand\toolname{\tool{Nate}}
@@ -377,14 +403,17 @@ like an ordinary chapter. It should appear after the
 \input{nate/related}
 \input{nate/conclusion}
 
-\clearpage
+\part{Conclusion}
 
 \appendix
+%\part{Proofs}
 \input{nanomaly/proofs}
 
 % Stuff at the end of the dissertation goes in the back matter
 \backmatter
 \bibliographystyle{abbrvnat} % Or whatever style you want like plainnat
-\bibliography{nate/main,target/sw}
+\bibliography{main}
+%\bibliography{nate/main,target/sw}
+%\printbibliography
 
 \end{document}

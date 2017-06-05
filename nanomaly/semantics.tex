@@ -1,5 +1,5 @@
 \section{Type-Error Witnesses}
-\label{sec:searching-witness}
+\label{sec:nanomaly:searching-witness}
 
 % Our goal is to find concrete values that demonstrate how a
 % program ``goes wrong''.
@@ -71,21 +71,21 @@
 
 Next, we formalize the notion of type error witnesses as follows.
 %
-First, we define a core calculus within which we will work~(\S~\ref{sec:syntax}).
+First, we define a core calculus within which we will work~(\S~\ref{sec:nanomaly:syntax}).
 %
 Second, we develop a (non-deterministic) operational semantics
 for ill-typed programs that precisely defines the notion
-of a \emph{witness}~(\S~\ref{sec:semantics}).
+of a \emph{witness}~(\S~\ref{sec:nanomaly:semantics}).
 %
 Third, we formalize and prove a notion of \emph{generality} for
 witnesses, which states, intuitively, that if we find a
 single witness then for \emph{every possible} type
 assignment there exist inputs that are guaranteed to make
-the program ``go wrong''~(\S~\ref{sec:soundness}).
+the program ``go wrong''~(\S~\ref{sec:nanomaly:soundness}).
 %
 Finally, we refine the operational semantics into a
 \emph{search procedure} that returns concrete (general)
-witnesses for ill-typed programs~\S~(\ref{sec:search-algorithm}).
+witnesses for ill-typed programs~\S~(\ref{sec:nanomaly:search-algorithm}).
 %
 We have formalized and tested our semantics and generality theorem
 in \textsc{PLT-Redex}~\cite{Felleisen2009-ya}.
@@ -93,12 +93,12 @@ in \textsc{PLT-Redex}~\cite{Felleisen2009-ya}.
 Detailed proofs for the theorems in this section can be found in
 %
 \ifthenelse{\equal{\isTechReport}{true}}
-{Appendix~\ref{sec:proofs}.}
+{Appendix~\ref{sec:nanomaly:proofs}.}
 {Appendix A of the accompanying tech report~\cite{Seidel2016Dynamic-TechRep}.}
 
 
 \subsection{Syntax}
-\label{sec:syntax}
+\label{sec:nanomaly:syntax}
 \input{syntax.tex}
 %
 Figure~\ref{fig:syntax} describes the syntax of \lang, a simple lambda
@@ -110,7 +110,7 @@ denote terms that may be \stuck, and $e$ to denote terms that may not be
 stuck.
 
 \paragraph{Holes}
-\label{sec:holes}
+\label{sec:nanomaly:holes}
 %
 Recall that a key challenge in our setting is to find witnesses
 that are meaningful and do not arise from choosing values from
@@ -172,7 +172,7 @@ with a new binding we apply the substitution to itself.
 
 
 \subsection{Semantics}
-\label{sec:semantics}
+\label{sec:nanomaly:semantics}
 %
 Recall that our goal is to synthesize a value that demonstrates
 why (and how) a function goes wrong.
@@ -378,7 +378,7 @@ and do not need a built-in recursion construct.
 %   Simple induction on the evaluation relation.
 % \end{proof}
 
-\subsection{Generality}\label{sec:soundness}
+\subsection{Generality}\label{sec:nanomaly:soundness}
 
 A key technical challenge in generating witnesses is
 that we have no (static) type information to rely upon.
@@ -832,7 +832,7 @@ compatible with $s$. %the partial type upto $\trace$.
 \end{proof}
 
 \subsection{Search Algorithm}
-\label{sec:search-algorithm}
+\label{sec:nanomaly:search-algorithm}
 %
 So far, we have seen how a trace leading to a stuck configuration yields
 a general witness demonstrating that the program is ill-typed (\ie\ goes
@@ -881,7 +881,7 @@ exploring $k$ traces.
 \paragraph{Modeling Semantics}
 %
 We resolve the non-determinism in the operational semantics
-(\S~\ref{sec:semantics}) via the procedure
+(\S~\ref{sec:nanomaly:semantics}) via the procedure
 %
 $$
 \evalN : e \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu}^{*}

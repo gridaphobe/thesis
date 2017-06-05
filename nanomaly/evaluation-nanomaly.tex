@@ -1,11 +1,11 @@
 \section{Evaluation: \nanomaly}
-\label{sec:evaluation-nanomaly}
+\label{sec:nanomaly:evaluation-nanomaly}
 We have implemented our interactive semantics for the pure subset of
 \ocaml with a web-based visualization of the generated traces in a tool
 called \nanomaly.
 %
 It takes as input an \ocaml program and a function to check, searches
-for a witness as described in \S~\ref{sec:searching-witness}, and
+for a witness as described in \S~\ref{sec:nanomaly:searching-witness}, and
 produces as output an interactive trace of the (possibly buggy)
 execution~\footnote{If no witness could be found we simply return a trace
   of the last attempt.}.
@@ -18,8 +18,8 @@ We have not really (\ES{huh?}) evaluated our prototype of \nanomaly in two phase
 \end{enumerate}
 
 \subsection{Trace Complexity}
-\label{sec:trace-complexity}
-For each of the ill-typed programs from \S~\ref{sec:eval-witness} for
+\label{sec:nanomaly:trace-complexity}
+For each of the ill-typed programs from \S~\ref{sec:nanomaly:eval-witness} for
 which we could find a witness, we measure the complexity of the
 generated trace according to the following metrics:
 %
@@ -55,7 +55,7 @@ and a maximum of XX. The average number of jumps is YY with a minimum of
 YY and a maximium of YY.
 
 \subsection{User Study}
-\label{sec:user-study}
+\label{sec:nanomaly:user-study}
 We also performed an A/B study at the University of Virginia (IRB
 \#XXXX). 
 %
@@ -82,5 +82,5 @@ to grade the submissions, hiding whether a given solution came from the
 \ocaml or \nanomaly group.
 
 \paragraph{Results}
-\label{sec:study-results}
+\label{sec:nanomaly:study-results}
 \ES{TODO!}

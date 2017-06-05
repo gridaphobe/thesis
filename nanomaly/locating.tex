@@ -1,6 +1,6 @@
 
 \subsection{Locating Errors with Witnesses}
-\label{sec:locating}
+\label{sec:nanomaly:locating}
 
 We have seen that \toolname can effectively synthesize witnesses to
 explain the majority of (novice) type errors, but a good error report
@@ -10,7 +10,7 @@ Thus, our final experiment seeks to use \toolname's witnesses as
 localizations.
 
 
-As discussed in \S~\ref{sec:methodology}, we recorded
+As discussed in \S~\ref{sec:nanomaly:methodology}, we recorded
 each interaction of our students with the \ocaml top-level system.
 %
 This means that, in addition to collecting ill-typed programs, we
@@ -50,7 +50,7 @@ stuck term.
 Intuitively, these two classes of locations correspond to \emph{sinks}
 and \emph{sources} for typing constraints.
 %
-For example, in the @sqsum@ program from \S~\ref{sec:advantage-traces}
+For example, in the @sqsum@ program from \S~\ref{sec:nanomaly:advantage-traces}
 the stuck term is \verb!0 @ 1!.
 %
 This corresponds to the call to \verb!@! on line 3, and contains
