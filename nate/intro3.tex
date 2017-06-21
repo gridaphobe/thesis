@@ -1,4 +1,4 @@
-\section{Introduction}
+% \section{Introduction}
 \label{sec:nate:introduction}
 
 % In Robin Milner's memorable words
@@ -6,33 +6,33 @@
 % ``types are the leaven of computer programming;
   % they make it digestible''~\cite{tapl}.
 %
-Types are awesome.
-%When viewed fully, types are awe-inspiring.
-%
-Languages like \ocaml and \haskell make
-the value-proposition for types even more
-appealing by using constraints to automatically
-synthesize the types for all program terms
-without troubling the programmer for any
-annotations.
-%
-Unfortunately, this automation has come at a price.
-Type annotations signify
-the programmer's intent and help to correctly
-blame the erroneous sub-term when the code is
-ill-typed.
-%
-In the absence of such signifiers, automatic
-type inference algorithms are prone to report
-type errors far from their source
-\citep{Wand1986-nw}.
-%
-While this can seem like a minor annoyance to
-veteran programmers, \citet{Joosten1993-yx} have found
-that novices often focus their attention on the \emph{location}
-reported and disregard the \emph{message}.
+% Types are awesome.
+% %When viewed fully, types are awe-inspiring.
+% %
+% Languages like \ocaml and \haskell make
+% the value-proposition for types even more
+% appealing by using constraints to automatically
+% synthesize the types for all program terms
+% without troubling the programmer for any
+% annotations.
+% %
+% Unfortunately, this automation has come at a price.
+% Type annotations signify
+% the programmer's intent and help to correctly
+% blame the erroneous sub-term when the code is
+% ill-typed.
+% %
+% In the absence of such signifiers, automatic
+% type inference algorithms are prone to report
+% type errors far from their source
+% \citep{Wand1986-nw}.
+% %
+% While this can seem like a minor annoyance to
+% veteran programmers, \citet{Joosten1993-yx} have found
+% that novices often focus their attention on the \emph{location}
+% reported and disregard the \emph{message}.
 
-\mypara{Localizing Errors}
+% \mypara{Localizing Errors}
 %
 Several recent papers have proposed ways
 to improve feedback via error \emph{localization}.
@@ -72,7 +72,7 @@ programmers actually make in practice.
 
 \mypara{A Data-Driven Approach}
 %
-In this paper, we introduce \toolname
+In this chapter, we introduce \toolname
 \footnote{``Numeric Analysis of Type Errors''; any resemblance to persons living or dead is purely coincidental.}
 a \emph{data-driven} approach to error
 localization based on supervised

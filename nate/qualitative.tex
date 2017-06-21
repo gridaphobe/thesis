@@ -69,7 +69,7 @@ For these programs we will additionally \hlFix{highlight} the
 correct blame location.
 
 \mypara{Constructing a List of Duplicates}
-% data/sp14/0219.ml
+% data/sp14/0967.ml
 Our first program is a simple recursive function |clone| that takes an
 item |x| and a count |n|, and produces a list containing |n| copies of
 |x|.
@@ -89,7 +89,7 @@ item |x| and a count |n|, and produces a list containing |n| copies of
       if n <= 0 then
         acc
       else
-        (*@\hlFix{clone} \hlSherrloc{([\hlTree{x}] @\ acc)}@*) (n - 1) in
+        (*@\hlFix{clone} \hlSherrloc{\hlTree{([x] @\ acc)}}@*) (n - 1) in
     loop [] n
 \end{ecode}
 % \ES{TODO: our 2nd prediction matches \sherrloc and \ocaml (occurs check), correct fix is to replace recursive call to clone with loop}
@@ -101,21 +101,18 @@ Unfortunately, she has called the top-level function |clone| rather than
 |loop| in the |else| branch, this induces a cyclic constraint |'a = 'a list|
 for the |x| argument to |clone|.
 
-Our classifier incorrectly predicts that the use of |x| in the recursive
-call is the most likely source of the error.
+Our top prediction coincides with \sherrloc (and \ocaml), blaming the
+the first argument to |clone| rather than the occurrence of |clone| itself.
 %
-Our second prediction coincides with \sherrloc (and \ocaml), blaming the
-the first argument to |clone|.
+% This is also incorrect, but may be more helpful than our first
+% prediction --- if our student decides that she has certainly provided
+% the correct \emph{argument}, an alternative explanation is that
+% perhaps she has called the wrong \emph{function}.
 %
-This is also incorrect, but may be more helpful than our first
-prediction --- if our student decides that she has certainly provided
-the correct \emph{argument}, an alternative explanation is that
-perhaps she has called the wrong \emph{function}.
-
-We confess that both of these predictions are difficult to explain by
+We confess that this prediction is difficult to explain by
 examining the induced paths.
 %
-In particular, both predictions only reference the expression's context,
+In particular, it only references the expression's context,
 which is surprising.
 %
 Much clearer is why we fail to blame the occurrence of |clone|, the two
@@ -129,7 +126,7 @@ The model seems to have learned that programmers typically call the
 correct function.
 
 \mypara{Currying Considered Harmful?}
-% data/sp14/1204.ml
+% data/sp14/1080.ml
 Our next example is another ill-fated attempt at |clone|.
 %
 \begin{ecode}
@@ -174,7 +171,7 @@ Thus it appears to the model that the outer |fun| is simply part of a
 function definition, a common and innocuous phenomenon.
 
 % \mypara{Composing Functions}
-% % data/sp14/3041.ml
+% % data/sp14/3203.ml
 % Next, let us consider the |pipe| function that composes a list of
 % functions, \ie given a list of functions |[f;g;h]|, |pipe| produces the
 % function |fun x -> h (g (f x))|.
@@ -203,7 +200,7 @@ correct, and all of the other tools' top three predictions are
 incorrect.
 
 \mypara{Extracting the Digits of an Integer}
-% data/sp14/2176.ml
+% data/sp14/1732.ml
 Consider first a simple recursive function |digitsOfInt| that extracts
 the digits of an |int|.
 %
@@ -245,7 +242,7 @@ should change as well, but it is less confident of this prediction and
 ranks it below the correct blame assignment.
 
 \mypara{Padding a list}
-% data/sp14/0442.ml
+% data/sp14/1389.ml
 Our next program, |padZero|, is given two |int list|s as input, and must
 left-pad the shorter one with enough zeros that the two output lists
 have equal length.

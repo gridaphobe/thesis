@@ -88,9 +88,9 @@
   language=Caml,
   basicstyle=\ttfamily,
   keywordstyle=\ttfamily,
-  numbers=left,
-  frame=leftline,
-  xleftmargin=7.5mm,
+  % numbers=left,
+  % frame=leftline,
+  % xleftmargin=7.5mm,
   escapeinside={(*}{*)},
   mathescape=true,
 }}
@@ -365,17 +365,22 @@ text of the abstract must be double spaced.
 % \verb!\mainmatter! macro because it should start on page~1.
 % \end{dissertationintroduction}
 
-\part{Introduction}
+\lstMakeShortInline{|}
 
-\part{Witnessing Type Errors}
+%\part{Introduction}
+\chapter{Introduction}
+
+%\part{Witnessing Type Errors}
 \chapter{Dynamic Witnesses for Static Type Errors}
+\lstMakeShortInline{@}
 \newcommand\toolname{\tool{NanoMaLy}}
-\input{nanomaly/introduction}
+\input{nanomaly/intro2}
 \input{nanomaly/overview}
 \input{nanomaly/semantics}
-\input{nanomaly/interactive-short}
+\input{nanomaly/interactive}
 \input{nanomaly/evaluation}
 \input{nanomaly/related}
+\lstDeleteShortInline{@}
 
 %\chapter{Type Targeted Testing}
 %\lstMakeShortInline{@}
@@ -389,11 +394,10 @@ text of the abstract must be double spaced.
 %\input{target/related}
 %\lstDeleteShortInline{@}
 
-\part{Predicting Type Errors}
+%\part{Predicting Type Errors}
 \chapter{Learning To Blame}
-\lstMakeShortInline{|}
 \renewcommand\toolname{\tool{Nate}}
-\input{nate/intro2}
+\input{nate/intro3}
 \input{nate/overview}
 \input{nate/learning}
 \input{nate/evaluation}
@@ -403,11 +407,31 @@ text of the abstract must be double spaced.
 \input{nate/related}
 \input{nate/conclusion}
 
-\part{Conclusion}
+%\part{Conclusion}
+\chapter{Conclusion}
 
 \appendix
-%\part{Proofs}
+\chapter{Proofs}
 \input{nanomaly/proofs}
+
+\chapter{User Studies}
+
+\section{\tool{NanoMaLy} User Study}
+\label{sec:nanomaly:user-study}
+% \includepdf[pages={-},pagecommand={},scale=0.65,frame,fitpaper]{user-study.pdf}
+\subsection{Version A}
+\fbox{\includegraphics[width=\textwidth,page=4]{nanomaly/user-study.pdf}}
+\newpage
+\fbox{\includegraphics[width=\linewidth,page=5]{nanomaly/user-study.pdf}}
+\newpage
+\fbox{\includegraphics[width=\linewidth,page=6]{nanomaly/user-study.pdf}}
+\newpage
+\subsection{Version B}
+\fbox{\includegraphics[width=\linewidth,page=1]{nanomaly/user-study.pdf}}
+\newpage
+\fbox{\includegraphics[width=\linewidth,page=2]{nanomaly/user-study.pdf}}
+\newpage
+\fbox{\includegraphics[width=\linewidth,page=3]{nanomaly/user-study.pdf}}
 
 % Stuff at the end of the dissertation goes in the back matter
 \backmatter
