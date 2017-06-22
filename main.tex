@@ -70,6 +70,11 @@
 \newtheorem{defn}{Definition} % [section]
 
 \usepackage{listings}          % format code
+\lstset{
+  language=Caml,
+  basicstyle=\ttfamily,
+  keywordstyle=\ttfamily,
+}
 \lstnewenvironment{code}{
 \lstset{
   language=Caml,
@@ -103,7 +108,6 @@
   mathescape=true,
 }}
 {}
-%\input{nanomaly/haskellListings}
 
 
 \usepackage[inference]{semantic}

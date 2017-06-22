@@ -20,8 +20,6 @@
 \def\emphbf#1{\textbf{\emph{#1}}}
 \def\spmid{\ \mid\ }
 
-\newcommand{\C}{\textsc{C}\xspace}
-
 \newcommand{\lang}{\ensuremath{\lambda^{H}}\xspace}
 \newcommand{\ocaml}{\textsc{OCaml}\xspace}
 \newcommand{\sherrloc}{\textsc{SHErrLoc}\xspace}
@@ -259,52 +257,52 @@
 \newcommand{\xor}{\oplus}
 %\newcommand{\defeq}{\ \doteq\ }
 
-\newcommand\val[1]{\sigma(x)}
-\newcommand\cvar[1]{\mathit{{#1}}}
-\newcommand\clen[1]{\cvar{len}\ {#1}}
-\newcommand\cstr[1]{\mathsf{{#1}}}
-\newcommand\ttrue{\cvar{true}}
-\newcommand\tfalse{\cvar{false}}
+% \newcommand\val[1]{\sigma(x)}
+% \newcommand\cvar[1]{\mathit{{#1}}}
+% \newcommand\clen[1]{\cvar{len}\ {#1}}
+% \newcommand\cstr[1]{\mathsf{{#1}}}
+% \newcommand\ttrue{\cvar{true}}
+% \newcommand\tfalse{\cvar{false}}
 
-\newcommand\meta[1]{[\![#1]\!]}
-\newcommand\reft[3]{\{{#1}:{#2}\ |\ {#3}\}}
+% \newcommand\meta[1]{[\![#1]\!]}
+% \newcommand\reft[3]{\{{#1}:{#2}\ |\ {#3}\}}
 
-\newcommand\V{\lstinline$v$\xspace}
-\newcommand\X{\lstinline$x$\xspace}
-\newcommand\Y{\lstinline$y$\xspace}
-\newcommand\D{\lstinline$d$\xspace}
-\newcommand\T{\lstinline$t$\xspace}
+% \newcommand\V{\lstinline$v$\xspace}
+% \newcommand\X{\lstinline$x$\xspace}
+% \newcommand\Y{\lstinline$y$\xspace}
+% \newcommand\D{\lstinline$d$\xspace}
+% \newcommand\T{\lstinline$t$\xspace}
 
 
-\newcommand\Gen{\lstinline$gen$\xspace}
-\newcommand\Stitch{\lstinline$stitch$\xspace}
-\newcommand\ToExpr{\lstinline$toExpr$\xspace}
-\newcommand\Bool{\lstinline$Bool$\xspace}
-\newcommand\Bools{\lstinline$Bool$s\xspace}
-\newcommand\List{\lstinline$List$\xspace}
-\newcommand\Lists{\lstinline$List$s\xspace}
-\newcommand\Nil{\lstinline$Nil$\xspace}
-\newcommand\Cons{\lstinline$Cons$\xspace}
-\newcommand\Choose{\lstinline$choose$\xspace}
-\newcommand\Make{\lstinline$make$\xspace}
-\newcommand\Reverse{\lstinline$reverse$\xspace}
-\newcommand\Insert{\lstinline$insert$\xspace}
-\newcommand\Len{\lstinline$len$\xspace}
-\newcommand\Tail{\lstinline$tail$\xspace}
-\newcommand\Constrain{\lstinline$Constrain$\xspace}
-\newcommand\GConstrain{\lstinline$GConstrain$\xspace}
-\newcommand\Generic{\lstinline$Generic$\xspace}
+% \newcommand\Gen{\lstinline$gen$\xspace}
+% \newcommand\Stitch{\lstinline$stitch$\xspace}
+% \newcommand\ToExpr{\lstinline$toExpr$\xspace}
+% \newcommand\Bool{\lstinline$Bool$\xspace}
+% \newcommand\Bools{\lstinline$Bool$s\xspace}
+% \newcommand\List{\lstinline$List$\xspace}
+% \newcommand\Lists{\lstinline$List$s\xspace}
+% \newcommand\Nil{\lstinline$Nil$\xspace}
+% \newcommand\Cons{\lstinline$Cons$\xspace}
+% \newcommand\Choose{\lstinline$choose$\xspace}
+% \newcommand\Make{\lstinline$make$\xspace}
+% \newcommand\Reverse{\lstinline$reverse$\xspace}
+% \newcommand\Insert{\lstinline$insert$\xspace}
+% \newcommand\Len{\lstinline$len$\xspace}
+% \newcommand\Tail{\lstinline$tail$\xspace}
+% \newcommand\Constrain{\lstinline$Constrain$\xspace}
+% \newcommand\GConstrain{\lstinline$GConstrain$\xspace}
+% \newcommand\Generic{\lstinline$Generic$\xspace}
 
-\newcommand\PropInsert{\lstinline$prop_insert$\xspace}
-\newcommand\SortedList{\lstinline$SortedList$\xspace}
-\newcommand\Int{\lstinline$Int$\xspace}
-\newcommand\Nat{\lstinline$Nat$\xspace}
-\newcommand\Char{\lstinline$Char$\xspace}
-\newcommand\StackSet{\lstinline$StackSet$\xspace}
+% \newcommand\PropInsert{\lstinline$prop_insert$\xspace}
+% \newcommand\SortedList{\lstinline$SortedList$\xspace}
+% \newcommand\Int{\lstinline$Int$\xspace}
+% \newcommand\Nat{\lstinline$Nat$\xspace}
+% \newcommand\Char{\lstinline$Char$\xspace}
+% \newcommand\StackSet{\lstinline$StackSet$\xspace}
 
-\newcommand\True{\lstinline$true$\xspace}
-\newcommand\SAT{\lstinline$SAT$\xspace}
-\newcommand\UNSAT{\lstinline$UNSAT$\xspace}
+% \newcommand\True{\lstinline$true$\xspace}
+% \newcommand\SAT{\lstinline$SAT$\xspace}
+% \newcommand\UNSAT{\lstinline$UNSAT$\xspace}
 
 % \newcommand\ie{\emph{i.e.}\xspace}
 % \newcommand\eg{\emph{e.g.}\xspace}
@@ -353,12 +351,12 @@
 \newcommand\evalsym{\mathsf{eval}}
 \newcommand\blamesym{\mathsf{blame}}
 \newcommand\Model{\mathsf{Model}}
-%\newcommand\V{\mathcal{V}}
+\newcommand\V{\mathcal{V}}
 \newcommand\R{\mathcal{R}}
 %\newcommand\Runit{\R_0^1}
 \newcommand\Runit{\mathcal{C}}
 \newcommand\B{\mathcal{B}}
-%\newcommand\List[1]{[#1]}
+\newcommand\List[1]{[#1]}
 
 
 \makeatletter
