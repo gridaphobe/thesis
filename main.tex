@@ -1,9 +1,17 @@
-\documentclass[11pt]{ucsddissertation}
+\documentclass[12pt]{ucsddissertation}
+
+\usepackage{amsthm}
+
+\usepackage[tt=false, type1=true]{libertine}
+\usepackage[libertine]{newtxmath}
+\usepackage[varqu]{zi4}
+\usepackage[T1]{fontenc} % spell out all text encodings used
 
 % mathptmx is a Times Roman look-alike (don't use the times package)
 % It isn't clear if Times is required. The OGS manual lists several
 % "standard fonts" but never says they need to be used.
-\usepackage{mathptmx}
+%\usepackage{mathptmx}
+
 \usepackage[NoDate]{currvita}
 \usepackage{array}
 \usepackage{tabularx}
@@ -16,6 +24,7 @@
 \AtBeginDocument{%
 	\settowidth\cvlabelwidth{\cvlabelfont 0000--0000}%
 }
+
 
 % OGS recommends increasing the margins slightly.
 \increasemargins{.1in}
@@ -47,7 +56,6 @@
 %\usepackage{pdfpages}
 %\usepackage[doi]{natbib}
 
-\usepackage{amsthm}
 \renewcommand{\qedsymbol}{\ensuremath{\blacksquare}}
 % \newtheorem{lemma}{Lemma}
 % \newtheorem{corollary}{Corollary}
