@@ -129,6 +129,22 @@ $\stepg{e_0}{\emptysu}{\emptysu}{\bullet}{e_n}{\vsu}{\tsu}{\tr}$, where
 $e_0$ and $e_n$ are the \emph{initial} and \emph{final}
 expressions respectively.
 
+
+\begin{figure}[t!]
+\centering
+\includegraphics[height=12cm]{nanomaly/fac-steps-new.png}
+\caption{A sequence of interactions with the trace of
+  \texttt{fac 1}. The stuck term is red, in each node the redex is
+  highlighted. Thick arrows denote a multi-step transition, thin arrows
+  denote a single-step transition. We start in step 1. In step 2 we jump
+  forward from the witness to the next function call. In step 3 we step
+  into the recursive \texttt{fac 0} call, which spawns a new ``thread''
+  of execution. In step 4 we take a single step forward from
+  \texttt{fac 0}.}
+\label{fig:nanomaly-factorial}
+\end{figure}
+
+
 \paragraph{Visualization State}
 %
 A \emph{visualization state} $\vstate$ is a \emph{directed graph}
@@ -140,7 +156,6 @@ Figure~\ref{fig:nanomaly-factorial}.
 %
 The \emph{initial state} is the graph containing a single
 edge linking the initial and final expressions.
-
 \paragraph{Visualization Context}
 %
 The \emph{visualization context} of each expression $e$
@@ -221,17 +236,3 @@ if the command was $\stepintosym$.
 %%% %
 %%% @findVal vs e@ traverses the single-step edges to find the final value
 %%% that @e@ reduces to.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{nanomaly/fac-steps-new.png}
-\caption{A sequence of interactions with the trace of
-  \texttt{fac 1}. The stuck term is red, in each node the redex is
-  highlighted. Thick arrows denote a multi-step transition, thin arrows
-  denote a single-step transition. We start in step 1. In step 2 we jump
-  forward from the witness to the next function call. In step 3 we step
-  into the recursive \texttt{fac 0} call, which spawns a new ``thread''
-  of execution. In step 4 we take a single step forward from
-  \texttt{fac 0}.}
-\label{fig:nanomaly-factorial}
-\end{figure}
