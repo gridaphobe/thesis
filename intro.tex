@@ -1,0 +1,141 @@
+Static type systems are a marvelous invention.
+%
+They rule out, at compile-time, an entire class of run-time failures,
+\eg dereferencing a |null|-pointer or passing an |int| where a |bool|
+was expected.
+%
+Languages like \ocaml and \haskell make
+the value-proposition for types even more
+appealing by using constraints to automatically
+synthesize the types for all program terms,
+without troubling the programmer for any
+annotations.
+%
+Unfortunately, this automation comes at a price.
+%
+Type annotations signify the programmer's intent, and help to correctly
+blame the erroneous sub-term when the code is ill-typed.
+%
+In the absence of such signifiers, automatic type inference algorithms
+are prone to report type errors far from their source
+\citep{Wand1986-nw}.
+%
+While this can seem like a minor annoyance to veteran programmers,
+\citet{Joosten1993-yx} have found that novices often focus their
+attention on the \emph{location} reported and disregard the
+\emph{message}.
+
+In this dissertation we present two new techniques designed to help
+\emph{localize} and \emph{explain} type errors.
+%
+First, in this chapter, we begin with a review of the existing
+literature on type errors.
+%
+Second, we present a new dataset of novice interactions with the \ocaml
+type-checker, which will form the backbone of our evaluation.
+%
+Finally, we present our techniques and evaluate them in the context of
+localizing and explaining novice type errors.
+
+\section{A Running Example}
+\label{sec:intro:sumList}
+
+\begin{figure}[t!]
+\small
+\begin{minipage}{0.45\linewidth}
+\begin{ecode}
+let rec sumList xs =
+  match xs with
+  | []   -> (*@\hlSherrloc{[]}@*)
+  | h::t -> h + (*@\hlTree{sumList t}@*)
+\end{ecode}
+\end{minipage}
+\begin{minipage}{0.49\linewidth}
+\begin{verbatim}
+File "sumList.ml", line 4, characters 16-25:
+  This expression has type 'a list
+  but an expression was expected of type int
+
+\end{verbatim}
+\end{minipage}
+\caption{(left) An ill-typed \ocaml program that should sum the elements of a
+  list, with highlights indicating two possible blame assignments based on:
+  %
+  (1) the \hlTree{\ocaml} compiler; and
+  %
+  (2) the student's \hlSherrloc{fix}.
+  %
+  % The \underline{underlined} expressions are equally valid
+  % locations to blame. The expression blamed by the \ocaml compiler
+  % is in \textbf{bold}.
+  %
+  % FIXME: This bolding is ambiguous, because ``let rec'', ``match'' and
+  % ``with'' are also bolded (by \\ecode)! You need to find another way to
+  % highlight what ocaml is yelling about.
+  %
+  (right) The error reported by \ocaml.}
+\label{fig:intro:sumList}
+\end{figure}
+
+Consider the \ocaml program in \autoref{fig:intro:sumList}, which is
+supposed to sum the integers in a list.
+%
+This program was written by an undergraduate student at UC San Diego,
+and works as follows.
+%
+In functional languages like \ocaml, lists are recursively defined as
+either the empty list (written |[]| and pronounced ``nil''), or a single
+element |h| followed by the rest of the list |t| (written |h::t| and
+pronounced ``h cons t'')\footnote{These variable names are conventional,
+  \texttt{h} stands for ``head'' and \texttt{t} for ``tail''.}.
+%
+Given an input |xs|, the student |match|es it against the
+two forms a list can take.
+%
+In the |[]| case she returns another empty list |[]|, and in the
+|h::t| case she adds |h| to the recursive sum of |t|.
+
+The observant reader will notice that this program is incorrect, given
+\emph{any} non-empty list of integers, the addition on line 4 will
+attempt to add an integer to |[]|, which is an invalid operation.
+%
+In fact, the program is \emph{ill-typed} and the \ocaml compiler rejects
+it with the error message in \autoref{fig:intro:sumList}.
+%
+Unfortunately, \ocaml's error \emph{blames} the recursive call to
+|sumList|, explaining that |sumList| returns a |list|, while the |+|
+operator requires an |int|.
+%
+The real error is on line 3, where the student returns |[]| rather than
+|0| as the sum of an empty list.
+
+As we will see throughout the rest of this chapter, this rather simple
+program is sufficient to illustrate many of the difficulties of
+automatically locating the source of a type error, and explaining it to
+the programmer.
+
+\begin{figure}[t]
+\centering
+\[
+\boxed{
+\begin{array}{rcl}
+e & ::=    & x \spmid \efun{x}{e} \spmid \eapp{e}{e} \spmid \elet{x}{e}{e} \\
+  & \spmid & n \spmid \eplus{e}{e}\\
+  % & \spmid & b \spmid \eif{e}{e}{e} \\
+  % & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
+  & \spmid & \enil \spmid \econs{e}{e} \spmid \elcase{e}{e}{x}{x}{e} \\[0.05in]
+
+n & ::= &  0, 1, -1, \ldots \\[0.05in]
+
+% b & ::= &  \etrue \spmid \efalse \\[0.05in]
+
+t & ::= & \alpha \spmid % \tbool \spmid
+          \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
+          \tlist{t} \\[0.05in]
+\end{array}
+}
+\]
+\caption{A simple $\lambda$-calculus with integers and lists.}
+\label{fig:intro:simple-lambda}
+\end{figure}
+
