@@ -40,7 +40,7 @@ localizing and explaining novice type errors.
 \section{A Running Example}
 \label{sec:intro:sumList}
 
-\begin{figure}[t!]
+\begin{figure}[t]
 \small
 \begin{minipage}{0.45\linewidth}
 \begin{ecode}
@@ -114,28 +114,79 @@ program is sufficient to illustrate many of the difficulties of
 automatically locating the source of a type error, and explaining it to
 the programmer.
 
+\section{A Simple Type System}
+\label{sec:intro:simple-type}
+
 \begin{figure}[t]
 \centering
 \[
 \boxed{
-\begin{array}{rcl}
-e & ::=    & x \spmid \efun{x}{e} \spmid \eapp{e}{e} \spmid \elet{x}{e}{e} \\
-  & \spmid & n \spmid \eplus{e}{e}\\
-  % & \spmid & b \spmid \eif{e}{e}{e} \\
-  % & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
-  & \spmid & \enil \spmid \econs{e}{e} \spmid \elcase{e}{e}{x}{x}{e} \\[0.05in]
+\begin{array}{rrcl}
+\mathbf{Expressions}
+& e & ::=    & x \spmid \efun{x}{e} \spmid \eapp{e}{e} \spmid \elet{x}{e}{e} \\
+&   & \spmid & n \spmid \eplus{e}{e}\\
+    % & \spmid & b \spmid \eif{e}{e}{e} \\
+    % & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
+&   & \spmid & \enil \spmid \econs{e}{e} \spmid \elcase{e}{e}{x}{x}{e} \\[0.05in]
 
-n & ::= &  0, 1, -1, \ldots \\[0.05in]
+%\mathbf{Numbers}
+& n & ::= &  0, 1, -1, \ldots \\[0.2in]
 
 % b & ::= &  \etrue \spmid \efalse \\[0.05in]
-
-t & ::= & \alpha \spmid % \tbool \spmid
-          \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
-          \tlist{t} \\[0.05in]
+\mathbf{Types}
+& t & ::= & \alpha \spmid % \tbool \spmid
+            \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
+            \tlist{t} \\[0.05in]
 \end{array}
 }
 \]
+\begin{framed}
+\judgementHead{Typing}{\jtype{\Gamma}{e}{t}}
+\begin{gather*}
+\inference[\textsc{Var}]
+  {x:t \in \Gamma}
+  {\jtype{\Gamma}{x}{t}}
+\quad
+\inference[\textsc{Lam}]
+  {\jtype{\Gamma, x:t_1}{e}{t_2}}
+  {\jtype{\Gamma}{\efun{x}{e}}{\tarr{t_1}{t_2}}}
+\quad
+\inference[\textsc{App}]
+  {\jtype{\Gamma}{e_1}{\tarr{t_1}{t_2}}
+   \quad
+   \jtype{\Gamma}{e_2}{t_1}}
+  {\jtype{\Gamma}{\eapp{e_1}{e_2}}{t_2}}
+\\[0.1in]
+\inference[\textsc{Lit}]
+  {}
+  {\jtype{\Gamma}{n}{\tint}}
+\quad
+\inference[\textsc{Plus}]
+  {\jtype{\Gamma}{e_1}{\tint} \quad \jtype{\Gamma}{e_2}{\tint}}
+  {\jtype{\Gamma}{\eplus{e_1}{e_2}}{\tint}}
+\\[0.1in]
+\inference[\textsc{Nil}]
+  {\alpha \text{ is fresh}}
+  {\jtype{\Gamma}{\enil}{\tlist{\alpha}}}
+\quad
+\inference[\textsc{Cons}]
+  {\jtype{\Gamma}{e_1}{t} \quad \jtype{\Gamma}{e_2}{\tlist{t}}}
+  {\jtype{\Gamma}{\econs{e_1}{e_2}}{\tlist{t}}}
+\\[0.1in]
+\inference[\textsc{Match}]
+  {\jtype{\Gamma}{e_1}{t_1}
+    \quad
+   \jtype{\Gamma}{e_2}{t_2}
+    \quad
+   \jtype{\Gamma,\ x_1:t_1,\ x_2:\tlist{t_1}}{e_3}{t_2}
+  }
+  {\jtype{\Gamma}{\elcase{e_1}{e_2}{x_1}{x_2}{e_3}}{t_2}}
+\end{gather*}
+\end{framed}
 \caption{A simple $\lambda$-calculus with integers and lists.}
 \label{fig:intro:simple-lambda}
 \end{figure}
 
+To illustrate the difficulty of pinpointing the source of type errors,
+let us consider the simple $\lambda$-calculus with integers and lists in
+\autoref{fig:intro:simple-lambda}.
