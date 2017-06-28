@@ -9,7 +9,7 @@
   %at=(feature.above north), anchor=below south east,
   ybar stacked,
   width=0.5\linewidth,
-  height=4cm,
+  height=5cm,
   %title={Impact of Type Error Slice},
   ylabel={Accuracy},
   bar width=0.5cm,
@@ -23,8 +23,9 @@
   enlarge x limits=0.25,
   xtick=data,
   xtick style={draw=none},
-  xticklabels={\textsc{Local Syntax}, +\InSlice, \textsc{Filter \InSlice}},
+  xticklabels={\textsc{Syntax}, +\InSlice, \textsc{Filter}},
   x tick label style={font=\small},
+  %x tick label style={rotate=30, anchor=north east, font=\small},
   y tick label style={font=\small},
   reverse legend,
   transpose legend,
@@ -65,7 +66,7 @@
 \begin{axis}[
   ybar stacked,
   width=0.5\linewidth,
-  height=4cm,
+  height=5cm,
   ylabel={Recall},
   axis y line*=right,
   ymin=0.2,
@@ -93,8 +94,8 @@
   % name=feature,
   % scale only axis,
   ybar stacked,
-  width=0.9\linewidth,
-  height=5cm,
+  width=0.85\linewidth,
+  height=6cm,
   %title={Impact of Contextual Feature Classes},
   ylabel={Accuracy},
   bar width=0.5cm,
@@ -109,9 +110,10 @@
   xtick=data,
   xtick style={draw=none},
   xticklabel style={align=center},
+  %x tick label style={rotate=30, anchor=north east, font=\small},
   xticklabels={
-    \textsc{Local Syn}\\(45),
-    \textsc{+Size}\\(46), \textsc{+Context}\\(225), \textsc{+Type}\\(100),
+    \textsc{Syntax}\\(45),
+    \textsc{+Size}\\(46), \textsc{+Ctxt}\\(225), \textsc{+Type}\\(100),
     +C+S\\(226), +T+S\\(101), +C+T\\(281),
     +C+T+S\\(282)
     % + Size, + Context, + Type,
@@ -160,8 +162,8 @@
 \end{axis}
 \begin{axis}[
   ybar stacked,
-  width=0.9\linewidth,
-  height=5cm,
+  width=0.85\linewidth,
+  height=6cm,
   ylabel={Recall},
   axis y line*=right,
   ymin=0.5,
@@ -178,11 +180,11 @@
 \end{tikzpicture}
 \caption{
   %
-  Impact of contextual features on blame accuracy.
+  Impact of additional features on blame accuracy.
   %
-  % Starting from a baseline of local syntactic features,
-  % we add each combination of
-  % expression size, contextual syntactic, and typing features.
+  Starting from a baseline of local syntactic features,
+  we add each combination of
+  expression size, contextual syntactic, and typing features.
   %
   The total number of features is given in parentheses.
 }

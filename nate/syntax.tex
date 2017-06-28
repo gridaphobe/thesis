@@ -1,7 +1,5 @@
-\begin{figure}
-\small
+\begin{figure}[t]
 \centering
-\begin{minipage}[c]{.4\textwidth}
 \[
 \boxed{
 \begin{array}{rcl}
@@ -19,12 +17,11 @@ t & ::= & \alpha \spmid \tbool \spmid \tint \spmid \tfun{t}{t} \spmid \tprod{t}{
 \end{array}
 }
 \]
-\captionof{figure}{Syntax of \lang}
+\caption{Syntax of \lang}
 \label{fig:syntax}
-\end{minipage}
-\hfill
-\begin{minipage}[c]{.45\textwidth}
+\end{figure}
 \lstDeleteShortInline{|} % sigh...
+\begin{figure}[t]
 \[
 \boxed{
 \begin{array}{lcl}
@@ -40,8 +37,7 @@ t & ::= & \alpha \spmid \tbool \spmid \tint \spmid \tfun{t}{t} \spmid \tprod{t}{
 \end{array}
 }
 \]
-\lstMakeShortInline{|}
-\captionof{figure}{
+\caption{
   %
   A high-level API for converting program pairs to
   feature vectors and labels.
@@ -53,5 +49,5 @@ t & ::= & \alpha \spmid \tbool \spmid \tint \spmid \tfun{t}{t} \spmid \tprod{t}{
   % %
 }
 \label{fig:api}
-\end{minipage}
 \end{figure}
+\lstMakeShortInline{|}
