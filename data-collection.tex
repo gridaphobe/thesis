@@ -1,0 +1,37 @@
+In this chapter we describe a collection of novice interactions with the
+\ocaml compiler --- including, importantly, type errors --- that we
+gathered at UC San Diego over two quarters of the undergraduate CSE 130
+course (IRB \#140608).
+%
+We have made the anonymized data publicly
+available~\citep{Seidel2017-ko}, and hope that other researchers will
+find it as valuable as we have.
+
+The CSE 130 course is an upper-level (\ie generally consisting of third-
+and fourth-year students) course that introduces students to typed
+functional languages, specifically \ocaml.
+%
+For most students, this course will be their first exposure to both
+functional programming and type systems with global inference.
+%
+We generally spend the first five weeks covering basic functional
+programming in \ocaml, and then spend the last five weeks in
+\textsc{Scala} covering more advanced concepts like traits and
+monads (in the guise of |for-yield| comprehensions).
+%
+In the \ocaml portion of the course we cover standard functional idioms
+like (tail-) recursion, higher-order functions, and user-defined
+algebraic datatypes.
+
+We recruited students from two instances of the course, Spring 2014
+(\SPRING) and Fall 2015 (\FALL), to use an instrumented version of the
+\textsc{Ocaml-Top} editor~\ES{CITE}, which logged each of their
+interactions with the \ocaml top-level system.
+%
+46 students from the \SPRING quarter and 56 students from the \FALL
+quarter participated, for a total of 102 participants.
+%
+The participants used our instrumented editor to complete the first
+three programming assignments, which involved writing 23 \ocaml
+programs.
+%
