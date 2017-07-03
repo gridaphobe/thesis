@@ -190,3 +190,90 @@ the programmer.
 To illustrate the difficulty of pinpointing the source of type errors,
 let us consider the simple $\lambda$-calculus with integers and lists in
 \autoref{fig:intro:simple-lambda}.
+
+
+The traditional Damas-Milner Algorithm $\mathcal{W}$~\citep{Damas1982-uw}
+traverses the program from the bottom up, collecting typing constraints
+at each expression, and halting with an error when it detects an
+inconsistent constraint.
+%
+Thus, given our |sumList| program it will infer that the |[]| case
+returns a list while the |h::t| case returns an integer, which violates
+the \textsc{Match} rule's constraint that both branches must have the
+same type $t_2$.
+%
+$\mathcal{W}$ will then \emph{blame} the expression that induced the
+inconsistent constraint, in this case the entire |match| expression,
+while the error was in the base case.
+
+In this case Algorithm $\mathcal{W}$'s error report is actually not so
+bad, a well-written error message could convey that the error is due to
+the two branches having different types, which may be sufficient to
+isolate the source in the base case.
+%
+But in general, this behavior of bubbling typing constraints up from the
+leaves of the program can produce very poor errors~\citep{Wand1986-nw}.
+%
+In particular, when the same variable is used in different contexts in
+different branches \ES{TODO...}
+
+\paragraph{Alternate Traversal Strategies}
+
+As a result, several authors have proposed alternate traversal
+strategies to improve the error reports.
+%
+\citet{Lee1998-ys} describe a ``folklore'' algorithm $\mathcal{M}$ that
+traverses the program the top down, rather than from the bottom up, and
+prove that it always terminates sooner that $\mathcal{W}$ would, \ie
+at a smaller expression.
+%
+It pushes typing constraints inward from the outer expressions, \eg when
+checking the |match| expression in |sumList|, it would infer that the
+|[]| branch is a list and would then check that the |h::t| branch is
+also a list.
+%
+This is a subtle but crucial change from $\mathcal{W}$, as $\mathcal{M}$
+will abort when \ES{TODO, does it blame the + or the recursive call?}
+
+The fact that algorithm $\mathcal{M}$ (and $\mathcal{W}$) propagates
+constraints from one branch to others is known as the ``left-to-right''
+bias~\citep{McAdam1998-ub}.
+%
+Instead of propagating the constraints collected in one branch to
+others, \citet{McAdam1998-ub} and \citet{Yang1999-yr} suggest a
+\emph{symmetric} traversal that checks each branch independently of the
+others and then reports an error when merging two inconsistent sets of
+constraints from the branches.
+%
+One might think we would then be right back at the issue we observed
+with algorithm $\mathcal{W}$, with an error reported at the |match|
+expression, but \citeauthor{McAdam1998-ub} and \citeauthor{Yang1999-yr}
+annotate each constraint with its source location, so that they can
+report the conflict between the |[]| on line 3 and the |+| \ES{?} on
+line 4.
+
+\paragraph{Type Error Slicing}
+\citet{Tip2001-qp} and \citet{Haack2003-vc} extend the work of
+\citeauthor{McAdam1998-ub} and \citeauthor{Yang1999-yr}, and compute a
+full type error \emph{slice}, \ie all of the sub-expressions that are
+required for the error to manifest and no more.
+%
+For example, one type error slice for |sumList| would be the |match|
+expression and its two children, the |[]| and the |+| expression.
+%
+There is at least one other error slice for |sumList|, which includes
+the |[]|, the |+|, the recursive |sumList| call, and the |let rec|
+binder, which captures the issue that a list can be passed back through
+the recursive call to the |+| operator
+%
+In general there may be many distinct error slices for the same error,
+and while computing one slice can be done efficiently \ES{CITE},
+computing all slices is exponential.
+%
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
