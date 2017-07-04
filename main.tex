@@ -385,13 +385,16 @@ text of the abstract must be double spaced.
 
 %\part{Introduction}
 \chapter{Introduction}
+\label{chp:intro}
 \input{intro}
 
 \chapter{A Dataset of Novice Type Errors}
+\label{chp:data-collection}
 \input{data-collection}
 
 %\part{Witnessing Type Errors}
 \chapter{Dynamic Witnesses for Static Type Errors}
+\label{chp:nanomaly}
 \lstMakeShortInline{@}
 \newcommand\toolname{\tool{NanoMaLy}}
 \input{nanomaly/intro2}
@@ -416,6 +419,7 @@ text of the abstract must be double spaced.
 
 %\part{Predicting Type Errors}
 \chapter{Learning To Blame}
+\label{chp:nate}
 \renewcommand\toolname{\tool{Nate}}
 \renewcommand\lang{\ensuremath{\lambda^{ML}}}
 \input{nate/intro3}
