@@ -25,17 +25,22 @@ While this can seem like a minor annoyance to veteran programmers,
 attention on the \emph{location} reported and disregard the
 \emph{message}.
 
-In this dissertation we present two new techniques designed to help
-\emph{localize} and \emph{explain} type errors.
+In this dissertation we present two new, complementary techniques
+designed to help \emph{localize} and \emph{explain} type errors, drawing
+inspiration from the fields of automated program testing and machine
+learning.
 %
-First, in this chapter, we begin with a review of the existing
-literature on type errors.
+In the rest of this chapter we will set the stage for our contributions.
 %
-Second, we present a new dataset of novice interactions with the \ocaml
-type-checker, which will form the backbone of our evaluation.
+First, we will motivate the program of type error diagnosis with a
+simple example, and will review the state of the art in type error
+diagnosis.
 %
-Finally, we present our techniques and evaluate them in the context of
-localizing and explaining novice type errors.
+Second, we will provide a brief introduction to automated program
+testing and machine learning.
+%
+Finally, we will outline our novel contributions to the field.
+
 
 \section{A Running Example}
 \label{sec:intro:sumList}
@@ -191,6 +196,18 @@ To illustrate the difficulty of pinpointing the source of type errors,
 let us consider the simple $\lambda$-calculus with integers and lists in
 \autoref{fig:intro:simple-lambda}.
 
+\section{Diagnosing Type Errors}
+\label{sec:diagnosing-type-errors}
+In this section we will review the state of the art in type error
+diagnosis, which we will categorize as follows:
+\begin{enumerate}
+\item \emph{localizing} errors to a specific (set of) term(s);
+\item \emph{explaining} the error to the programmer; and
+\item automatically \emph{fixing} the error for the programmer.
+\end{enumerate}
+
+\subsection{Localizing Type Errors}
+\label{sec:localizing-type-errors}
 
 The traditional Damas-Milner Algorithm $\mathcal{W}$~\citep{Damas1982-uw}
 traverses the program from the bottom up, collecting typing constraints
@@ -253,7 +270,7 @@ report the conflict between the |[]| on line 3 and the |+| \ES{?} on
 line 4.
 
 \paragraph{Type Error Slicing}
-\citet{Tip2001-qp} and \citet{Haack2003-vc} extend the work of
+\citet{Tip2001-qp} and \citet{Haack2003-vc} extend the idea of
 \citeauthor{McAdam1998-ub} and \citeauthor{Yang1999-yr}, and compute a
 full type error \emph{slice}, \ie all of the sub-expressions that are
 required for the error to manifest and no more.
@@ -269,7 +286,896 @@ the recursive call to the |+| operator
 In general there may be many distinct error slices for the same error,
 and while computing one slice can be done efficiently \ES{CITE},
 computing all slices is exponential.
+
+A drawback of type error slicers is that they typically involve
+rewriting the type checker to use a specialized constraint language and
+solver.
 %
+Production compilers for languages like \ocaml and \haskell generally
+feature more advanced type languages than Hindley-Milner with heavily
+optimized type checkers, so the prospect of a full rewrite to support
+slicing is probably quite daunting.
+%
+The only type error slicer we are aware of that claims to support a full
+language is the \textsc{Skalpel} slicer for
+\textsc{SML}~\citep{Rahli2015-tt}, though \citet{Schilling2011-yf} has
+shown how to how to turn any type checker into a slicer by treating it
+as a black-box.
+
+Further, while type error slicers can guarantee enough information to
+diagnose an error, they can fall into the opposite trap of providing
+\emph{too much} information, producing a slice that is not much smaller
+than the original program.
+%
+In other words, a type error slicer will produce \emph{every possible}
+expression that could be blamed for the error, but some expressions are
+more likely to be at fault than others.
+
+\paragraph{Finding Likely Sources of Errors}
+Thus, recent work has focused on finding the \emph{most likely} source
+of a type error.
+%
+\citeauthor{Zhang2015-yu}~\citep{Zhang2014-lv,Zhang2015-yu} use Bayesian
+reasoning to search the constraint graph for constraints that
+participate in many unsatisfiable paths and relatively few satisfiable
+paths, based on the intuition that the program should be mostly correct.
+%
+\citet{Pavlinovic2014-mr,Pavlinovic2015-kh} translate the localization
+problem into a MaxSMT problem, asking an off-the-shelf solver to find
+the smallest set of constraints that can be removed such that the
+resulting system is satisfiable.
+%
+\citet{Loncaric2016-uk} improve the scalability of
+\citeauthor{Pavlinovic2014-mr} by reusing the existing type checker as
+a theory solver in the Nelson-Oppen~\citep{Nelson1979-td}
+style, and thus require only a MaxSAT solver.
+%
+All three of these techniques support \emph{weighted} constraints to
+incorporate knowledge about the frequency of different errors,
+but only \citeauthor{Pavlinovic2014-mr} use the weights, setting them to
+the size of the term that induced the constraint.
+
+
+\subsection{Explaining Type Errors}
+\label{sec:explaining-type-errors}
+The techniques we have discussed so far have focused solely on the task
+of \emph{localizing} a type error, but a good error report should also
+\emph{explain} the error.
+%
+\citet{Wand1986-nw}, \citet{Beaven1993-hb}, and \citet{Duggan1996-by}
+attempt to explain type errors by collecting the chain of inferences
+made by the type checker --- essentially the typing derivation ---
+and presenting them to the user.
+%
+Such explanations can be lengthy, as an attempt to compress the
+explanation \citet{Yang2000-kz} presents a visualization of the
+inference process.
+%
+\citet{Gast2004-zd} produces a slice enhanced by arrows
+showing the dataflow from sources with different types to a
+shared sink, borrowing the insight of dataflows-as-explanations from
+\textsc{MrSpidey}~\citep{Flanagan1996-bu}.
+%
+
+\paragraph{Interactive Explanations}
+Such \emph{static} explanations of type errors run the risk of
+overwhelming the user with too much information, it may be preferable to
+treat type error diagnosis as an \emph{interactive} debugging session.
+%
+\citet{Bernstein1995-yj} extend the type inference procedure to handle
+\emph{open} expressions (\ie with unbound variables), allowing users to
+interactively query the type checker for the types of sub-expressions.
+%
+\citet{Chitil2001-td} proposes \emph{algorithmic debugging} of type
+errors, presenting the user with a sequence of yes-or-no questions about
+the inferred types of sub-expressions that guide the user to a specific
+explanation.
+
+\paragraph{Programmatic Explanations}
+%
+The best explanation of a type error, however, might be given by an
+expert, \eg the compiler or library author.
+%
+\citet{Hage2006-hc} catalog a set of heuristics for
+improving the quality of error messages by examining errors made by
+novices.
+%
+\citet{Marceau2011-ok,Marceau2011-cy} study the effectiveness of error
+messages in novice environments and present suggestions for improving
+their quality and consistency.
+%
+\citet{Heeren2003-db}, \citet{Christiansen2014-qc}, and
+\citet{Serrano2016-oo} extend the ability to customize error messages to
+library authors, enabling \emph{domain-specific} errors.
+%
+The 8.0 release of the
+Glasgow Haskell Compiler\footnote{\url{https://ghc.haskell.org/trac/ghc/wiki/Proposal/CustomTypeErrors}}
+incorporates these ideas, allowing library authors to supply
+custom errors when type-class resolution or type-family reduction fail,
+but not for ordinary unification failures.
+
+\subsection{Fixing Type Errors}
+\label{sec:fixing-type-errors}
+Finally, some techniques go beyond explaining or locating a type error,
+and actually attempt to \emph{fix} the error automatically.
+%
+\citet{Lerner2007-dt} searches for fixes by enumerating a
+set of local mutations to the program and querying the type checker to
+see if the error remains.
+%
+\citet{Chen2014-gd} use a notion of \emph{variation-based} typing to
+track choices made by the type checker and enumerate potential
+% type (and expression)
+changes that would fix the error.
+%
+They also extend the algorithmic debugging technique of
+\citeauthor{Chitil2001-td} by allowing the user to enter the expected
+type of specific sub-expressions and suggesting fixes based on these
+desired types \citep{Chen2014-vm}.
+
+\section{Automated Program Testing}
+\label{sec:automated-program-testing}
+
+Software testing is a time-consuming and expensive task. The National
+Institute of Standards \& Technology (NIST) reports that an average of
+50-70\% of development time for a software product is spent on testing
+\citep{tassey_economic_2002}.
+%
+Furthermore, the cost of inadequate testing can be severe, NIST
+estimates the annual economic cost of inadequate software testing
+infrastructure at \$22.2 - \$59.5 billion.
+%
+Thus there is a strong incentive to develop improved testing methods and
+tools.
+
+At a high level, software testing can be divided into three levels,
+based on the object being tested~\citep{bourque_swebok:_2014}.
+%
+Unit testing involves testing individual components of a system --
+often at the level of individual functions or modules -- in isolation,
+and is almost always performed by the programmers
+themselves.
+%
+Integration testing refers to testing the interactions between units of
+a system.
+%
+Finally, system testing exercises the entire assembled software
+product, and may be performed by developers or target users.
+%
+In this section we will focus on automating unit testing, though the
+techniques we present could also be applied to the other levels.
+
+
+Two important questions that an automated test-case generation technique
+must answer are:
+
+\begin{enumerate}
+\item How shall we determine the success of a test run?
+\item How shall we generate appropriate input vectors?
+\end{enumerate}
+
+\paragraph{Characterizing correctness}
+At the unit testing level, a common practice is to collect a set of
+input/output pairs that characterize the expected behavior of the
+system, and test that given an input the system produces the expected
+output.
+%
+However, on its own this does not scale well to automatic
+test-generation (how do we determine \emph{a priori} the expected
+output?).
+%
+Thus, the systems we investigate will all use some notion of
+\emph{specification-based testing}~\cite{laycock_theory_1993}.
+%
+A specification is a formal statement of the expected behavior of the
+system under test, and may range from the simple ``this program should
+not crash'' to the relatively complex ``this program takes as input a
+sorted list $xs$ and an element $x$, and returns a new sorted list
+containing all elements of $xs$ as well as $x$''.
+%
+In fact, a complex safety specification can be reduced to crash-freedom
+by calling the function under scrutiny from another function that
+dynamically checks the safety condition and crashes if it is violated.
+%
+Thus, in this report we will focus more on the method of generating
+input vectors than the specification mechanism.
+
+\paragraph{Input generation}
+There are two broad approaches to constructing test vectors for a
+system.
+%
+\emph{Functional}, or \emph{black-box}, testing treats the
+system as opaque and selects input candidates based solely on the
+external specification.
+%
+On the other hand, \emph{structural}, or \emph{white-box}, testing uses
+knowledge of the system's internals to select test vectors (e.g. to
+optimize statement coverage or attempt to steer control-flow to a
+dangerous location).
+%
+Both categories are widely used, and in this section we will investigate
+techniques that fall into both.
+
+\subsection{Enumerating Inputs}
+\label{sec:enumerating-inputs}
+Perhaps the simplest method of automatically testing a program is to
+enumerate valid inputs based on its external interface -- an instance of
+\emph{black-box testing} \cite{adrion_validation_1982} -- and check
+whether the program behaves correctly on these inputs.
+%
+Of course, enumerating \emph{all} inputs is generally infeasible, so we
+must find some way of narrowing the search space.
+%
+The two common solutions are enumerating \emph{small} inputs and random
+sampling of the entire space.
+
+\paragraph{Enumerating ``small'' inputs}
+The \emph{small-scope hypothesis} \cite{jackson_software_2006} argues
+that if a property is invalid, there is likely a small counterexample,
+i.e. if a program contains a bug there is likely a small input that will
+trigger it. Thus, we can restrict our enumeration to ``small'' inputs
+and still gain a large degree of confidence in our program.
+%
+SmallCheck \cite{runciman_smallcheck_2008} is a testing library for
+\haskell programs that does the simplest thing possible.
+%
+Programmers specify how to enumerate input values using \haskell's
+type-class system \cite{wadler_how_1989} and provide a boolean-valued
+function that describes the property they wish to check, and SmallCheck
+enumerates all possible inputs up to some depth, validating the property
+on each input vector.
+%
+The input generators are expected to produce values in increasing size
+(indeed, such a generator can be automatically derived from a datatype
+definition), thus SmallCheck is guaranteed to find the \emph{minimal}
+counterexample if it lies within the depth-bound.
+
+Naturally, such a brute-force enumeration of input vectors is bound to
+be wasteful (i.e. it will produce many inputs that trigger the same code
+path), thus the authors also introduce a \emph{lazy} variant that takes
+advantage of Haskell's inherent laziness to prune the search space.
+%
+The key distinction of Lazy SmallCheck is that it produces
+\emph{partially-defined} values instead of fully-defined values,
+i.e. Lazy SmallCheck will initially leave each field of a value
+uninitialized, so that the Haskell runtime will thrown an exception if
+the field is read.
+%
+Only when a field is demanded will Lazy SmallCheck fill in the hole with
+an actual value. Thus, Lazy SmallCheck reduces the search space by
+dynamically discovering which parts of a value are relevant to the
+property being tested.
+%
+% Initially, Lazy SmallCheck had several disadvantages compared to
+% SmallCheck.
+% %
+% It could not generate functional values (commonly used in Haskell), and
+% it could not print the partially-defined counterexample, instead it
+% would have to concretize the input vector, thus \emph{losing}
+% information.
+% %
+% These were both added later as enhancements \cite{reich_advances_2013}.
+%
+% A remaining concern is that programmers must be careful about the order
+% in which they conjoin predicates, giving precedence to the lazier
+% predicate.
+% %
+% For example, a binary-search tree implementation will want to check the
+% ordering invariant before balancedness; the former will often fail
+% within the first few nodes whereas the latter will force the entire
+% spine.
+
+%\paragraph{TestEra / Korat}
+TestEra \cite{khurshid_testera:_2004,marinov_testera:_2001} provides
+(bounded) exhaustive testing of Java methods against an Alloy
+\cite{jackson_automating_2000} specification.
+%
+Unlike SmallCheck, which enumerates input vectors by unfolding each
+possible data constructor and enumerating its arguments, TestEra begins
+with a pre-defined universe of atomic values (e.g. primitive types and
+uninitialized objects), and uses the Alloy Analyzer
+\cite{jackson_alcoa:_2000} to enumerate all valid \emph{relations}
+between the atoms, i.e. setting the pointers appropriately such that the
+method's preconditions are satisfied.
+%
+Thus, an important optimization that TestEra implements is filtering
+\emph{isomorphic} inputs.
+%
+For each symbolic input vector produced by Alloy, TestEra
+\emph{concretizes} the input to a set of Java objects, executes the
+method, and then \emph{abstracts} the result back to an Alloy
+value.
+%
+Finally, it queries the Alloy Analyzer again to determine whether the
+output satisfies the method's postcondition, then proceeding to the next
+input vector.
+%
+Unlike SmallCheck, TestEra is not guaranteed to find a minimal
+counterexample as the testing order is left up to Alloy.
+
+Korat \cite{boyapati_korat:_2002} is a rewrite of TestEra that uses a
+custom enumeration algorithm instead of calling out to Alloy.
+%
+Korat enumerates all input candidates in lexicographic order, and runs
+an instrumented version of a programmer-supplied \texttt{repOk} method
+(to check class invariants and preconditions) that tracks field
+accesses.
+%
+If \texttt{repOk} returns \emph{true} Korat immediately outputs all
+(non-isomorphic) input vectors that share the current valuation of the
+\emph{accessed} fields, as the valuation of the unread fields cannot
+have affected the outcome of \texttt{repOk}.
+%
+More importantly, if \texttt{repOk} returns \emph{false} Korat
+immediately backtracks, skipping all variant candidates that share the
+current valuation of the accessed fields, as \emph{none} of them can be
+valid.
+%
+Thus, Korat takes advantage of the inherent laziness of
+invariant-checking predicates to quickly prune the search space of
+invalid inputs, in a very similar manner to Lazy SmallCheck.
+
+\paragraph{Random sampling of inputs}
+The obvious drawback to the approaches described above is that they will
+not detect bugs that only present on ``large'' inputs.
+%
+Thus, a common alternative to enumeration of small inputs is random
+selection of input vectors from the entire search space.
+
+% \paragraph{QuickCheck}
+QuickCheck \cite{claessen_quickcheck:_2000,claessen_testing_2002}
+enables randomized testing of Haskell programs by providing an embedded
+domain-specific language for generating \emph{arbitrary} values of a
+given datatype.
+%
+As with SmallCheck, QuickCheck properties are boolean-valued Haskell
+functions whose inputs can be (randomly) generated, and the
+input-generators (usually) operate by unfolding a specific data
+constructor and generating sub-values for the constructor's
+fields.
+%
+Unlike SmallCheck it is impractical to automatically derive QuickCheck
+generators for datatypes, as one must take care to ensure the generator
+covers a uniform distribution of values.
+%
+For example, a generator for a simple ``list'' type
+%
+\begin{verbatim}
+  type 'a list = Nil | Cons of 'a * 'a list
+\end{verbatim}
+%
+that chooses between \texttt{Nil} and \texttt{Cons} with equal
+probability is highly unlikely to generate lists with more than a
+handful of elements.
+%
+A further concern arising from random testing is that the returned
+counterexample may be quite large, as demonstrated by Pike
+\cite{pike_smartcheck:_2014}.
+%
+Thus, subsequent iterations of QuickCheck introduced support for
+\emph{shrinking} counterexamples \cite{hughes_quickcheck_2006}.
+%
+Once QuickCheck has found a counterexample it will invoke a user-defined
+\texttt{shrink} function on the input vector, which will return a list
+of smaller inputs.
+%
+QuickCheck will test each small candidate in turn and repeat the
+shrinking process on any new counterexamples, finally returning the
+smallest counterexample it could find.
+%
+Notably, the shrinking process is not guaranteed to find a
+\emph{minimal} counterexample.
+%
+Pike \cite{pike_smartcheck:_2014} builds on top of QuickCheck with
+SmartCheck, which provides automatically-derivable shrinking definitions
+that are shown to perform favorably compared to handwritten
+\texttt{shrink} functions, and produce smaller counterexamples.
+%
+More interestingly, SmartCheck also introduces \emph{counterexample
+  generalization}, which attempts to produce a universal property
+describing a class of counterexamples.
+%
+% For example, Pike shows that SmartCheck can reduce a large
+% counterexample like
+% %
+% \begin{verbatim}
+%   StackSet
+%    (Screen (Workspace 0 (-1)
+%      (Just (Stack 'S' "" ""))) 1 1)
+%    [Screen (Workspace 2 (-1) Nothing) 2 (-1),
+%     Screen (Workspace 3 (-1) Nothing) 0 (-1)]
+%    [Workspace 1 (-1) (Just (Stack 'NUL' "" "")),
+%     Workspace 4 (-1) (Just (Stack 'I' "" ""))]
+%    (fromList [])
+% \end{verbatim}
+% %
+% to a comparatively simple formula
+% %
+% \begin{verbatim}
+%   forall values x0 x1 x2 x3:
+%     StackSet
+%       (Screen (Workspace x0 (-1) (Just x1)) 1 1)
+%       x2 x3 (fromList [])
+% \end{verbatim}
+% %
+% thus abstracting away the irrelevant portions of the counterexample.
+% %
+% The key insight is that if one can replace a sub-value by another
+% arbitrary value without affecting the test outcome, then the sub-value
+% must not affect the outcome.
+% %
+% Thus, SmartCheck systematically replaces all sub-values of the
+% counterexample with other random values and generalizes the
+% counterexample accordingly.
+
+% QuickCheck does not currently have good support for testing properties
+% with preconditions, due to the low probability of randomly generating a
+% value that satisfies the precondition.
+% %
+% \citep{claessen_generating_2014} describes an algorithm for random
+% generation of constrained inputs based on \cite{duregard_feat:_2012}, by
+% defining a function to index into a uniform distribution of constrained
+% values, and then generating random indices, but the work has not yet
+% been incorporated into QuickCheck.
+
+% \paragraph{JCrasher}
+Instead of constructing input vectors directly, JCrasher
+\cite{csallner_jcrasher:_2004} constructs them indirectly via
+\emph{method chaining}.
+%
+Given a set of Java classes, JCrasher constructs a parameter graph,
+where the nodes are public methods, constructors, and primitive values,
+and the edges run from method parameters to nodes producing values of
+the needed type.
+%
+By randomly choosing paths through the graph starting from the method
+under test, JCrasher creates sequences of method and constructor calls
+that should produce valid input vectors.
+%
+JCrasher executes these method chains followed by the target method,
+under the assumption that public methods and constructors should not
+produce inputs that will crash a program.
+%
+There is some subtlety in the use of ``crash'', as Java methods will
+frequently throw exceptions when given invalid input parameters.
+%
+We should not consider precondition violations as ``crashes'' as the
+responsibility of providing valid inputs rests with the \emph{caller},
+not the \emph{callee} \cite{meyer_applying_1992}.
+%
+Thus, JCrasher includes a number of heuristics to determine whether a
+thrown exception should be considered a bug.
+%
+% For example, an \texttt{IllegalArgumentException} can be considered a
+% bug if it was thrown by a transitively-called method, but not if it was
+% thrown directly by the method under test, as that would indicate that
+% our test vector was at fault.
+% %
+% On the other hand, an \texttt{ArithmeticException} (e.g. divide-by-zero)
+% can always be classified as a bug, as the method under test should have
+% caught and handled it.
+
+%\paragraph{Randoop}
+Randoop \cite{pacheco_feedback-directed_2007} extends the
+method-chaining approach of JCrasher by incorporating feedback from
+previously generated test vectors.
+%
+The main insight is that if a sequence of methods $s$ results in a
+crash, there is no point in checking any sequences that include $s$ as a
+prefix.
+%
+Thus, Randoop iteratively constructs longer chains of method calls, only
+extending existing chains if they do not cause the program to
+crash.
+%
+Furthermore, Randoop applies some filters to the generated sequences
+before testing them to further reduce the search space, e.g. by
+discarding sequences that immediately throw an exception or produce a
+value that equal to the result of an existing sequence.
+
+\subsection{Enumerating Code Paths}
+The drawback to explicit enumeration of input vectors is that many
+inputs will trigger similar behavior in the program under test.
+%
+Indeed unit testing texts often advise programmers to first partition
+program inputs into \emph{equivalence classes}, and then test a single
+input vector from each equivalence class, thereby minimizing the number
+of handwritten tests required \cite{burnstein_practical_2003}.
+%
+So instead of enumerating inputs, perhaps we should enumerate program
+behaviors, i.e. paths through the program.
+%
+This necessarily requires knowledge of the internal structure of the
+program under test, thus tools that take this approach will fall in the
+category of \emph{white-box testing} \cite{adrion_validation_1982}.
+
+Tools that take this approach typically use \emph{dynamic-symbolic
+  execution}, which combines traditional symbolic execution with
+concrete execution, to quickly explore different paths through the
+program.
+%
+The two main categories of dynamic-symbolic execution-based testing
+tools are concolic testing and execution-generated testing, both
+introduced independently in 2005
+\cite{Godefroid2005-am,cadar_execution_2005}.
+
+\paragraph{Symbolic Execution}
+Symbolic execution as a method of testing programs is not a new idea, it
+was introduced in 1976 by King \cite{king_symbolic_1976}.
+%
+The key difference in between symbolic and concrete execution is that
+instead of mapping program variables to \emph{values}, a symbolic
+executor maps them to \emph{symbolic expressions}.
+%
+For example, given the simple program
+%
+\begin{verbatim}
+  int f (int x, int y) {
+    return 2 * (x + y);
+  }
+\end{verbatim}
+%
+a concrete execution may begin with input vector
+$\{x \mapsto 1, y \mapsto 2\}$ and return $6$.
+%
+A symbolic execution, however, will begin with an input vector
+$\{x \mapsto \alpha_1, y \mapsto \alpha_2\}$ -- where $\alpha_i$ are
+symbolic variables -- and return $2 * (\alpha_1 + \alpha_2)$, thereby
+precisely describing \emph{all} possible executions of \verb~f~.
+%
+Another key difference of symbolic execution is its handling of
+conditionals. Consider the first conditional in the following program.
+%
+\begin{verbatim}
+  int f (int x) {
+    if (x > 0) {
+      if (x == 0) {
+        abort();
+      }
+    }
+    return 0;
+  }
+\end{verbatim}
+%
+With the input vector $\{x \mapsto \alpha_1\}$, the symbolic executor
+does not know which direction of the branch it should take, as it knows
+nothing about the symbolic variable $\alpha_1$.
+%
+Therefore it must follow both directions!
+%
+When following a branch, the symbolic executor records the symbolic
+expression associated with the chosen direction in its \emph{path
+  constraint}, which we will write as a sequence of expressions
+$\langle e_1, e_2, \ldots \rangle$.
+%
+For example, in the outer conditional above, the ``true'' case would
+record $\langle \alpha_1 > 0 \rangle$ and the false case would record
+$\langle \lnot (\alpha_1 > 0) \rangle$.
+%
+Thus, it remembers what properties of the program inputs will trigger
+specific paths through the code.
+%
+When the symbolic executor reaches a branch point, it consults the
+current path constraint to determine with directions are feasible.
+%
+For example, upon reaching the inner conditional above, the symbolic
+executor will check whether $\alpha_1 = 0$ is consistent with the path
+condition $\langle \alpha_1 > 0 \rangle$, i.e. is the formula
+$\alpha_1 = 0\ \land\ \alpha_1 > 0$ satisfiable?
+%
+As the formula is clearly unsatisfiable, the symbolic executor will
+decide that the ``true'' branch is \emph{unreachable}, and continue by
+only pursuing the ``false'' branch.
+%
+Thus, a symbolic executor can statically determine that the
+\verb~abort()~ call above can \emph{never} be executed.
+
+While a powerful idea in theory, symbolic execution crucially relies on
+a theorem prover to solve the symbolic expressions it creates, and as
+such it went relatively unused until recent advances in constraint
+solving technology.
+
+\paragraph{Concolic Testing}
+Godefroid et al. introduced \emph{concolic testing} in 2005
+\cite{Godefroid2005-am}.
+%
+Concolic testing performs symbolic and concrete execution of a program
+in tandem.
+%
+Thus, when confronted with a program expression that the symbolic
+executor cannot reason about, a concolic tester can fall back to the
+concrete value and continue execution with more precision than a purely
+symbolic approach.
+
+DART \cite{Godefroid2005-am} instruments a C program to execute
+each instruction both concretely and symbolically, then performs a
+depth-first search of all paths through the program, starting
+with a random input vector.
+%
+At each branch point, DART records the branch condition and the
+direction taken, thereby building a \emph{path constraint}.
+%
+% For example, suppose DART is testing the following C program with
+% initial inputs $\{x \mapsto 5, y \mapsto 6\}$.
+% %
+% \begin{verbatim}
+% int f (int x, int y) {
+%   if (x == 5) {
+%     if (2 * y == x) {
+%       abort();
+%     }
+%   }
+%   return 0;
+% }
+% \end{verbatim}
+% %
+% This execution will satisfy $x = 5$ but not $2y = x$, thus the path
+% constraint will be $\langle x = 5,\ 2y \neq x \rangle$.
+%
+% Next,
+After completing a program run, DART will negate the last predicate in
+the path constraint and query a constraint solver for a solution
+% to $x = 5 \land 2y = x$,
+in order to produce a new input vector.
+%
+% There is only one solution to this constraint,
+% $\{x \mapsto 5, y \mapsto 10\}$, which will force execution through the
+% \emph{true} branch of both conditionals, right into the erroneous
+% \texttt{abort()} call.
+%
+% Since the concrete execution reached the \texttt{abort()} call, we know
+% it is a real bug as opposed to a false positive that could come from a
+% purely symbolic approach, i.e. DART \emph{soundly} reports bugs.
+Since the program is always being executed concretely, we know
+that any crashes discovered by DART are true bugs, \ie DART is
+\emph{sound}.
+
+When confronted with an expression that it cannot reason about
+symbolically, e.g. multiplication of two variables or a dereference of a
+pointer that depends on program input, DART will fall back to recording
+the result of the concrete evaluation.
+% For example, given
+% %
+% \begin{verbatim}
+% int f (int x, int y) {
+%   if (x == y*y) {
+%     abort();
+%   }
+%   return 0;
+% }
+% \end{verbatim}
+% %
+% and starting inputs $\{x \mapsto 5, y \mapsto 2\}$, DART will produce a
+% path constraint $\langle x \neq 4 \rangle$ for the first
+% execution.
+% %
+% Refuting this path constraint will \emph{not} produce an input vector
+% that is guaranteed to take the \emph{true} branch -- indeed the solver
+% may return the original input vector -- thus DART suffers a severe loss
+% of precision when the path-constraint veers outside the language of the
+% constraint solver.
+%
+In effect, this means DART degenerates to brute-force enumeration of
+inputs, as in \autoref{sec:enumerating-inputs}.
+%
+Furthermore, DART's depth-first enumeration of paths means that it may
+fail to discover all paths when presented with recursive programs,
+e.g. a program that checks the ordering invariant of a binary-search
+tree.
+%
+% In this case DART will loop forever, generating increasingly deep trees
+% whose right sub-trees are always \texttt{NULL} (assuming the program
+% checks the left sub-tree first).
+
+Sen et al. introduced CUTE \cite{Sen2005-ju} later that year, an
+extension of DART that adds support for testing complex datatypes.
+%
+CUTE enhances DART's technique by adding support for (dis)equality
+constraints on pointers, and by switching to a \emph{bounded}
+depth-first search.
+%
+% \paragraph{Pointer (dis)equality}
+% \label{sec-3-2-2-1}
+% Whereas DART maintained a single map of memory locations to symbolic arithmetic
+% expressions, CUTE maintains two maps of memory locations: (1) $\mathcal{A}$ to
+% arithmetic expressions and (2) $\mathcal{P}$ to pointer expressions. $\mathcal{A}$
+% contains the usual linear arithmetic expressions as in DART; however,
+% $\mathcal{P}$ contains expressions of the form $x_p \cong y_p$ where
+% $x_p$ is either a symbolic variable or the constant symbol \texttt{NULL} and
+% $\cong\ \in \{=, \neq\}$. When solving a pointer constraint, CUTE partitions the
+% variables in $\mathcal{P}$ into equivalence classes and applies the arithmetic
+% constraints to all members of the equivalence class. For example, given
+%
+% \begin{verbatim}
+% int f (int *x, int *y) {
+%   if (x == y) {
+%     if (*x == 5) {
+%       return 0;
+%     }
+%   }
+%   return 0;
+% }
+% \end{verbatim}
+%
+% and the path constraint $\langle x = y,\ *x \neq 5 \rangle$, when CUTE refutes
+% the $*x \neq 5$ conjunct, the value of $*y$ will \emph{also} be forced to $5$ as $x$
+% and $y$ are in the same equivalence class.
+%
+% \paragraph{Bounded Depth-First Search}
+% \label{sec-3-2-2-2}
+% In order to avoid an infinite loop from the repeated inlining of a loop body or
+% recursive call, CUTE places a configurable bound $k$ on the number of predicates
+% in the path constraint. Once the path constraint is full, CUTE stops recording
+% any further nested branch conditions, thereby forcing the refutation process to
+% negate an earlier constraint. For example, given
+%
+% \begin{verbatim}
+% int f (int n) {
+%   for (int i = 0; i < n; i++ ) {
+%     ...
+%   }
+%   return 0;
+% }
+% \end{verbatim}
+%
+% and $k = 4$, CUTE will never force more than four iterations of the
+% loop body, as the path constraint will be cut off at
+% $\langle i_0 < n,\ i_1 < n,\ i_2 < n,\ i_3 < n \rangle$. Negating the last conjunct
+% will force $n \leq 3$, and CUTE will begin to backtrack through the path
+% constraint until it terminates. While this tactic forces broad rather than deep
+% coverage, it also means that CUTE may miss bugs deep in the execution graph of
+% the program, e.g. if the loop body above were \verb~if (i == 5) abort();~.
+%
+% Another tactic CUTE employs to quickly achieve high coverage is branch
+% prediction. Since CUTE only refutes the final conjunct of the path constraint,
+% the outcomes of the previous branches should remain the same. Deviation from the
+% previous path at an earlier branch indicates an imprecision in the symbolic
+% executor; in this case CUTE will decide to restart execution with random inputs
+% instead of allowing the loss of precision.
+%
+% \subsubsection{PEX}
+% \label{sec-3-2-3}
+Tillman and Halleaux further extended concolic testing with Pex
+\cite{Tillmann2008-qc} in 2008, adding heuristics to improve
+path-selection, modeling of interactions with the environment, and a
+richer constraint language.
+%
+% \paragraph{Richer constraints}
+% \label{sec-3-2-3-1}
+% Whereas previous systems had limited constraint languages -- linear
+% arithmetic for DART, with the addition of pointer equality for CUTE --
+% Pex takes advantage of the rich constraint language offered by Z3
+% \cite{de_moura_z3:_2008}.
+% %
+% Pex supports linear arithmetic, bit-vectors, arrays directly via Z3.
+% %
+% Pex further supports floating-point numbers with an approximation to
+% rational numbers.
+% %
+% % \paragraph{Improving path-selection}
+% % \label{sec-3-2-3-2}
+% Instead of performing a depth-first search of all program paths, Pex
+% maintains a tree of all branch conditions it has encountered.
+% %
+% After exploring a path, Pex will choose a new unexplored path from the
+% unexplored leaves of the execution tree, using several heuristics to
+% partition branches into equivalence classes and then choosing a new
+% branch from the least-often chosen class.
+% %
+% Thus, Pex favors a more breadth-oriented search than DART or CUTE, while
+% avoiding randomness in its path-selection.
+% %
+% % \paragraph{Dealing with the environment}
+% % \label{sec-3-2-3-3}
+% Pex builds a model of the environment by recording the inputs and
+% outputs of function calls where the source code is unavailable.
+% %
+% This allows Pex to increase its precision when determining the
+% feasibility of a path, but it also makes Pex unsound as the model is
+% necessarily an under-approximation.
+
+
+\subsection{Execution-Generated Testing}
+\label{sec-3-3}
+Instead of performing symbolic and concrete execution in tandem,
+\emph{execution-generated testing} \cite{cadar_execution_2005} begins
+with pure symbolic execution and lazily generates concrete inputs on
+demand.
+%
+When a dangerous operation (e.g. division or memory read/write) is about
+to be executed, the system will insert an implicit branch denoting the
+possibility of an error (e.g. divide-by-zero or out-of-bounds write).
+%
+If the error branch is deemed feasible, the system will then solve the
+path constraint for an input vector designed to trigger the error
+condition.
+%
+Similarly, function calls into uninstrumented code, e.g. library
+functions or system calls, will induce a call to the constraint solver
+for a concrete set of inputs designed to trigger the call.
+%
+When the external call returns, the system will continue execution with
+the concrete result, thus improving precision over pure-symbolic
+approaches that would have to somehow model the interaction with the
+external world (often simply assuming nothing about the result).
+
+% \subsubsection{EXE}
+% \label{sec-3-3-1}
+Cadar et al. introduced execution-generated testing with EXE
+\cite{cadar_exe:_2006}.
+%
+EXE models program memory as arrays of bitvectors, enabling bit-precise
+reasoning about the C programs it tests via the co-developed constraint
+solver STP \cite{ganesh_decision_2007}.
+%
+This crucial distinction from DART and CUTE allows EXE and STP to view
+program values in the same way as the systems software they test, as
+untyped bytes.
+%
+% At each branch EXE forks execution for each direction of the branch that is
+% deemed feasible. The child processes add their direction to the path contraint
+% and go to sleep. A master process then decides which child (path) should
+% continue executing, using a combination of depth-first and best-first
+% search. The master process chooses the child blocked on the instruction with the
+% lowest execution count and runs it and its children in DFS for some period of
+% time. Then it picks another best candidate and repeats the process.
+%
+% An important optimization of EXE is \emph{aggressive concretization}. If the operands
+% are all concrete (i.e. constant values), EXE will simply perform the operation
+% and record the resulting concrete value. This helps simplify the queries sent
+% to STP, such that the only symbolic variables in a query will have a data
+% dependence on one of the initial symbolic variables.
+%
+% \subsubsection{KLEE}
+% \label{sec-3-3-2}
+In 2008, Cadar et al. rewrote EXE as KLEE \cite{Cadar2008-kg}, which
+symbolically executes LLVM IR \cite{lattner_llvm:_2004} and provides
+several enhancements over EXE.
+%
+% \paragraph{Compact process representation}
+% \label{sec-3-3-2-1}
+EXE cleverly used the host OS to fork processes for each branch,
+thus avoiding the need for complex backtracking logic to enumerate
+program paths, and to share memory between the processes.
+%
+Unfortunately, this did not scale well to larger programs with many
+program paths, so KLEE implemented its own backtracking and sharing
+logic in order to scale up to testing all of GNU Coreutils.
+%
+%  processes relied on the host OS to share memory and was
+% thus limited to page-level granularity, KLEE implements sharing with a
+% granularity of individual objects, thus tracking many more processes
+% than EXE could with the same memory limit.
+% %
+% This optimization enabled KLEE to scale up to testing all of GNU
+% Coreutils.
+%
+% \paragraph{Random path selection and Coverage-optimized search}
+% \label{sec-3-3-2-2}
+KLEE also employs two path selection strategies in round robin to
+prevent either one from getting stuck.
+%
+\emph{Random path selection} maintains a tree of all branches KLEE has
+encountered.
+%
+It starts at the root and randomly picks a child node until it hits a
+leaf, and schedules the corresponding process for execution.
+%
+This favors broad and shallow coverage, while still allowing for deep
+paths to be chosen.
+%
+\emph{Coverage-optimized search} weights each process according to some
+heuristics, e.g. distance to an unexecuted instruction, and biases the
+choice accordingly.
+%
+% \paragraph{Environment modeling}
+% \label{sec-3-3-2-3}
+% KLEE models the environment at the level of system calls, by replacing
+% the actual system call with a simplified C implementation. Thus there is
+% no ``foreign'' code and the developers can model interactions with the
+% external world with as much precision as they desire. The drawback is
+% that KLEE must now additionally reason about the mock system calls (as
+% well as any library code leading up to them).
 
 
 
