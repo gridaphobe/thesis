@@ -73,7 +73,8 @@
 \newcommand\tlist[1]{\ensuremath{[#1]}\xspace}
 \newcommand\econs[2]{\ensuremath{#1 :: #2}\xspace}
 \newcommand\enil{\ensuremath{\mathtt{[]}}\xspace}
-\newcommand\elcase[5]{\ensuremath{\mathtt{match}\ #1\ \mathtt{with} \begin{cases} \enil \to #2\\ \econs{#3}{#4} \to #5 \end{cases}}\xspace}
+%\newcommand\elcase[5]{\ensuremath{\mathtt{match}\ #1\ \mathtt{with} \begin{cases} \enil \to #2\\ \econs{#3}{#4} \to #5 \end{cases}}\xspace}
+\newcommand\elcase[5]{\ensuremath{\mathtt{match}\ #1 \begin{cases} \enil \to #2\\ \econs{#3}{#4} \to #5 \end{cases}}\xspace}
 % \newcommand\tref[4]{\ensuremath{\{ \tbind{#1}{#2^{#3}} \mid #4 \}}}
 % \newcommand\tttref[4]{\ensuremath{{\{ \ttbind{#1}{#2^{#3}} \mid \mathtt{#4} \}}}}
 \newcommand\tfun{\ensuremath{\mathtt{fun}}\xspace}

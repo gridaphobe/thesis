@@ -60,9 +60,27 @@
 \label{fig:factorial}
 \end{figure}
 
-In this chapter we propose a new approach that explains
-static type errors by \emph{dynamically} witnessing
-how an ill-typed program goes wrong.
+We have noticed a common theme in the existing literature on type error
+diagnosis: errors are always presented in terms of the static type
+system, and yet (static) type systems are meant to rule out certain
+types of \emph{dynamic} errors.
+%
+We believe this may be particularly confusing for novice users, who must
+simultaneously develop a mental model of the dynamic (evaluation)
+semantics and the static (typing) semantics of the language they are
+learning.
+%
+Furthermore, given the rise of dynamic languages like \textsc{Python}
+and \textsc{Javascript} as teaching languages, novices may be more
+familiar with reasoning about the dynamic semantics of a program than
+the static semantics.
+%
+Thus, by connecting the static type error to the dynamic error it
+would prevent, we might help novices understand the type system better.
+
+In this chapter we propose a new approach that explains static type
+errors by \emph{dynamically} witnessing how an ill-typed program goes
+wrong.
 %
 We have developed \toolname, an interactive tool that uses
 the source of the ill-typed function to automatically synthesize
