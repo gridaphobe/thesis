@@ -122,7 +122,7 @@ the programmer.
 \section{A Simple Type System}
 \label{sec:intro:simple-type}
 
-\begin{figure}[t]
+\begin{figure}[p]
 \centering
 \[
 \boxed{
@@ -141,7 +141,13 @@ the programmer.
 \mathbf{Types}
 & t & ::= & \alpha \spmid % \tbool \spmid
             \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
-            \tlist{t} \\[0.05in]
+            \tlist{t} \\[0.2in]
+
+\mathbf{Environments}
+& \Gamma & ::= & \cdot \spmid \Gamma;x:t \\[0.2in]
+
+\mathbf{Substitutions}
+& \sigma & ::= & \cdot \spmid \sigma \{\alpha \mapsto t\}\\
 \end{array}
 }
 \]
@@ -153,7 +159,7 @@ the programmer.
   {\jtype{\Gamma}{x}{t}}
 \quad
 \inference[\textsc{Lam}]
-  {\jtype{\Gamma, x:t_1}{e}{t_2}}
+  {\jtype{\Gamma;x:t_1}{e}{t_2}}
   {\jtype{\Gamma}{\efun{x}{e}}{\tarr{t_1}{t_2}}}
 \quad
 \inference[\textsc{App}]
@@ -161,6 +167,12 @@ the programmer.
    \quad
    \jtype{\Gamma}{e_2}{t_1}}
   {\jtype{\Gamma}{\eapp{e_1}{e_2}}{t_2}}
+\\[0.1in]
+\inference[\textsc{Let}]
+  {\jtype{\Gamma}{e_1}{t_1}
+   \quad
+   \jtype{\Gamma;x:t_1}{e_2}{t_2}}
+  {\jtype{\Gamma}{\elet{x}{e_1}{e_2}}{t_2}}
 \\[0.1in]
 \inference[\textsc{Lit}]
   {}
@@ -183,12 +195,17 @@ the programmer.
     \quad
    \jtype{\Gamma}{e_2}{t_2}
     \quad
-   \jtype{\Gamma,\ x_1:t_1,\ x_2:\tlist{t_1}}{e_3}{t_2}
+   \jtype{\Gamma;\ x_1:t_1;\ x_2:\tlist{t_1}}{e_3}{t_2}
   }
   {\jtype{\Gamma}{\elcase{e_1}{e_2}{x_1}{x_2}{e_3}}{t_2}}
 \end{gather*}
 \end{framed}
-\caption{A simple $\lambda$-calculus with integers and lists.}
+\caption{A simple $\lambda$-calculus with integers and lists.
+  %
+  % This
+  % language lacks common features like recursion and polymorphic
+  % functions since they do not
+}
 \label{fig:intro:simple-lambda}
 \end{figure}
 
@@ -209,30 +226,105 @@ diagnosis, which we will categorize as follows:
 \subsection{Localizing Type Errors}
 \label{sec:localizing-type-errors}
 
-The traditional Damas-Milner Algorithm $\mathcal{W}$~\citep{Damas1982-uw}
-traverses the program from the bottom up, collecting typing constraints
-at each expression, and halting with an error when it detects an
-inconsistent constraint.
+Note that the while the typing rules in
+\autoref{fig:intro:simple-lambda} specify the requirements for an
+expression $e$ to have type $t$, they do not dictate a procedure for
+computing $t$ given $e$, \ie, they are not \emph{algorithmic}.
 %
-Thus, given our |sumList| program it will infer that the |[]| case
+Thus, a type system cannot be used by a computer without an algorithm
+that specifies how to \emph{check} the type of an expression.
+%
+In our case, as the source language does not specify any types, we are
+actually interested in algorithms to \emph{infer} the type of an
+expression.
+
+\begin{figure}
+\centering
+\[
+\boxed{
+\begin{array}{lcl}
+\W & : & \Gamma \times e \rightarrow \sigma \times t \\
+\W(\Gamma, x)
+   & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t \\
+\W(\Gamma, \efun{x}{e})
+   & = & \text{let } (\sigma, t) = \W(\Gamma;x:\alpha, e),\ \alpha \text{ is fresh} \\
+   &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t})) \\
+\W(\Gamma, \eapp{e_1}{e_2})
+   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
+   &   & \quad\ \sigma_3 = \unify{\sigma_2(t_1)}{\tarr{t_2}{\alpha}},\ \alpha \text{ is fresh} \\
+   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha)) \\
+\W(\Gamma, \elet{x}{e_1}{e_2})
+   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+   &   & \quad\ \Gamma' = \Gamma;\ x_1:t_1 \\
+   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma'), e_2) \\
+   &   & \text{in } (\sigma_2(\sigma_1), t_2) \\
+\W(\Gamma, n)
+   & = & (\cdot, \tint) \\
+\W(\Gamma, \eplus{e_1}{e_2})
+   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
+   &   & \quad\ \sigma_3 = \unify{t_1}{\tint} \\
+   &   & \quad\ \sigma_4 = \unify{t_2}{\tint} \\
+   &   & \text{in } (\sigma_4(\sigma_3(\sigma_2(\sigma_1))), \tint) \\
+\W(\Gamma, \enil)
+   & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh} \\
+\W(\Gamma, \econs{e_1}{e_2})
+   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
+   &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
+   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
+\W(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}\hspace{-2ex})
+   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+   &   & \quad\ \sigma_2 = \unify{t_1}{\tlist{\alpha}},\ \alpha \text{ is fresh} \\
+   &   & \quad\ (\sigma_3, t_2) = \W(\sigma_2(\Gamma), e_2) \\
+   &   & \quad\ \Gamma' = \Gamma;\ x_1:\alpha;\ x_2:\tlist{\alpha} \\
+   &   & \quad\ (\sigma_4, t_3) = \W(\sigma_3(\sigma_2(\Gamma')), e_3) \\
+   &   & \quad\ \sigma_5 = \unify{t_2}{\sigma_4(t_1)} \\
+   &   & \text{in } (\sigma_5(\sigma_4(\sigma_3(\sigma_2(\sigma_1)))), \sigma_5(t_1)) \\
+\end{array}
+}
+\]
+\caption{Algorithm $\mathcal{W}$~\citep{Damas1982-uw}, adapted to our language. \ES{TODO: CHECK THE NEW RULES}}
+\label{fig:intro:algo-w}
+\end{figure}
+
+The traditional Damas-Milner Algorithm
+$\mathcal{W}$~\citep{Damas1982-uw}, extended to our language in
+\autoref{fig:intro:algo-w}, takes as input a typing environment $\Gamma$
+and an expression $e$, and returns a substitution $\sigma$, mapping free
+type variables $\alpha$ to concrete types, and an inferred type $t$.
+%
+Mechanically, it traverses the program from the bottom up, collecting
+typing constraints at each expression, and halting with an error when it
+detects an inconsistent constraint during a call to
+$\unifysym$. \ES{TODO: CITE UNIFICATION}
+%
+Thus, the placement of $\unifysym$ calls determines which expression will be blamed when a program is ill-typed.
+
+Given our |sumList| program \W will infer that the |[]| case
 returns a list while the |h::t| case returns an integer, which violates
 the \textsc{Match} rule's constraint that both branches must have the
 same type $t_2$.
 %
-$\mathcal{W}$ will then \emph{blame} the expression that induced the
-inconsistent constraint, in this case the entire |match| expression,
-while the error was in the base case.
+This violation will manifest as an error in the second $\unifysym$
+call in \W's |match| case, and \W will thus blame
+% $\mathcal{W}$ will then \emph{blame} the expression that induced the
+% inconsistent constraint, in this case
+the entire |match| expression
+even though the error was in the base case.
 
-In this case Algorithm $\mathcal{W}$'s error report is actually not so
+In this case $\mathcal{W}$'s error report is actually not so
 bad, a well-written error message could convey that the error is due to
 the two branches having different types, which may be sufficient to
 isolate the source in the base case.
 %
-But in general, this behavior of bubbling typing constraints up from the
-leaves of the program can produce very poor errors~\citep{Wand1986-nw}.
+But in general, this behavior of bubbling up of typing constraints from
+the leaves of the program can produce very poor errors~\citep[see
+Fig. 1 for a particularly pathological example]{Lee1998-ys}.
 %
-In particular, when the same variable is used in different contexts in
-different branches \ES{TODO...}
+% In particular, when the same variable is used in different contexts in
+% different branches \ES{TODO...}
 
 \paragraph{Alternate Traversal Strategies}
 
@@ -240,34 +332,124 @@ As a result, several authors have proposed alternate traversal
 strategies to improve the error reports.
 %
 \citet{Lee1998-ys} describe a ``folklore'' algorithm $\mathcal{M}$ that
-traverses the program the top down, rather than from the bottom up, and
-prove that it always terminates sooner that $\mathcal{W}$ would, \ie
-at a smaller expression.
+traverses the program top down, rather than from the bottom up, pushing
+constraints inward from outer expressions.
 %
-It pushes typing constraints inward from the outer expressions, \eg when
-checking the |match| expression in |sumList|, it would infer that the
-|[]| branch is a list and would then check that the |h::t| branch is
-also a list.
+Thus, while \W returned both a substitution and a type, \M takes an
+\emph{expected} type as input, and returns only a substitution.
 %
-This is a subtle but crucial change from $\mathcal{W}$, as $\mathcal{M}$
-will abort when \ES{TODO, does it blame the + or the recursive call?}
+\citeauthor{Lee1998-ys} also prove that \M always terminates sooner that
+$\mathcal{W}$ would, \ie at an expression deeper in the tree.
+%
+\begin{figure}
+\centering
+\[
+\boxed{
+\begin{array}{lcl}
+\M & : & \Gamma \times e \times t \rightarrow \sigma \\
+% \W(\Gamma, x)
+%    & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t \\
+% \W(\Gamma, \efun{x}{e})
+%    & = & \text{let } (\sigma, t) = \W(\Gamma;x:\alpha, e),\ \alpha \text{ is fresh} \\
+%    &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t})) \\
+% \W(\Gamma, \eapp{e_1}{e_2})
+%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
+%    &   & \quad\ \sigma_3 = \unify{\sigma_2(t_1)}{\tarr{t_2}{\alpha}},\ \alpha \text{ is fresh} \\
+%    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha)) \\
+% \W(\Gamma, \elet{x}{e_1}{e_2})
+%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+%    &   & \quad\ \Gamma' = \Gamma;\ x_1:t_1 \\
+%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma'), e_2) \\
+%    &   & \text{in } (\sigma_2(\sigma_1), t_2) \\
+% \W(\Gamma, n)
+%    & = & (\cdot, \tint) \\
+\M(\Gamma, \eplus{e_1}{e_2}, t)
+   & = & \text{let } \sigma_1 = \unify{t}{\tint} \\
+   &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_1, \tint) \\
+   &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma)), e_2, \tint) \\
+   &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
+% \W(\Gamma, \enil)
+%    & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh} \\
+% \W(\Gamma, \econs{e_1}{e_2})
+%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
+%    &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
+%    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
+\M(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}\hspace{-2ex}, t)
+   & = & \text{let } \sigma_1 = \M(\Gamma, e_1, \tlist{\alpha_1}), \alpha_1 \text{ is fresh} \\
+   &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_2, \alpha_2), \alpha_2 \text{ is fresh} \\
+   &   & \quad\ \Gamma' = \Gamma;\ x_1:\alpha_1;\ x_2:\tlist{\alpha_1} \\
+   &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma')), e_3, \sigma_2(\alpha_2)) \\
+   &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
+\end{array}
+}
+\]
+\caption{A selection of rules from algorithm \M~\citep{Lee1998-ys},
+  extended to our language.}
+\label{fig:intro:algo-m}
+\end{figure}
 
-The fact that algorithm $\mathcal{M}$ (and $\mathcal{W}$) propagates
-constraints from one branch to others is known as the ``left-to-right''
-bias~\citep{McAdam1998-ub}.
+\autoref{fig:intro:algo-m} contains a selection of \M's rules that are relevant to the error in our |sumList| program.
 %
+Note how the |match| rule no longer does any unification, it just makes
+a series of recursive calls.
+%
+Rather, the |+| rule is now responsible for checking that its
+surrounding context expects it to return an $\tint$.
+%
+Crucially, \M \emph{infers} a type for the |[]| case\footnote{Note how
+  we pass a fresh type variable $\alpha_2$ as the ``expected'' type.}
+and then checks that the |::| case returns the same type.
+%
+This is a subtle change from \W's behavior, but as a result \M will
+blame the |+| expression for producing an $\tint$ rather than the
+|match| expression.
+%
+This is better, though still not ideal as the actual error is in the
+|[]| case.
+
+% It pushes typing constraints inward from the outer expressions, \eg when
+% checking the |match| expression in |sumList|, it would infer that the
+% |[]| branch is a list and would then check that the |h::t| branch is
+% also a list.
+%
+% This is a subtle but crucial change from $\mathcal{W}$, as $\mathcal{M}$
+% will abort when it checks that the |+| expression is a list.
+
+Another issue, present in both algorithm $\mathcal{M}$ and
+$\mathcal{W}$, is that constraints are propagated from one branch to
+others, known as the ``left-to-right'' bias~\citep{McAdam1998-ub}.
+%
+This bias is the reason that $\mathcal{M}$ (and most type-checkers in
+practice) blames the |h::t| case rather than the |[]| case; however,
+it is not limited to expressions that create a branch in the program's
+control-flow.
+%
+Rather, the constraint propagation happens between branches of the
+program's abstract syntax tree.
+%
+See, \eg the $\eapp{e_1}{e_2}$ case of \W\ --- we apply the substitution
+$\sigma_1$ from $e_1$ to the environment when checking $e_2$.
+%
+Thus, any expression with multiple children will be subject to the
+left-to-right bias.
+
 Instead of propagating the constraints collected in one branch to
 others, \citet{McAdam1998-ub} and \citet{Yang1999-yr} suggest a
 \emph{symmetric} traversal that checks each branch independently of the
 others and then reports an error when merging two inconsistent sets of
 constraints from the branches.
 %
+Mechanically, this means that we no longer apply the substitution from
+one branch to the other, but rather unify the substitutions from both
+branches after they have been individually checked.
+%
 One might think we would then be right back at the issue we observed
 with algorithm $\mathcal{W}$, with an error reported at the |match|
-expression, but \citeauthor{McAdam1998-ub} and \citeauthor{Yang1999-yr}
-annotate each constraint with its source location, so that they can
-report the conflict between the |[]| on line 3 and the |+| \ES{?} on
-line 4.
+expression, but \citeauthor{Yang1999-yr} annotates each constraint with
+its source location, so that they can report the conflict between the
+|[]| on line 3 and the |+| on line 4.
 
 \paragraph{Type Error Slicing}
 \citet{Tip2001-qp} and \citet{Haack2003-vc} extend the idea of
@@ -276,15 +458,21 @@ full type error \emph{slice}, \ie all of the sub-expressions that are
 required for the error to manifest and no more.
 %
 For example, one type error slice for |sumList| would be the |match|
-expression and its two children, the |[]| and the |+| expression.
+expression and its two children, the |[]| and the |+| expression,
+which \cite{Haack2003-vc} would report as follows:
 %
+\begin{verbatim}
+  Type error: type constructor clash, endpoints list vs. int.
+  match .. with | [] -> [] | h::t -> .. + ..
+\end{verbatim}
+
 There is at least one other error slice for |sumList|, which includes
 the |[]|, the |+|, the recursive |sumList| call, and the |let rec|
 binder, which captures the issue that a list can be passed back through
-the recursive call to the |+| operator
+the recursive call to the |+| operator.
 %
 In general there may be many distinct error slices for the same error,
-and while computing one slice can be done efficiently \ES{CITE},
+and while computing one slice can be done efficiently,
 computing all slices is exponential.
 
 A drawback of type error slicers is that they typically involve
@@ -298,9 +486,9 @@ slicing is probably quite daunting.
 %
 The only type error slicer we are aware of that claims to support a full
 language is the \textsc{Skalpel} slicer for
-\textsc{SML}~\citep{Rahli2015-tt}, though \citet{Schilling2011-yf} has
-shown how to how to turn any type checker into a slicer by treating it
-as a black-box.
+\textsc{SML}~\citep{Rahli2010-ps,Rahli2015-tt}, though
+\citet{Schilling2011-yf} has shown how to how to turn any type checker
+into a slicer by treating it as a black-box.
 
 Further, while type error slicers can guarantee enough information to
 diagnose an error, they can fall into the opposite trap of providing
@@ -338,9 +526,9 @@ the size of the term that induced the constraint.
 
 \subsection{Explaining Type Errors}
 \label{sec:explaining-type-errors}
-The techniques we have discussed so far have focused solely on the task
-of \emph{localizing} a type error, but a good error report should also
-\emph{explain} the error.
+The techniques we have discussed so far have focused primarily on the
+task of \emph{localizing} a type error, but a good error report should
+also \emph{explain} the error.
 %
 \citet{Wand1986-nw}, \citet{Beaven1993-hb}, and \citet{Duggan1996-by}
 attempt to explain type errors by collecting the chain of inferences
@@ -348,7 +536,7 @@ made by the type checker --- essentially the typing derivation ---
 and presenting them to the user.
 %
 Such explanations can be lengthy, as an attempt to compress the
-explanation \citet{Yang2000-kz} presents a visualization of the
+explanation \citet{Yang2000-kz} present a visualization of the
 inference process.
 %
 \citet{Gast2004-zd} produces a slice enhanced by arrows
