@@ -396,10 +396,10 @@ $v$ of type $t$ such that $\eapp{f}{v}$ goes wrong.
 
 \begin{thm}[Witness Generality]
 \label{thm:soundness}
-  For any lambda-term $f$, if
-  \hbox{$\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$,}
+  For any lambda $f$, if
+  $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$,
   then for every
-  (inhabited\footnote{All types in \lang are inhabited, but in a larger language like \ocaml this may not be true.})
+  (inhabited~\footnote{All types in \lang are inhabited, but in a larger language like \ocaml this may not be true.})
   type
   % \footnote{We exclude builtin functions that subvert the type system, \eg \texttt{Obj.magic}, and thus consider the type $\forall a b. \tfun{a}{b}$ to be uninhabitable.}
   $t$ there exists a value $v$ of type $t$ such that
@@ -711,7 +711,7 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
   %
   We show by case analysis on the evaluation rules that
   %
-  $$\step{e_{i-1}}{\vsu_{i-1}}{\tsu_{i-1}[\thole' \mapsto s]}{\stuck}{\vsu}{\tsu}$$
+  $\step{e_{i-1}}{\vsu_{i-1}}{\tsu_{i-1}[\thole' \mapsto s]}{\stuck}{\vsu}{\tsu}$.
 
   Finally, by Lemma~\ref{lem:resolve-compat} we know that
   % $\vsub{\resolve{\thole}{\tsu_{i-1}}}{\resolve{\ehole}{\vsu_{i-1}}}$,
@@ -720,12 +720,10 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
   %and thus $\vsub{\intctx{\thole'}}{\resolve{\vhole{\thole}}{\vsu_{i-1}}}$.
   %
   Let
-  $$
-  \begin{array}{lcl}
-  u &=& \gen{s}{\tsu} \\
-  v &=& \resolve{\vhole{\thole}}{\vsu_{i-1}}\sub{\ehole'[\thole']}{u}\sub{\thole'}{s} \\
-  \end{array}
-  $$
+  $u = \gen{s}{\tsu}$
+  and
+  $v = \resolve{\vhole{\thole}}{\vsu_{i-1}}\sub{\ehole'[\thole']}{u}\sub{\thole'}{s}$.
+  %Then,
   $\steps{\eapp{f}{v}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$ in $i$ steps.
   %and
   % $\vsub{\resolve{\thole}{\tsu_{i}}}{\resolve{\ehole}{\vsu_{i}}}$.
@@ -961,9 +959,9 @@ We obtain the following corollary of Theorem~\ref{thm:soundness}:
 
 \begin{cor}[Witness Generation]
 \label{thm:generation}
-  If $\genWitness{k}{e} = \triple{\eapp{e}{v_1 \ldots v_n}}{\vsu}{\tsu},\ldots$
+  If \[\genWitness{k}{e} = \triple{\eapp{e}{v_1 \ldots v_n}}{\vsu}{\tsu},\ldots\]
   then for all types $t_1 \ldots t_n$ there exist values $w_1 \ldots w_n$ such that
-  $\steps{\eapp{e}{w_1 \ldots w_n}}{\emptysu}{\emptysu}{\stuck}{\vsu'}{\tsu'}$.
+  \[\steps{\eapp{e}{w_1 \ldots w_n}}{\emptysu}{\emptysu}{\stuck}{\vsu'}{\tsu'}\]
 \end{cor}
 \begin{proof}
   For any function $f$ of multiple arguments, we can define $f'$ as the
