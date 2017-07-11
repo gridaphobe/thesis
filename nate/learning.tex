@@ -174,7 +174,7 @@ still extract a \emph{partial} typing derivation from the type checker
 and use it to provide more information to the model.
 
 A difficulty that arises here is that, due to the parametric type
-constructors $\tfun{\cdot}{\cdot}$, $\tprod{\cdot}{\cdot}$, and
+constructors $\tarr{\cdot}{\cdot}$, $\tprod{\cdot}{\cdot}$, and
 $\tlist{\cdot}$, there is an \emph{infinite} set of possible types ---
 but we must have a \emph{finite} set of features.
 %
@@ -184,8 +184,8 @@ constructor that describe whether a given type mentions the type
 constructor.
 %
 For example, the type $\tint$ would only enable the $\tint$ feature,
-while the type $\tfun{\tint}{\tbool}$ would enable the
-$\tfun{\cdot}{\cdot}$, $\tint$, and $\tbool$ features.
+while the type $\tarr{\tint}{\tbool}$ would enable the
+$\tarr{\cdot}{\cdot}$, $\tint$, and $\tbool$ features.
 
 We add these features for parent and child expressions to summarize the
 context, but also for the current expression, as the type of an

@@ -46,11 +46,11 @@
 \newcommand\elet[3]{\ensuremath{\mathtt{let}\ #1 = #2\ \mathtt{in}\ #3}\xspace}
 \newcommand\enode[3]{\ensuremath{\mathtt{node}\ #1\ #2\ #3}\xspace}
 \newcommand\eleaf{\ensuremath{\mathtt{leaf}}\xspace}
-\newcommand\ecase[6]{\ensuremath{\mathtt{case}\ #1 \begin{cases} \eleaf \to #2\\ \enode{#3}{#4}{#5} \to #6 \end{cases}\hspace{-2.5ex}}\xspace}
+\newcommand\ecase[6]{\ensuremath{\mathtt{match}\ #1 \begin{cases} \eleaf \to #2\\ \enode{#3}{#4}{#5} \to #6 \end{cases}\hspace{-2.5ex}}\xspace}
 \newcommand\ehole{\ensuremath{\nu}\xspace}
 \newcommand\thole{\ensuremath{\alpha}\xspace}
 \newcommand\epair[2]{\ensuremath{\langle #1, #2 \rangle}\xspace}
-\newcommand\epcase[4]{\ensuremath{\mathtt{case}\ #1 \begin{cases} \epair{#2}{#3} \to #4 \end{cases}\hspace{-2.5ex}}\xspace}
+\newcommand\epcase[4]{\ensuremath{\mathtt{match}\ #1 \begin{cases} \epair{#2}{#3} \to #4 \end{cases}\hspace{-2.5ex}}\xspace}
 
 % \newcommand\erec[3]{\ensuremath{\mu #1.\lambda #2. #3}}
 % \newcommand\etabs[2]{\ensuremath{\left[\Lambda #1\right] #2}}
@@ -158,11 +158,11 @@
 \newcommand{\renodebadone}{\rulename{Node-B1}}
 \newcommand{\renodebadtwo}{\rulename{Node-B2}}
 \newcommand{\releafgood}{\rulename{Leaf-G}}
-\newcommand{\recasegoodone}{\rulename{Case-G1}}
-\newcommand{\recasegoodtwo}{\rulename{Case-G2}}
-\newcommand{\recasebad}{\rulename{Case-B}}
-\newcommand{\repcasegood}{\rulename{Case-Pair-G}}
-\newcommand{\repcasebad}{\rulename{Case-Pair-B}}
+\newcommand{\recasegoodone}{\rulename{Match-G1}}
+\newcommand{\recasegoodtwo}{\rulename{Match-G2}}
+\newcommand{\recasebad}{\rulename{Match-B}}
+\newcommand{\repcasegood}{\rulename{Match-Pair-G}}
+\newcommand{\repcasebad}{\rulename{Match-Pair-B}}
 \newcommand{\reholegood}{\rulename{Hole-G}}
 
 
