@@ -272,7 +272,7 @@ expression.
    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
    &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
-\W(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}\hspace{-2ex})
+\W(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
    &   & \quad\ \sigma_2 = \unify{t_1}{\tlist{\alpha}},\ \alpha \text{ is fresh} \\
    &   & \quad\ (\sigma_3, t_2) = \W(\sigma_2(\Gamma), e_2) \\
@@ -296,9 +296,10 @@ type variables $\alpha$ to concrete types, and an inferred type $t$.
 Mechanically, it traverses the program from the bottom up, collecting
 typing constraints at each expression, and halting with an error when it
 detects an inconsistent constraint during a call to
-Robinson's $\unifysym$ algorithm. \ES{TODO: CITE UNIFICATION}
+Robinson's unification algorithm, \unifysym~\citep{Robinson1965-rk}.
 %
-Thus, the placement of $\unifysym$ calls determines which expression will be blamed when a program is ill-typed.
+Thus, the placement of calls to $\unifysym$ determines which expression
+will be blamed when a program is ill-typed.
 
 Given our |sumList| program \W will infer that the |[]| case
 returns a list while the |h::t| case returns an integer, which violates
@@ -374,7 +375,7 @@ $\mathcal{W}$ would, \ie at an expression deeper in the tree.
 %    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
 %    &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
 %    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
-\M(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}\hspace{-2ex}, t)
+\M(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}, t)
    & = & \text{let } \sigma_1 = \M(\Gamma, e_1, \tlist{\alpha_1}), \alpha_1 \text{ is fresh} \\
    &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_2, \alpha_2), \alpha_2 \text{ is fresh} \\
    &   & \quad\ \Gamma' = \Gamma;\ x_1:\alpha_1;\ x_2:\tlist{\alpha_1} \\
