@@ -30,11 +30,11 @@
 % OGS recommends increasing the margins slightly.
 \increasemargins{.1in}
 
-\usepackage[numbers,sort&compress,square]{natbib}
-\usepackage{bibentry}
-\nobibliography*
-% \usepackage[natbib=true,style=numeric,firstinits=true,isbn=false,doi=false,url=false]{biblatex}
-% \addbibresource{main.bib}
+% \usepackage[numbers,sort&compress,square]{natbib}
+% \usepackage{bibentry}
+% \nobibliography*
+\usepackage[backend=bibtex,natbib=true,style=trad-abbrv,isbn=false]{biblatex}
+\addbibresource{main.bib}
 
 
 
@@ -319,23 +319,23 @@ PEOPLE TO ACKNOWLEDGE (not in order)
 % This puts in the PUBLICATIONS header. Note that it appears inside
 % the vita environment. It is optional.
 \publications
-\noindent\bibentry{Seidel2016-ul}
+\noindent\fullcite{Seidel2016-ul}
 \vskip\baselineskip
-\noindent\bibentry{Elliott2015-xu}
+\noindent\fullcite{Elliott2015-xu}
 \vskip\baselineskip
-\noindent\bibentry{Seidel2015-pe}
+\noindent\fullcite{Seidel2015-pe}
 \vskip\baselineskip
-\noindent\bibentry{Vazou2014-gx}
+\noindent\fullcite{Vazou2014-gx}
 \vskip\baselineskip
-\noindent\bibentry{Vazou2014-xk}
+\noindent\fullcite{Vazou2014-xk}
 \vskip\baselineskip
-\noindent\bibentry{Seidel2012-fw}
+\noindent\fullcite{Seidel2012-fw}
 \vskip\baselineskip
-\noindent\bibentry{Khoo2012-tk}
+\noindent\fullcite{Khoo2012-tk}
 \vskip\baselineskip
-\noindent\bibentry{Allen2010-jr}
+\noindent\fullcite{Allen2010-jr}
 \vskip\baselineskip
-\noindent\bibentry{Seidel2010-rx}
+\noindent\fullcite{Seidel2010-rx}
 
 
 % \noindent``Distributions of Control Points in a System for Analysis of Stress
@@ -497,9 +497,9 @@ improving the error messages produced by type checkers.
 
 % Stuff at the end of the dissertation goes in the back matter
 \backmatter
-\bibliographystyle{abbrvnat} % Or whatever style you want like plainnat
-\bibliography{main}
+% \bibliographystyle{abbrvnat}
+% \bibliography{main}
 %\bibliography{nate/main,target/sw}
-%\printbibliography
+\printbibliography
 
 \end{document}
