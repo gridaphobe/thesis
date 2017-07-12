@@ -379,21 +379,21 @@ However, this introduces its own problems as the type checker must now
 make assumptions about what the programmer intended to do.
 %
 A single incorrect assumption can lead the type checker to erroneously
-blame an expression far from the true error the programmer made, which
+blame an expression far from the actual error the programmer made, which
 can be particularly confusing for newcomers who have not yet constructed
 a mental model for how the type checker works.
 
 In this dissertation we present a pair of complementary techniques to
 \emph{localize} and \emph{explain} type errors, with an emphasis on the
 errors encountered by novice users.
-%
+
 We tackle the localization problem by using machine learning to learn a
 model of the errors made by students in an introductory course. Then, we
 use the model to produce a ranked list of likely error locations in new
 programs. Our models can be trained on a modest amount of data, \eg a
 single instance of a course, and we envision a future where each
 introductory course is accompanied by a model of its students' errors.
-%
+
 To better explain the error to novice users, we present a runtime error
 that the type system would have prevented. We interleave type-checking
 and execution to search for a set of program inputs that would lead
@@ -450,6 +450,13 @@ improving the error messages produced by type checkers.
 \input{nanomaly/interactive}
 \input{nanomaly/evaluation}
 \input{nanomaly/related2}
+\section*{Endnotes}
+\paragraph{Acknowledgments}
+This chapter contains material adapted from the following publications:
+\begin{itemize}
+\item \fullcite{Seidel2016-ul}
+\item \fullcite{Seidel2017-gw}
+\end{itemize}
 \lstDeleteShortInline{@}
 
 %\chapter{Type Targeted Testing}
@@ -477,10 +484,17 @@ improving the error messages produced by type checkers.
 \input{nate/threats}
 \input{nate/discussion}
 \input{nate/related2}
-\input{nate/conclusion}
+%\input{nate/conclusion}
+\section*{Endnotes}
+\paragraph{Acknowledgments}
+This chapter contains material adapted from the following publications:
+\begin{itemize}
+\item \fullcite{Seidel2017-pj}
+\end{itemize}
 
 %\part{Conclusion}
 \chapter{Conclusion}
+\input{conclusion}
 
 \appendix
 \input{nanomaly/proofs}

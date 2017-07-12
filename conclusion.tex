@@ -1,0 +1,90 @@
+The goal of this work has been to improve the diagnostic feedback that
+compilers provide when a program fails to type-check.
+%
+To that end, we have made three key contributions that advance the state
+of the art in type error diagnosis.
+
+\paragraph{Contribution 1: A Dataset of Novice Type Errors}
+Our first contribution was a new dataset of novice interactions with the
+\ocaml top-level interpreter (in particular, type errors they
+encountered and their fixes).
+%
+The dataset contains thousands of ill-typed programs written by over one
+hundred undergraduate students at UC San Diego, as well as the
+subsequent fixes.
+%
+This is the largest set of novice type errors that we are aware of, has
+formed the backbone of our evaluation, and will hopefully be similarly
+useful to other researchers in the future.
+
+\paragraph{Contribution 2: Dynamic Witnesses for Static Type Errors}
+Second, we presented a novel technique for explaining type errors in
+terms of the underlying runtime error the type system prevented.
+%
+We interleave type inference and execution to search for a witness to
+the type error, a set of inputs that would cause the program to crash
+at runtime.
+%
+We borrow the notion of ``holes'' from the automatic testing literature
+to avoid spurious witnesses by delaying the selection of a concrete
+input until execution has reached a point where we can be sure of its
+type.
+%
+Once our search procedure finds a witness, we compute a full execution
+trace that demonstrates how the program would evolve and eventually
+crash.
+%
+We present this trace to the user in an interactive debugger that allows
+the user to explore the erroneous computation in a familiar setting.
+
+We proved that our search procedure produces general witnesses, \ie if
+we can find a witness the program must be untypeable.
+%
+We showed empirically that most novice type errors, around 85\%, admit
+witnesses, and that the vast majority can be found in under one second
+by our search procedure.
+%
+We also found that students who were given our witnesses were more
+likely to correctly explain and fix a type error than students who were
+just given \ocaml's error message.
+%
+Finally, we found that our witnesses can also serve as a localization
+method for type errors by treating the stuck term as a sink for typing
+constraints and the values contained within it as sources.
+%
+Our witness-based localizations are substantially more accurate than
+\ocaml's errors and competitive with the state of the art.
+
+\paragraph{Contribution 3: Data-Driven Diagnosis of Type Errors}
+Finally, we presented a novel technique for localizing type errors based
+on observations of past errors and their fixes.
+%
+We use machine learning to train a classifier that predicts, given a
+term from an ill-typed program, whether the term is likely to be changed
+in the eventual fix (\ie is that term to blame for the error).
+%
+Given a new ill-typed program, we run the classifier for all program
+terms and use its confidence score to rank the terms by the likelihood
+that they should be blamed, selecting only the top three to present to
+the user.
+%
+The classifier makes predictions based solely on the syntax and types of
+the term and its immediate parent and children, and, crucially, whether
+the term is part of a minimal type error slice.
+
+Our classifier's top-ranked prediction is at least \ToolnameWinSherrloc
+percentage points more accurate than the state of the art in type error
+localization, and given three predictions it exceeds 90\% accuracy.
+%
+Furthermore, the classifier can be trained on a modest amount of data;
+we obtained our results by training on programs from a single instance
+of our undergraduate programming languages course at UC San Diego.
+%
+This makes us confident that even if our model does not generalize to
+programs from other courses (or more broadly, to arbitrary \ocaml
+programs), it is quite reasonable for instructors to train models of the
+specific errors made by students in their courses.
+
+
+\section{Future Work}
+\label{sec:conc:future-work}
