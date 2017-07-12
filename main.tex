@@ -33,7 +33,17 @@
 % \usepackage[numbers,sort&compress,square]{natbib}
 % \usepackage{bibentry}
 % \nobibliography*
-\usepackage[backend=bibtex,natbib=true,style=trad-abbrv,isbn=false]{biblatex}
+\usepackage[natbib=true,style=trad-abbrv,firstinits=true,isbn=false,maxbibnames=99,maxcitenames=1]{biblatex}
+\makeatletter
+\DeclareCiteCommand{\fullcite}
+  {\defcounter{maxnames}{\blx@maxbibnames}%
+    \usebibmacro{prenote}}
+  {\usedriver
+     {\DeclareNameAlias{sortname}{default}}
+     {\thefield{entrytype}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\makeatother
 \addbibresource{main.bib}
 
 
