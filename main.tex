@@ -1,4 +1,6 @@
-\documentclass[12pt]{ucsddissertation}
+\documentclass[11pt]{ucsddissertation}
+
+\usepackage{showframe}
 
 \usepackage{amsthm}
 
@@ -63,6 +65,7 @@
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 \usepackage{xspace}
 \usepackage{commands}
+\def\chapterautorefname{Chapter}
 \def\sectionautorefname{\S}
 \def\subsectionautorefname{\S}
 
@@ -211,7 +214,7 @@ group/every plot/.code = {%
 
 
 % Required information
-\title{Dynamic Witnesses for Static Type Errors}
+\title{Data-Driven Techniques for Improving Type Error Diagnosis}
 \author{Eric Lee Seidel}
 \degree{Computer Science \& Engineering}{Doctor of Philosophy}
 % Each member of the committee should be listed as Professor Foo Bar.
@@ -252,15 +255,21 @@ group/every plot/.code = {%
 % \end{dedication}
 
 % Optional
-% \begin{epigraph}
-% \vskip0pt plus.5fil
-% \setsinglespacing
-% {\flushright
+\begin{epigraph}
+\vskip0pt plus.5fil
+\setsinglespacing
+{\centering
+Types are the leaven of computer programming; \\
+They make it digestible.
+
+\vskip\baselineskip
+\textit{Robin Milner}
 % Beware of bugs in the above code; I have only proved it correct, not tried it.
 
 % \vskip\baselineskip
-% \textit{Donald Knuth}\par}
-% \vfil
+% \textit{Donald Knuth}
+\par}
+\vfil
 % % \begin{center}
 % % You write with ease to show your breeding,\\
 % % But easy writing's curst hard reading.
@@ -279,7 +288,7 @@ group/every plot/.code = {%
 % % \hskip0pt plus1fil\textit{Ernest Hemingway}\hskip0pt plus4fil\null
 
 % % \vfil
-% \end{epigraph}
+\end{epigraph}
 
 % Next comes the table of contents, list of figures, list of tables,
 % etc. If you have code listings, you can use \listoflistings (or
@@ -300,20 +309,7 @@ group/every plot/.code = {%
 % Your fancy acks here. Keep in mind you need to ack each paper you
 % use. See the examples here. In addition, each chapter ack needs to
 % be repeated at the end of the relevant chapter.
-\begin{acknowledgements}
-PEOPLE TO ACKNOWLEDGE (not in order)
-\begin{itemize}
-\item Jhala (advisor)
-\item Griswold (quasi-advisor)
-\item Ingolf (recruiter)
-\item Weimer (great collaborator)
-\item Troeger (inspiring instructor)
-\item Gab (early mentor)
-\item PL\@UCSD (in particular Niki)
-\item Megan \& Family (support)
-\end{itemize}
-
-\end{acknowledgements}
+\input{acks}
 
 % Stupid vita goes next
 \begin{vita}
@@ -329,6 +325,10 @@ PEOPLE TO ACKNOWLEDGE (not in order)
 % This puts in the PUBLICATIONS header. Note that it appears inside
 % the vita environment. It is optional.
 \publications
+% \noindent\fullcite{Seidel2017-pj}
+% \vskip\baselineskip
+% \noindent\fullcite{Seidel2017-gw}
+% \vskip\baselineskip
 \noindent\fullcite{Seidel2016-ul}
 \vskip\baselineskip
 \noindent\fullcite{Elliott2015-xu}
