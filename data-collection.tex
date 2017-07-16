@@ -36,7 +36,7 @@ three programming assignments, which involved writing 23 \ocaml
 programs.
 %
 
-\begin{figure}
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{ocaml-top.png}
 \caption{The \ocamltop editor.}
@@ -51,9 +51,9 @@ The students interact with the top-level system by selecting text in the
 editor and pressing the ``play'' button in the toolbar, which sends the
 selected text to the interpreter for evaluation.
 %
-The editor also maintains a cursor into the open file to track how much
+The editor also maintains a offset into the open file to track how much
 of the file has been evaluated; this allows it to intelligently send the
-next top-level definition to the interpreter if no text is selected.
+next definition to the interpreter if no text is selected.
 %
 The toolbar also has a ``stop'' button to abort evaluation (\eg to abort
 infinite loops), a ``rewind'' button to restart the interpreter, and a
@@ -61,7 +61,7 @@ infinite loops), a ``rewind'' button to restart the interpreter, and a
 %
 \ocamltop always sends each definition to the interpreter individually,
 even when using the ``fast-forward'' button, this will become important
-when we extract ill-typed programs from the interaction traces.
+when we extract ill-typed programs from the interactions.
 
 We instrumented \ocamltop to record each of the student's interactions
 with the top-level interpreter.
@@ -76,8 +76,8 @@ This gives rise to three kinds of interaction events:
 \item[\textsc{Eval}] The student sent one or more definitions to be
   evaluated by the interpreter, by pressing either ``play'' or
   ``fast-forward''. In addition to logging the event, we logged both the
-  offsets into the file that mark the region of text that was evaluated,
-  and the list of top-level definitions that were evaluated.
+  offsets into the file that mark delimit the evaluated text,
+  and the list of evaluated definitions.
 \item[\textsc{Abort}] The student aborted evaluation by pressing
   ``stop''.
 \item[\textsc{Stop}] The student restarted the interpreter by pressing
@@ -107,22 +107,9 @@ top-level function and type definitions, so that for each definition a
 student submitted, we could produce a self-contained, \emph{minimal}
 program that would have the same behavior.
 
-For each submitted definition, we collected the interpreter's response
-and the minimal self-contained program, and classified the response as
-either a syntax error, a scoping error (\eg an unbound variable), a type
-error, or no error.
-%
-As we are primarily concerned with type errors in this work, we did not
-capture the actual result of evaluating the definition, \ie the
-resulting value, but it would be easy to extend the replay procedure to
-do so.
-%
-We then stored the post-processed interaction traces as sequences of
-JSON objects, in the format described by
-\autoref{fig:intro:data-format}.
-%
-\begin{figure}
+\begin{figure}[t]
 \centering
+\small
 \begin{lstlisting}
 {
     "file": "hw1.ml" | "hw2.ml" | "hw3.ml",
@@ -148,6 +135,20 @@ JSON objects, in the format described by
   objects.}
 \label{fig:intro:data-format}
 \end{figure}
+
+For each submitted definition, we collected the interpreter's response
+and the minimal self-contained program, and classified the response as
+either a syntax error, a scoping error (\eg an unbound variable), a type
+error, or no error.
+%
+As we are primarily concerned with type errors in this work, we did not
+capture the actual result of evaluating the definition, \ie the
+resulting value, but it would be easy to extend the replay procedure to
+do so.
+%
+We then stored the post-processed interaction traces as sequences of
+JSON objects, in the format described by
+\autoref{fig:intro:data-format}.
 %
 From this format it is quite convenient to run various analyses, \eg
 what are the hardest assignments (measured by time spent or by errors
