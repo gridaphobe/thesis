@@ -117,10 +117,40 @@ program is sufficient to illustrate many of the difficulties of
 automatically locating the source of a type error, and explaining it to
 the programmer.
 
-\section{A Simple Type System}
+\section{The Hindley-Milner Type System}
 \label{sec:intro:simple-type}
 
-\begin{figure}[p]
+To illustrate the difficulty of pinpointing the source of type errors,
+let us consider the simple $\lambda$-calculus in
+\autoref{fig:intro:simple-lambda}.
+%
+In addition to the usual variables, $\lambda$-abstractions, and
+applications, we have equipped the language with integers and lists, so
+that it can easily represent our |sumList| program.
+%
+To describe type inference, we will also need type environments and
+substitutions.
+%
+A type environment $\Gamma$ is a mapping from variables to types,
+written $\{x_1:t_1, \ldots, x_n:t_n \}$, and denotes that each variable
+$x_i$ has type $t_i$.
+%
+Type environments are used to propagate typing information from outer
+expressions to inner expressions. %, \eg the $\lambda$ form will extend the
+% current type environment with a new binding for the variable $x$.
+%
+A substitution is a mapping from \emph{type} variables to concrete
+types, written
+$\{\alpha_1 \mapsto t_1, \ldots, \alpha_n \mapsto t_n \}$, and denotes
+that each type variable $\alpha_i$ has been \emph{refined} to a concrete
+type $t_i$.
+%
+Substitutions are used to propagate typing information from inner expressions
+back to the outer expressions.
+%
+%For example, given the expression $\efun{x}{\eplus{x}{1}}$, we will extend
+
+\begin{figure}
 \centering
 \[
 \boxed{
@@ -142,13 +172,48 @@ the programmer.
             \tlist{t} \\[0.2in]
 
 \mathbf{Environments}
-& \Gamma & ::= & \cdot \spmid \Gamma;x:t \\[0.2in]
+& \Gamma & ::= &
+  \{x_1:t_1, \ldots, x_n:t_n \}
+  % \cdot \spmid \Gamma;x:t
+\\[0.2in]
 
 \mathbf{Substitutions}
-& \sigma & ::= & \cdot \spmid \sigma \{\alpha \mapsto t\}\\
+& \sigma & ::= &
+  \{\alpha_1 \mapsto t_1, \ldots, \alpha_n \mapsto t_n \}
+  % \cdot \spmid \sigma \cup \{\alpha \mapsto t\}
+\\
 \end{array}
 }
 \]
+\caption{A simple $\lambda$-calculus with integers and lists.}
+\label{fig:intro:simple-lambda}
+\end{figure}
+
+\ocaml's type system, like many other typed functional languages, is
+based on the Hindley-Milner type
+system~\citep{Hindley1969-pb,Milner1978-da}, which we have extended to
+our language in \autoref{fig:intro:hindley-milner}.
+%
+The type system is written as a set of inference rules for typing
+judgments of the form $\jtype{\Gamma}{e}{t}$, which can be read as ``in
+the environment $\Gamma$, the expression $e$ has type $t$.''
+
+As written, this system cannot be used as an algorithm for computing the
+type of an expression.
+%
+For instance, consider the \textsc{Lam} rule.
+%
+The premise says that $e$ should have type $t_2$ in an environment where
+$x$ has type $t_1$, but where did $t_1$ come from?
+%
+We have no way of knowing at this point what choice of $t_1$ will lead
+to a successful type inference, and trying all types is not an option
+as there are an infinite number.
+%
+Thus, a type inference algorithm must defer the choice of $t_1$ until it
+has examined the body $e$ to determine how $x$ is used.
+
+\begin{figure}[t]
 \begin{framed}
 \judgementHead{Typing}{\jtype{\Gamma}{e}{t}}
 \begin{gather*}
@@ -157,7 +222,7 @@ the programmer.
   {\jtype{\Gamma}{x}{t}}
 \quad
 \inference[\textsc{Lam}]
-  {\jtype{\Gamma;x:t_1}{e}{t_2}}
+  {\jtype{\Gamma \cup \{x:t_1\}}{e}{t_2}}
   {\jtype{\Gamma}{\efun{x}{e}}{\tarr{t_1}{t_2}}}
 \quad
 \inference[\textsc{App}]
@@ -169,7 +234,7 @@ the programmer.
 \inference[\textsc{Let}]
   {\jtype{\Gamma}{e_1}{t_1}
    \quad
-   \jtype{\Gamma;x:t_1}{e_2}{t_2}}
+   \jtype{\Gamma \cup \{x:t_1\}}{e_2}{t_2}}
   {\jtype{\Gamma}{\elet{x}{e_1}{e_2}}{t_2}}
 \\[0.1in]
 \inference[\textsc{Lit}]
@@ -193,92 +258,75 @@ the programmer.
     \quad
    \jtype{\Gamma}{e_2}{t_2}
     \quad
-   \jtype{\Gamma;\ x_1:t_1;\ x_2:\tlist{t_1}}{e_3}{t_2}
+   \jtype{\Gamma \cup \{x_1:t_1,\ x_2:\tlist{t_1}\}}{e_3}{t_2}
   }
   {\jtype{\Gamma}{\elcase{e_1}{e_2}{x_1}{x_2}{e_3}}{t_2}}
 \end{gather*}
 \end{framed}
-\caption{A simple $\lambda$-calculus with integers and lists.
+\caption{A Hindley-Milner-style type system for the language in \autoref{fig:intro:simple-lambda}.
   %
   % This
   % language lacks common features like recursion and polymorphic
   % functions since they do not
+  We omit the usual rules for generalization and instantiation of type
+  schemes since they do not have a significant effect on the location or
+  content of type errors.  
 }
-\label{fig:intro:simple-lambda}
+\label{fig:intro:hindley-milner}
 \end{figure}
 
-To illustrate the difficulty of pinpointing the source of type errors,
-let us consider the simple $\lambda$-calculus with integers and lists in
-\autoref{fig:intro:simple-lambda}.
-
-\section{Diagnosing Type Errors}
-\label{sec:diagnosing-type-errors}
-In this section we will review the state of the art in type error
-diagnosis, which we will categorize as follows:
-\begin{enumerate}
-\item \emph{localizing} errors to a specific (set of) term(s);
-\item \emph{explaining} the error to the programmer; and
-\item automatically \emph{fixing} the error for the programmer.
-\end{enumerate}
-
-\subsection{Localizing Type Errors}
-\label{sec:localizing-type-errors}
-
-Note that the while the typing rules in
-\autoref{fig:intro:simple-lambda} specify the requirements for an
-expression $e$ to have type $t$, they do not dictate a procedure for
-computing $t$ given $e$, \ie, they are not \emph{algorithmic}.
-%
-Thus, a type system cannot be used by a computer without an algorithm
-that specifies how to \emph{check} the type of an expression.
-%
-In our case, as the source language does not specify any types, we are
-actually interested in algorithms to \emph{infer} the type of an
-expression.
-
-\begin{figure}
+\begin{figure}[p]
 \centering
 \[
 \boxed{
 \begin{array}{lcl}
-\W & : & \Gamma \times e \rightarrow \sigma \times t \\
+\W & : & \Gamma \times e \rightarrow \sigma \times t
+\\[0.1in]
 \W(\Gamma, x)
-   & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t \\
+   & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t
+\\[0.05in]
 \W(\Gamma, \efun{x}{e})
-   & = & \text{let } (\sigma, t) = \W(\Gamma;x:\alpha, e),\ \alpha \text{ is fresh} \\
-   &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t})) \\
+   & = & \text{let } (\sigma, t) = \W(\Gamma \cup \{x:\alpha\}, e),\ \alpha \text{ is fresh} \\
+   &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t}))
+\\[0.05in]
 \W(\Gamma, \eapp{e_1}{e_2})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \unify{\sigma_2(t_1)}{\tarr{t_2}{\alpha}},\ \alpha \text{ is fresh} \\
-   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha)) \\
+   &   & \quad\ \sigma_3 = \U(\sigma_2(t_1),\tarr{t_2}{\alpha}),\ \alpha \text{ is fresh} \\
+   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha))
+\\[0.05in]
 \W(\Gamma, \elet{x}{e_1}{e_2})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ \Gamma' = \Gamma;\ x_1:t_1 \\
+   &   & \quad\ \Gamma' = \Gamma \cup \{x_1:t_1\} \\
    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma'), e_2) \\
-   &   & \text{in } (\sigma_2(\sigma_1), t_2) \\
+   &   & \text{in } (\sigma_2(\sigma_1), t_2)
+\\[0.05in]
 \W(\Gamma, n)
-   & = & (\cdot, \tint) \\
+   & = & (\cdot, \tint)
+\\[0.05in]
 \W(\Gamma, \eplus{e_1}{e_2})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \unify{t_1}{\tint} \\
-   &   & \quad\ \sigma_4 = \unify{t_2}{\tint} \\
-   &   & \text{in } (\sigma_4(\sigma_3(\sigma_2(\sigma_1))), \tint) \\
+   &   & \quad\ \sigma_3 = \U(t_1,\tint) \\
+   &   & \quad\ \sigma_4 = \U(t_2,\tint) \\
+   &   & \text{in } (\sigma_4(\sigma_3(\sigma_2(\sigma_1))), \tint)
+\\[0.05in]
 \W(\Gamma, \enil)
-   & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh} \\
+   & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh}
+\\[0.05in]
 \W(\Gamma, \econs{e_1}{e_2})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
-   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
+   &   & \quad\ \sigma_3 = \U(t_2,\sigma_2(\tlist{t_1})) \\
+   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1}))
+\\[0.05in]
 \W(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3})
    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ \sigma_2 = \unify{t_1}{\tlist{\alpha}},\ \alpha \text{ is fresh} \\
+   &   & \quad\ \sigma_2 = \U(t_1,\tlist{\alpha}),\ \alpha \text{ is fresh} \\
    &   & \quad\ (\sigma_3, t_2) = \W(\sigma_2(\Gamma), e_2) \\
-   &   & \quad\ \Gamma' = \Gamma;\ x_1:\alpha;\ x_2:\tlist{\alpha} \\
+   &   & \quad\ \Gamma' = \Gamma \cup \{x_1:\alpha,\ x_2:\tlist{\alpha}\} \\
    &   & \quad\ (\sigma_4, t_3) = \W(\sigma_3(\sigma_2(\Gamma')), e_3) \\
-   &   & \quad\ \sigma_5 = \unify{t_2}{\sigma_4(t_1)} \\
+   &   & \quad\ \sigma_5 = \U(t_2,\sigma_4(t_1)) \\
    &   & \text{in } (\sigma_5(\sigma_4(\sigma_3(\sigma_2(\sigma_1)))), \sigma_5(t_1)) \\
 \end{array}
 }
@@ -289,16 +337,39 @@ expression.
 
 The traditional Damas-Milner Algorithm
 $\mathcal{W}$~\citep{Damas1982-uw}, extended to our language in
-\autoref{fig:intro:algo-w}, takes as input a typing environment $\Gamma$
-and an expression $e$, and returns a substitution $\sigma$, mapping free
-type variables $\alpha$ to concrete types, and an inferred type $t$.
+\autoref{fig:intro:algo-w}, solves this issue by binding $x$ to a fresh
+type variable $\alpha$ (\ie one that does not occur in the environment).
 %
-Mechanically, it traverses the program from the bottom up, collecting
-typing constraints at each expression, and halting with an error when it
-detects an inconsistent constraint during a call to
-Robinson's unification algorithm, \unifysym~\citep{Robinson1965-rk}.
+It takes as input a typing environment $\Gamma$ and an expression $e$,
+and returns a substitution $\sigma$ and an inferred type $t$.
 %
-Thus, the placement of calls to $\unifysym$ determines which expression
+In the $\lambda$ case, it then applies the substitution to the function
+type $\tarr{\alpha}{t}$ before returning it, crucially refining $\alpha$
+based on the body of the lambda.
+
+A key component of Algorithm \W is Robinson's unification algorithm,
+\U~\citep{Robinson1965-rk}, which takes two types $t_1$ and $t_2$ and
+returns a substitution $\sigma$ such that $\sigma(t_1) = \sigma(t_2)$.
+%
+For example,
+$\U(\tarr{\alpha_1}{\tint},\ \tarr{\tlist{\tint}}{\alpha_2}) = \{\alpha_1 \mapsto \tlist{\tint},\ \alpha_2 \mapsto \tint\}$.
+%
+It is the combination of fresh type variables to defer the choice of
+concrete types and Robinson's \U to instantiate them that allows \W to
+efficiently compute the type of an expression without any user
+annotations.
+
+Unfortunately, that is also precisely the source of the poor error
+messages associated with type inference.
+%
+Unification is not guaranteed to succeed, \eg there is no substitution
+of type variables that would unify $\tint$ and $\tlist{\tint}$.
+%
+\W traverses the program from the bottom up, collecting
+typing constraints at each expression, and halts with an error when it
+detects an inconsistent constraint during a call to \U.
+%
+Thus, the placement of calls to $\U$ determines which expression
 will be blamed when a program is ill-typed.
 
 Given our |sumList| program \W will infer that the |[]| case
@@ -306,7 +377,7 @@ returns a list while the |h::t| case returns an integer, which violates
 the \textsc{Match} rule's constraint that both branches must have the
 same type $t_2$.
 %
-This violation will manifest as an error in the second $\unifysym$
+This violation will manifest as an error in the second $\U$
 call in \W's |match| case, and \W will thus blame
 % $\mathcal{W}$ will then \emph{blame} the expression that induced the
 % inconsistent constraint, in this case
@@ -321,14 +392,32 @@ isolate the source in the base case.
 But in general, this behavior of bubbling up of typing constraints from
 the leaves of the program can produce very poor errors~\citep[see
 Fig. 1 for a particularly pathological example]{Lee1998-ys}.
+
+
+\section{Prior Work on Diagnosing Type Errors}
+\label{sec:diagnosing-type-errors}
+Algorithm \W's poor error reports were noticed soon after its
+introduction~\citep{Wand1986-nw}, and improving them has been a popular
+area of research ever since.
 %
-% In particular, when the same variable is used in different contexts in
-% different branches \ES{TODO...}
+In this section we will review the state of the art in type error
+diagnosis according to the following three high-level approaches:
+\begin{enumerate}
+\item \emph{localizing} errors to a specific (set of) term(s);
+\item \emph{explaining} the error to the programmer; and
+\item automatically \emph{fixing} the error for the programmer.
+\end{enumerate}
+
+\subsection{Localizing Type Errors}
+\label{sec:localizing-type-errors}
+The location reported by a type error is likely to be the first place
+the programmer looks for issues, so providing an accurate %source
+location could greatly reduce the time spent debugging.
 
 \paragraph{Alternate Traversal Strategies}
-
-As a result, several authors have proposed alternate traversal
-strategies to improve the error reports.
+Noting that the placement of unification calls determines where errors
+are reported, several authors have proposed alternate traversal
+strategies.
 %
 \citet{Lee1998-ys} describe a ``folklore'' algorithm $\mathcal{M}$ that
 traverses the program top down, rather than from the bottom up, pushing
@@ -364,7 +453,7 @@ $\mathcal{W}$ would, \ie at an expression deeper in the tree.
 % \W(\Gamma, n)
 %    & = & (\cdot, \tint) \\
 \M(\Gamma, \eplus{e_1}{e_2}, t)
-   & = & \text{let } \sigma_1 = \unify{t}{\tint} \\
+   & = & \text{let } \sigma_1 = \U(t,\tint) \\
    &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_1, \tint) \\
    &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma)), e_2, \tint) \\
    &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
@@ -378,7 +467,7 @@ $\mathcal{W}$ would, \ie at an expression deeper in the tree.
 \M(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}, t)
    & = & \text{let } \sigma_1 = \M(\Gamma, e_1, \tlist{\alpha_1}), \alpha_1 \text{ is fresh} \\
    &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_2, \alpha_2), \alpha_2 \text{ is fresh} \\
-   &   & \quad\ \Gamma' = \Gamma;\ x_1:\alpha_1;\ x_2:\tlist{\alpha_1} \\
+   &   & \quad\ \Gamma' = \Gamma \cup \{x_1:\alpha_1,\ x_2:\tlist{\alpha_1}\} \\
    &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma')), e_3, \sigma_2(\alpha_2)) \\
    &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
 \end{array}

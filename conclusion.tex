@@ -88,8 +88,11 @@ specific errors made by students in their courses.
 
 \section{Future Work}
 \label{sec:conc:future-work}
+We will conclude this dissertation with a brief discussion of some
+exciting future directions for this line of work.
 
 \paragraph{Other Type Systems}
+
 
 \paragraph{Fixing Type Errors}
 Throughout this entire dissertation we have focused on localizing and
@@ -102,10 +105,20 @@ explaining type errors, but % many type errors are rather mundane things.
 it would be nice to have a tool that
 could simply \emph{fix} the error without any user intervention.
 
+In addition to the techniques we mentioned in
+\autoref{sec:fixing-type-errors} there is a wealth of existing work in
+the broader field of automatic program repair~\citep[see][\S~4, for a
+survey]{Le_Goues2013-ag} that we could draw from.
+%
+A core challenge in program repair is fault localization, \ie
+determining where the repair should take place.
+%
+Thus, \textsc{Nate}'s ability to accurately locate the source of type
+errors could provide a strong foundation on top of which to build repair
+systems.
 
-
-An exciting opportunity for future work here would be using machine
-learning to predict \emph{fixes} in addition to blame labels.
+Another exciting opportunity for future work would be using machine
+learning to predict fixes \emph{in addition} to blame labels.
 %
 In fact, this could be a very natural extension of our work on
 \textsc{Nate}, we can frame it as a classification problem as follows.
@@ -136,9 +149,9 @@ there are an infinite number of possible terms but a finite number of
 labels that we can predict.
 %
 However, there has been much work in the machine learning community on
-models that can generate structured data, most notably images \ES{CITE}
-and text \ES{CITE}, but also program terms
-\citep[see, \eg][]{Raychev2016-xk,Raychev2014-jv}.
+models that can generate structured data, most notably
+images~\citep{Gregor2015-ra} and text~\citep{Bahdanau2014-gt}, but also
+program terms~\citep{Raychev2016-xk,Raychev2014-jv}.
 %
 A sizable challenge to adopting these techniques is that they tend to
 require vast amounts of data to learn a precise model, and we have a
@@ -159,7 +172,7 @@ structured fixes to ill-typed programs.
 % a type-level fix, \eg the |+| term should be replaced by a term with type
 % |float -> float -> float|.
 
-\ES{investigate using witnesses to drive fixes?}
+% \ES{investigate using witnesses to drive fixes?}
 
 %%% Local Variables:
 %%% mode: latex
