@@ -79,7 +79,7 @@ intuitively indicates that $e_1$ reduces, in a single step, to $e_2$.
 %intuitively indicates that $e_1$ contains $e_2$ as a sub-expression.
 %
 A \emph{reduction graph} is a set of steps-to edges:
-$$\tr ::= \bullet \spmid \singlestep{e}{e}; \tr$$  %% \spmid \subterm{e}{e}; \tr$$
+$$\tr ::= \{ \singlestep{e}{e}, \ldots \}$$  %% \spmid \subterm{e}{e}; \tr$$
 
 \paragraph{Tracing Semantics}
 %
@@ -98,7 +98,7 @@ rule to collect edges.
 The general recipe for collecting steps-to edges is
 to record the consequent of each original rule in the
 trace. That is, each original judgment \step{e}{\vsu}{\tsu}{e'}{\vsu'}{\tsu'}
-becomes \stepg{e}{\vsu}{\tsu}{\tr}{e'}{\vsu'}{\tsu'}{\singlestep{e}{e'}; \tr}.
+becomes \stepg{e}{\vsu}{\tsu}{\tr}{e'}{\vsu'}{\tsu'}{\tr \cup \{\singlestep{e}{e'}\}}.
 %
 % As the translation is mechanical, we provide a selection of examples
 % in Figure~\ref{fig:interactive}.
@@ -125,7 +125,7 @@ the set of \emph{commands} available to user and what
 they do, and finally how we use a command to \emph{update}
 the visualization state. In what follows, for clarity of
 exposition, we assume we have a (global) trace:
-$\stepg{e_0}{\emptysu}{\emptysu}{\bullet}{e_n}{\vsu}{\tsu}{\tr}$, where
+$\stepg{e_0}{\emptysu}{\emptysu}{\emptysu}{e_n}{\vsu}{\tsu}{\tr}$, where
 $e_0$ and $e_n$ are the \emph{initial} and \emph{final}
 expressions respectively.
 

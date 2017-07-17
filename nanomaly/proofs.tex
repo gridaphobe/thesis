@@ -198,8 +198,9 @@
   $\vsub{\resolve{\thole}{\tsu}}{\resolve{\ehole}{\vsu}}$, then
   $\vsub{\resolve{\thole}{\tsu'}}{\resolve{\ehole}{\vsu'}}$.
 
-  We can immediately discharge all of the \rulename{E-*-Bad} rules
-  (except for \renodebadone) as the calls to \forcesym\ return \stuck.
+  We can immediately discharge all of the \rulename{*-B} rules
+  % (except for \renodebadone)
+  as the calls to \forcesym\ return \stuck.
   An examination of \forcesym shows that if \forcesym\ returns \stuck\
   then \vsu\ and \tsu\ are unchanged.
   \begin{description}
@@ -212,12 +213,12 @@
     The $\force{n}{\tint}{\vsu}{\tsu}$ case is trivial as it does
     not change \vsu\ or \tsu.
     %
-    In the $\force{\vhole{\thole}}{t}{\vsu}{\tsu}$ we will either
+    In the $\force{\vhole{\thole}}{t}{\vsu}{\tsu}$ case we will either
     find that $\ehole \in \vsu$ or we will generate a fresh \tint
     and extend \vsu.
     %
     Note that when we extend \vsu\ we also extend \tsu\ due to the
-    call to \unifysym, thus in the $\vhole \in \vsu$ we cannot
+    call to \unifysym, thus in the $\vhole{\thole} \in \vsu$ sub-cases we cannot
     actually refine either $\ehole$ or $\thole$ and thus the
     refinement is preserved.
     %
@@ -225,33 +226,33 @@
     \unifysym ensures that we add a compatible binding for
     \thole if one was not already in \tsu, thus the refinement
     relation must continue to hold.
-  \item[Case \rulename{E-If-Good\{1,2\}}:]
+  \item[Case \rulename{If-G\{1,2\}}:]
     %
     Similar to \replusgood.
   \item[Case \reappgood:]
     %
     Similar to \replusgood.
-  \item[Case \releafgood:]
+  \item[Case \renilgood:]
     %
     This step cannot change \vsu\ or \tsu\ thus the refinement
-    relation continues to hold trivially.
-  \item[Case \renodegood:]
+    continues to hold trivially.
+  \item[Case \reconsgood:]
     %
-    We \forcesym\ $v_2$ and $v_3$ to $\ttree{t}$, so we must consider
+    We \forcesym\ $v_2$ to $\tlist{t}$, so we must consider
     three cases of \forcesym.
     \begin{description}
     \item[\force{\vhole{\thole}}{t}{\vsu}{\tsu}:]
       %
       Similar to \replusgood.
-    \item[\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu}:]
+    \item[\force{\vnil{t_1}}{\tlist{t_2}}{\vsu}{\tsu}:]
       %
       This case may extend \tsu\ but not \vsu, so the refinement
       continues to hold trivially.
-    \item[\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu}:]
+    \item[\force{\vcons{t_1}{v_1}{v_2}}{\tlist{t_2}}{\vsu}{\tsu}:]
       %
-      Same as \vleaf{t_1}.
+      Same as \vnil{t_1}.
     \end{description}
-  \item[Case \rulename{E-Case-Good\{1,2\}}:]
+  \item[Case \rulename{Match-List-G\{1,2\}}:]
     %
     Similar to \replusgood.
   \item[Case \repcasegood:]
@@ -368,7 +369,7 @@
   %
   We show by case analysis on the evaluation rules that
   %
-  $$\step{e_{i-1}}{\vsu_{i-1}}{\tsu_{i-1}[\thole' \mapsto s]}{\stuck}{\vsu}{\tsu}$$
+  $$\step{e_{i-1}}{\vsu_{i-1}}{\extendsu{\tsu_{i-1}}{\thole'}{s}}{\stuck}{\vsu}{\tsu}$$
   %
     \begin{description}
     \item[Case \replusgood:]
@@ -378,17 +379,17 @@
       as it does not change $\tsu$).
       %
       In particular, since we extended $\tsu_{i-1}$ with
-      $[\thole' \mapsto t']$ we know that $\thole' = \thole$ and
+      $\thole' \mapsto t'$ we know that $\thole' = \thole$ and
       $t' = \tint$.
       %
       Let $s$ be any concrete type that is incompatible with $\tint$
-      and $\tsu_s = \tsu_{i-1}[\thole \mapsto s]$,
+      and $\tsu_s = \extendsu{\tsu_{i-1}}{\thole}{s}$,
       $\force{\vhole{\thole}}{\tint}{\vsu_{i-1}}{\tsu_s]} = \triple{\stuck}{\vsu_{i-1}}{\tsu_s}$.
-    \item[Case \rulename{E-Plus-Bad\{1,2\}}:]
+    \item[Case \rulename{Plus-B\{1,2\}}:]
       %
       These cases cannot apply as \forcesym does not update \tsu\ when
       it returns \stuck.
-    \item[Case \rulename{E-If-Good\{1,2\}}:]
+    \item[Case \rulename{If-G\{1,2\}}:]
       %
       Similar to \replusgood.
       % Here we \forcesym $v$ to $\tbool$, so the first case of \forcesym
@@ -420,28 +421,28 @@
       %
       This case cannot apply as \forcesym does not update \tsu\ when
       it returns \stuck.
-    \item[Case \releafgood:]
+    \item[Case \renilgood:]
       %
       This case cannot apply as it does not update \tsu.
-    \item[Case \renodegood:]
+    \item[Case \reconsgood:]
       %
-      Here we \forcesym $v_2$ and $v_3$ to $\ttree{t}$,
+      Here we \forcesym $v_2$ to $\tlist{t}$,
       so we must consider three cases of \forcesym.
       \begin{description}
       \item[\force{\vhole{\thole}}{t}{\vsu}{\tsu}:]
         %
         Similar to \replusgood.
-      \item[\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu}:]
+      \item[\force{\vnil{t_1}}{\tlist{t_2}}{\vsu}{\tsu}:]
         %
-        For this case to extend \tsu\ with $[\thole' \mapsto t']$,
+        For this case to extend \tsu\ with $\thole' \mapsto t'$,
         either $t_1$ or $t_2$ must contain $\thole'$.
         %
         Let $s$ be any concrete type that is incompatible with $t'$
-        and $\tsu_s = \tsu_{i-1}[\thole \mapsto s]$,
+        and $\tsu_s = \extendsu{\tsu_{i-1}}{\thole}{s}$,
         $\force{\vhole{\thole}}{\tint}{\vsu_{i-1}}{\tsu_s]} = \triple{\stuck}{\vsu_{i-1}}{\tsu_s}$.
-      \item[\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu}:]
+      \item[\force{\vcons{t_1}{v_1}{v_2}}{\tlist{t_2}}{\vsu}{\tsu}:]
         %
-        Same as \vleaf{t_1}.
+        Same as \vnil{t_1}.
       \end{description}
       % so the first
       % case of \forcesym must apply
@@ -456,36 +457,36 @@
       % $\force{u}{\ttree{t}}{\vsu}{\tsu} = \triple{\stuck}{\vsu}{\tsu}$.
       % %
       % \ES{this seems too easy...}
-    \item[Case \renodebadone:]
+    \item[Case \reconsbad:]
       %
       This case cannot apply as \forcesym does not update \tsu\ whe
       it returns \stuck.
-    \item[Case \renodebadtwo:]
-      %
-      Similar to \renodegood.
+    % \item[Case \renodebadtwo:]
+    %   %
+    %   Similar to \renodegood.
       % In this case $\force{v_2}{\ttree{t}}{\vsu_1}{\tsu_1}$ can update
       % \vsu, but $\force{v_3}{\ttree{t}}{\vsu_2}{\tsu_2}$ can not, as the
       % latter returns \stuck.
       % %
       % For the former case we can apply the same reasoning as for
       % \renodegood to derive a value $u$ that will cause stuckness.
-    \item[Case \rulename{E-Case-Good\{1,2\}}:]
+    \item[Case \rulename{Match-List-G\{1,2\}}:]
       %
-      Here we \forcesym $v$ to $\ttree{\thole}$,
+      Here we \forcesym $v$ to $\tlist{\thole}$,
       so we must consider three cases of \forcesym.
       \begin{description}
       \item[\force{\vhole{\thole}}{t}{\vsu}{\tsu}:]
         %
         Similar to \replusgood.
-      \item[\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu}:]
+      \item[\force{\vnil{t_1}}{\tlist{t_2}}{\vsu}{\tsu}:]
         %
-        This case cannot extend \tsu\ with $[\thole' \mapsto t']$ as we
+        This case cannot extend \tsu\ with $\thole' \mapsto t'$ as we
         use a fresh $\thole$, which cannot be referenced by
         $\ptype{\trace_{i-1}}{f}$, in the call to \forcesym, and thus it
         cannot apply.
-      \item[\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu}:]
+      \item[\force{\vcons{t_1}{v_1}{v_2}}{\tlist{t_2}}{\vsu}{\tsu}:]
         %
-        Same as \vleaf{t_1}.
+        Same as \vnil{t_1}.
       \end{description}
       % Here we \forcesym $v$ to $\ttree{\thole}$, so the first case of \forcesym
       % must apply
@@ -512,7 +513,7 @@
         Similar to \replusgood.
       \item[\force{\epair{v_1}{v_2}}{\tprod{t_1}{t_2}}{\vsu}{\tsu}:]
         %
-        This case cannot extend \tsu\ with $[\thole' \mapsto t']$ as we
+        This case cannot extend \tsu\ with $\thole' \mapsto t'$ as we
         use a fresh $\thole_1$ and $\thole_2$, which cannot be
         referenced by $\ptype{\trace_{i-1}}{f}$, in the call to
         \forcesym, and thus it cannot apply.
@@ -530,7 +531,7 @@
   %thus $\vsub{\intctx{\thole'}}{\resolve{\ehole}{\vsu_{i-1}}}$.
   %
   Let $u = \gen{s}{\tsu}$
-  and $v = \resolve{\ehole}{\vsu_{i-1}}\sub{\ehole'[\thole']}{u}\sub{\thole'}{s}$,
+  and $v = \resolve{\ehole}{\vsu_{i-1}}\sub{\ehole'^{\thole'}}{u}\sub{\thole'}{s}$,
   $\steps{\eapp{f}{v}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$ in $i$ steps.
   %
   % \begin{description}

@@ -11,12 +11,20 @@ $$
   &   & \spmid & \eif{e}{e}{e} \\
   % &   & \spmid & \elet{x}{e}{e} \\
   &   & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
-  &   & \spmid & \enode{e}{e}{e} \spmid \eleaf \\
-  &   & \spmid & \ecase{e}{e}{x}{x}{x}{e} \\[0.1in]
+  % &   & \spmid & \einl{e} \spmid \einr{e} \spmid \escase{e}{x}{e}{x}{e}
+  &   & \spmid & \econs{e}{e} \spmid \enil \\
+  &   & \spmid & \elcase{e}{e}{x}{x}{e}
+  % &   & \spmid & \enode{e}{e}{e} \spmid \eleaf \\
+  % &   & \spmid & \ecase{e}{e}{x}{x}{x}{e}
+\\[0.1in]
 
 \emphbf{Values}
-  & v  & ::= & n \spmid b \spmid \efun{x}{e} \spmid \vhole{\thole} \spmid \epair{v}{v} \spmid tr \\
-  & tr & ::= & \vnode{t}{v}{v}{v} \spmid \vleaf{t} \\[0.05in]
+  & v  & ::= & n \spmid b \spmid \efun{x}{e} \spmid \vhole{\thole} \\
+  &    & \spmid & \epair{v}{v} \spmid l \\
+  % &    & \spmid & \vinl{t}{t}{v} \spmid \vinr{t}{t}{v}
+  & l & ::= & \vcons{t}{v}{v} \spmid \vnil{t}
+%  & tr & ::= & \vnode{t}{v}{v}{v} \spmid \vleaf{t}
+\\[0.05in]
 
 \emphbf{Integers}
   & n & ::= &  0,1,-1,\ldots \\[0.05in]
@@ -26,11 +34,13 @@ $$
 
 \emphbf{Types}
   & t & ::=     & \tbool \spmid \tint \spmid \tfun \\
-  &   &  \spmid & \tprod{t}{t} \spmid \ttree{t} \spmid \thole \\[0.05in]
+  &   &  \spmid & \tprod{t}{t} \spmid \tlist{t} \spmid \thole \\[0.05in]
 
 \emphbf{Substitutions}
-  & \vsu & ::= & \emptysu \spmid \extendsu{\vsu}{\vhole{\thole}}{v} \\
-  & \tsu & ::= & \emptysu \spmid \extendsu{\tsu}{\thole}{t} \\[0.1in]
+  & \vsu & ::= & \{\nu_1^{\thole_1} \mapsto v_n, \ldots, \nu_n^{\thole_n} \mapsto v_n\} \\
+  & \tsu & ::= & \{\thole_1 \mapsto t_n, \ldots, \thole_n \mapsto t_n\} \\[0.1in]
+  % & \vsu & ::= & \emptysu \spmid \extendsu{\vsu}{\vhole{\thole}}{v} \\
+  % & \tsu & ::= & \emptysu \spmid \extendsu{\tsu}{\thole}{t} \\[0.1in]
 % \end{array}
 % $$
 % % \hrule width 0.48\textwidth
@@ -47,8 +57,14 @@ $$
   % & & \spmid & \elet{x}{C}{e} \\
   & & \spmid & \epair{C}{e} \spmid \epair{v}{C} \\
   & & \spmid & \epcase{C}{x}{x}{e} \\
-  & & \spmid & \enode{C}{e}{e} \spmid \enode{v}{C}{e} \spmid \enode{v}{v}{C} \\
-  & & \spmid & \ecase{C}{e}{x}{x}{x}{e} \\[0.05in]
+  % & & \spmid & \einl{C} \spmid \einr{C} \\
+  % & & \spmid & \escase{C}{x}{e}{x}{e}
+  & & \spmid & \econs{C}{e} \spmid \econs{v}{C} \\
+  & & \spmid & \elcase{C}{e}{x}{x}{e}
+
+  % & & \spmid & \enode{C}{e}{e} \spmid \enode{v}{C}{e} \spmid \enode{v}{v}{C} \\
+  % & & \spmid & \ecase{C}{e}{x}{x}{x}{e}
+\\[0.05in]
 \end{array}
 $$
 

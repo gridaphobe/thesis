@@ -45,6 +45,9 @@
 % \newcommand\edapp[2]{\ensuremath{#1 \ \overline{#2}}}
 \newcommand\eif[3]{\ensuremath{\mathtt{if}\ #1\ \mathtt{then}\ #2\ \mathtt{else}\ #3}\xspace}
 \newcommand\elet[3]{\ensuremath{\mathtt{let}\ #1 = #2\ \mathtt{in}\ #3}\xspace}
+\newcommand\einl[1]{\ensuremath{\mathtt{inl}\ #1}\xspace}
+\newcommand\einr[1]{\ensuremath{\mathtt{inr}\ #1}\xspace}
+\newcommand\escase[5]{\ensuremath{\mathtt{match}\ #1 \begin{cases} \einl{#2} \to #3\\ \einr{#4} \to #5 \end{cases}\hspace{-2.5ex}}\xspace}
 \newcommand\enode[3]{\ensuremath{\mathtt{node}\ #1\ #2\ #3}\xspace}
 \newcommand\eleaf{\ensuremath{\mathtt{leaf}}\xspace}
 \newcommand\ecase[6]{\ensuremath{\mathtt{match}\ #1 \begin{cases} \eleaf \to #2\\ \enode{#3}{#4}{#5} \to #6 \end{cases}\hspace{-2.5ex}}\xspace}
@@ -58,9 +61,16 @@
 % \newcommand\etapp[2]{\ensuremath{#1 \left[ #2 \right]}}
 \newcommand\etrue{\ensuremath{\mathtt{true}}\xspace}
 \newcommand\efalse{\ensuremath{\mathtt{false}}\xspace}
-\newcommand\vhole[1]{\ensuremath{\ehole[#1]}\xspace}
+\newcommand\vhole[1]{\ensuremath{\ehole^{#1}}\xspace}
 \newcommand\vnode[4]{\ensuremath{\mathtt{node}[#1]\ #2\ #3\ #4}\xspace}
 \newcommand\vleaf[1]{\ensuremath{\mathtt{leaf}[#1]}\xspace}
+\newcommand\vcons[3]{\ensuremath{#2\ {::}^{#1}\ #3}\xspace}
+\newcommand\vnil[1]{\ensuremath{{[]}^{#1}}\xspace}
+%\newcommand\vcons[3]{\ensuremath{\mathtt{cons}[#1]\ #2\ #3}\xspace}
+%\newcommand\vnil[1]{\ensuremath{\mathtt{nil}[#1]}\xspace}
+\newcommand\vinl[3]{\ensuremath{\mathtt{inl}[#1,#2]\ #3}\xspace}
+\newcommand\vinr[3]{\ensuremath{\mathtt{inr}[#1,#2]\ #3}\xspace}
+\newcommand\vunit{\ensuremath{\langle \rangle}\xspace}
 
 \newcommand\stuck{\ensuremath{\mathtt{stuck}}\xspace}
 \newcommand\estuck{\ensuremath{\mathbf{e}}\xspace}
@@ -81,10 +91,13 @@
 \newcommand\tfun{\ensuremath{\mathtt{fun}}\xspace}
 \newcommand\ttree[1]{\ensuremath{\mathtt{tree}\ #1}\xspace}
 \newcommand\tprod[2]{\ensuremath{#1 \times #2}\xspace}
+\newcommand\tsum[2]{\ensuremath{#1 + #2}\xspace}
+\newcommand\tunit{\ensuremath{\mathtt{unit}}\xspace}
 \newcommand\tarr[2]{\ensuremath{#1 \rightarrow #2}}
 % \newcommand\tabs[2]{\ensuremath{\forall #1 . #2}}
 \newcommand\hastype[2]{\ensuremath{\typeof{#1} = {#2}}}
-\newcommand\unifysym{\ensuremath{\mathsf{unify}}\xspace}
+%\newcommand\unifysym{\ensuremath{\mathsf{unify}}\xspace}
+\newcommand\unifysym{\ensuremath{\U}\xspace}
 \newcommand\unify[2]{\ensuremath{\unifysym(#1,#2)}\xspace}
 \newcommand\tsub[2]{\ensuremath{{#1} \preceq {#2}}}
 \newcommand\tnsub[2]{\ensuremath{{#1} \npreceq {#2}}}
@@ -127,10 +140,10 @@
 
 
 \newcommand\dcolon{\ensuremath{\colon\!\!\colon}}
-\newcommand\vsu{\ensuremath{\sigma}}
+\newcommand\vsu{\ensuremath{\theta}}
 \newcommand\su{\ensuremath{\vsu}}
-\newcommand\tsu{\ensuremath{\theta}}
-\newcommand\extendsu[3]{\ensuremath{#1\left[#2 \mapsto #3\right]}}
+\newcommand\tsu{\ensuremath{\sigma}}
+\newcommand\extendsu[3]{\ensuremath{#1 + \{#2 \mapsto #3\}}}
 \newcommand\lookupsu[2]{\subst{#1}{#2}}
 
 \newcommand\tr{\ensuremath{G}}
@@ -159,11 +172,19 @@
 \newcommand{\renodebadone}{\rulename{Node-B1}}
 \newcommand{\renodebadtwo}{\rulename{Node-B2}}
 \newcommand{\releafgood}{\rulename{Leaf-G}}
-\newcommand{\recasegoodone}{\rulename{Match-Tree-G1}}
-\newcommand{\recasegoodtwo}{\rulename{Match-Tree-G2}}
-\newcommand{\recasebad}{\rulename{Match-Tree-B}}
+\newcommand{\reconsgood}{\rulename{Cons-G}}
+\newcommand{\reconsbad}{\rulename{Cons-B}}
+\newcommand{\renilgood}{\rulename{Nil-G}}
+\newcommand{\recasegoodone}{\rulename{Match-List-G1}}
+\newcommand{\recasegoodtwo}{\rulename{Match-List-G2}}
+\newcommand{\recasebad}{\rulename{Match-List-B}}
 \newcommand{\repcasegood}{\rulename{Match-Pair-G}}
 \newcommand{\repcasebad}{\rulename{Match-Pair-B}}
+\newcommand{\reinlgood}{\rulename{Inl-G}}
+\newcommand{\reinrgood}{\rulename{Inr-G}}
+\newcommand{\rescasegoodone}{\rulename{Match-Sum-G1}}
+\newcommand{\rescasegoodtwo}{\rulename{Match-Sum-G2}}
+\newcommand{\rescasebad}{\rulename{Match-Sum-B}}
 \newcommand{\reholegood}{\rulename{Hole-G}}
 
 

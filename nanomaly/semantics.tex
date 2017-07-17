@@ -99,10 +99,10 @@ Detailed proofs for the theorems in this section can be found in
 
 \subsection{Syntax}
 \label{sec:nanomaly:syntax}
-\input{syntax.tex}
+\input{nanomaly/syntax}
 %
 Figure~\ref{fig:syntax} describes the syntax of \lang, a simple lambda
-calculus with integers, booleans, pairs, and binary trees.
+calculus with integers, booleans, pairs, and lists.
 %
 As we are specifically interested in programs that \emph{do} go wrong,
 we include an explicit \stuck\ term in our syntax. We write $\estuck$ to
@@ -128,8 +128,9 @@ A \emph{normalized} value is one that is not a hole,
 but which may internally contain holes.
 %
 For example
-$\vnode{\thole}{\vhole{\thole}}{\vleaf{\thole}}{\vleaf{\thole}}$ is a
-normalized value.
+$\epair{\ehole_1[\thole_1]}{\ehole_2[\thole_2]}$
+% $\vnode{\thole}{\vhole{\thole}}{\vleaf{\thole}}{\vleaf{\thole}}$
+is a normalized value.
 
 \paragraph{Substitutions}
 %
@@ -158,6 +159,10 @@ are normalized.
 We ensure additionally that the co-domain of a substitution does not
 refer to any elements of its domain, \ie when we extend a substitution
 with a new binding we apply the substitution to itself.
+%
+We will use the notation $\extendsu{\tsu}{\thole}{t}$ for the extension
+of a type (\resp value) substitution, to distinguish it from a simple
+set union.
 
 % \paragraph{Resolving Holes}
 % We \emph{resolve} a hole with respect to a substitution by
@@ -208,11 +213,14 @@ possible. In the case where $v$ is a hole, it first checks in the given
 $\vsu$ to see if the hole has already been instantiated and, if so,
 returns the existing instantiation.
 %
+For convenience, \forcesym uses a variant of Robinson's \U~\citep{Robinson1965-rk} that unifies
+a set of types, and that takes and updates an existing substitution.
+%
 \begin{figure}[t]
 \[
 \begin{array}{lll}
 %% \multicolumn{3}{l}{\forcesym \ :: \  (e, t) \rightarrow \pair{e}{\vsu}} \\
-\forcesym                  & : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu} \\
+\forcesym                  & : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu} \\[0.1in]
 % \force{v}{\thole}{\vsu}{\tsu}  & \defeq & \hspace{-1ex}
 % \begin{cases}
 %   \triple{v}{\vsu}{\tsu'} & \mbox{if } \tsu' = \unify{\{\typeof{v}, \thole\}}{\tsu} \\
@@ -227,7 +235,7 @@ returns the existing instantiation.
                                          \tsu' = \unify{\{\thole, t, \typeof{v}\}}{\tsu}\end{array} \\
   \triple{\stuck}{\vsu}{\tsu} &\ \textbf{if} \begin{array}{l} v = \lookupsu{\vsu}{\vhole{\thole}}\end{array} \\
   \triple{v}{\extendsu{\vsu}{\vhole{\thole}}{v}}{\tsu'} &\ \textbf{if} \begin{array}{l} \tsu' = \unify{\{\thole, t\}}{\tsu}, \\ v = \gen{t}{\tsu'} \end{array}\\
-\end{cases}  \\
+\end{cases}  \\[0.05in]
 % \begin{cases}
 %   \triple{\lookupsu{\vsu}{\ehole}}{\vsu}{\tsu} & \mbox{if}\ \ehole \in dom(\vsu), \hastype{\lookupsu{\vsu}{\ehole}}{t} \\
 %   \triple{\stuck}{\vsu}{\tsu}                  & \mbox{if}\ \ehole \in dom(\vsu) \\
@@ -237,12 +245,16 @@ returns the existing instantiation.
     % \mathtt{if}\ i \in \vsu\ \mathtt{then}\ \triple{\vsu(i)}{\vsu}\ \mathtt{else} \\
          % \elet{v}{\gen{t}}{\triple{v}{\ehole{i} \mapsto v}}
   % \end{array} \\
-\force{n}{\tint}{\vsu}{\tsu}     & \defeq \triple{n}{\vsu}{\tsu} \\
-\force{b}{\tbool}{\vsu}{\tsu}    & \defeq \triple{b}{\vsu}{\tsu} \\
-\force{\efun{x}{e}}{\tfun}{\vsu}{\tsu} & \defeq \triple{\efun{x}{e}}{\vsu}{\tsu} \\
-\force{\epair{v_1}{v_2}}{\tprod{t_1}{t_2}}{\vsu}{\tsu} & \defeq \triple{\epair{v_1}{v_2}}{\vsu}{\tsu''} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{\typeof{v_1}, t_1\}}{\tsu},\\ \tsu'' = \unify{\{\typeof{v_2}, t_2\}}{\tsu'} \end{array} \\
-\force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu} & \defeq \triple{\vleaf{t_1}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array}\\
-\force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu} \hspace{-3mm} & \defeq \triple{\vnode{t_1}{v_1}{v_2}{v_3}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array} \\
+\force{n}{\tint}{\vsu}{\tsu}     & \defeq \triple{n}{\vsu}{\tsu} \\[0.05in]
+\force{b}{\tbool}{\vsu}{\tsu}    & \defeq \triple{b}{\vsu}{\tsu} \\[0.05in]
+\force{\efun{x}{e}}{\tfun}{\vsu}{\tsu} & \defeq \triple{\efun{x}{e}}{\vsu}{\tsu} \\[0.05in]
+\force{\epair{v_1}{v_2}}{\tprod{t_1}{t_2}}{\vsu}{\tsu} & \defeq \triple{\epair{v_1}{v_2}}{\vsu}{\tsu''} \hspace{0.66in} \textbf{if} \begin{array}{l} \tsu' = \unify{\{\typeof{v_1}, t_1\}}{\tsu},\\ \tsu'' = \unify{\{\typeof{v_2}, t_2\}}{\tsu'} \end{array} \\[0.05in]
+% \force{\einl{v}}{\tsum{t_1}{t_2}}{\vsu}{\tsu} & \defeq \triple{\vinl{t_1}{t_2}{v}}{\vsu}{\tsu'} \hspace{0.53in} \textbf{if } \tsu' = \unify{\{\typeof{v}, t_1\}}{\tsu} \\
+% \force{\einr{v}}{\tsum{t_1}{t_2}}{\vsu}{\tsu} & \defeq \triple{\vinr{t_1}{t_2}{v}}{\vsu}{\tsu'} \hspace{0.53in} \textbf{if } \tsu' = \unify{\{\typeof{v}, t_2\}}{\tsu} \\
+% \force{\vleaf{t_1}}{\ttree{t_2}}{\vsu}{\tsu} & \defeq \triple{\vleaf{t_1}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array}\\
+% \force{\vnode{t_1}{v_1}{v_2}{v_3}}{\ttree{t_2}}{\vsu}{\tsu} \hspace{-3mm} & \defeq \triple{\vnode{t_1}{v_1}{v_2}{v_3}}{\vsu}{\tsu'} & \hspace{-43.5mm} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array} \\
+\force{\vnil{t_1}}{\tlist{t_2}}{\vsu}{\tsu} & \defeq \triple{\vnil{t_1}}{\vsu}{\tsu'} \hspace{0.96in} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array}\\[0.05in]
+\force{\vcons{t_1}{v_1}{v_2}}{\tlist{t_2}}{\vsu}{\tsu} \hspace{-3mm} & \defeq \triple{\vcons{t_1}{v_1}{v_2}}{\vsu}{\tsu'} \hspace{0.64in} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array} \\[0.05in]
 \force{v}{t}{\vsu}{\tsu} & \defeq \triple{\stuck}{\vsu}{\tsu}
 \end{array}
 \]
@@ -270,10 +282,10 @@ For unconstrained types (denoted
 by $\thole$) it yields a fresh hole constrained to have type
 \thole (denoted by $\vhole{\thole}$).
 %
-When generating a $\ttree{t}$ we must take care to ensure
+When generating a $\tlist{t}$ we must take care to ensure
 the resulting tree is well-typed.
-%
-For a polymorphic type $\ttree{\thole}$ %, eg in \recasegoodone,
+% %
+For a polymorphic type $\tlist{\thole}$ %, eg in \recasegoodone,
 or $\tprod{\thole_1}{\thole_2}$
 we will place holes in the generated value; they will be lazily filled
 in later, on demand.
@@ -287,7 +299,9 @@ in later, on demand.
 \gen{\tint}{\tsu}   & \defeq  & n &  \text{non-det.} \\
 \gen{\tbool}{\tsu}  & \defeq  & b &  \text{non-det.} \\
 \gen{\tprod{t_1}{t_2}}{\tsu}  & \defeq  & \epair{\gen{t_1}{\tsu}}{\gen{t_2}{\tsu}} & \\ % \begin{subarray}{l} v_1 = \gen{t_1}{\tsu}\\ v_2 = \gen{t_2}{\tsu}\end{subarray} \\
-\gen{\ttree{t}}{\tsu}  & \defeq  & tr &  \text{non-det.} \\
+% \gen{\ttree{t}}{\tsu}  & \defeq  & tr &  \text{non-det.} \\
+\gen{\tlist{t}}{\tsu}  & \defeq  & l &  \text{non-det.} \\
+% \gen{\tsum{t_1}{t_2}}{\tsu}  & \defeq  & \vinl{t_1}{t_2}{\gen{t_1}{\tsu}}\ \mathbf{or}\ \vinr{t_1}{t_2}{\gen{t_2}{\tsu}} & \text{non-det.} \\
 \gen{\tfun}{\tsu}   & \defeq & \efun{x}{\vhole{\thole}} &  \text{\ehole, \thole are fresh} \\
 \gen{\thole}{\tsu}  & \defeq & \vhole{\thole} & \text{\ehole is fresh} \\
 \end{array}
@@ -298,7 +312,7 @@ in later, on demand.
 
 
 \paragraph{Steps and Traces}
-\input{nanomaly/operational.tex}
+\input{nanomaly/operational}
 %
 % WRW notes that Figure 4 does not seem to handle recursion (it's not clear
 % how the let rule would work for something "let rec"-y, and there's not
@@ -421,7 +435,7 @@ The types of functions are \emph{approximated}, which is all
 that is needed to ensure an application does not get stuck.
 %
 For example,
-$$\typeof{\efun{x}{\eplus{x}{1}}} = \tfun$$
+\[\typeof{\efun{x}{\eplus{x}{1}}} = \tfun\]
 instead of $\tint \rightarrow \tint$.
 %
 The types of (polymorphic) trees are obtained from the labels on their
@@ -433,8 +447,10 @@ values, and the types of tuples directly from their values.
     \typeof{b}   & \defeq & \tbool & \\
     \typeof{\efun{x}{e}} & \defeq & \tfun \\
     \typeof{\epair{v_1}{v_2}} & \defeq & \tprod{\typeof{v_1}}{\typeof{v_2}} \\
-    \typeof{\vleaf{t}} & \defeq & \ttree{t} \\
-    \typeof{\vnode{t}{v_1}{v_2}{v_3}} & \defeq & \ttree{t} \\
+    \typeof{\vnil{t}} & \defeq & \tlist{t} \\
+    \typeof{\vcons{t}{v_1}{v_2}} & \defeq & \tlist{t} \\
+    % \typeof{\vleaf{t}} & \defeq & \ttree{t} \\
+    % \typeof{\vnode{t}{v_1}{v_2}{v_3}} & \defeq & \ttree{t} \\
     \typeof{\vhole{\thole}} & \defeq & \thole \\
     % \typeof{\eleaf} & \defeq & \ttree{\thole}, & \quad \text{\thole is fresh} \\
     % \typeof{\enode{v_1}{v_2}{v_3}} & \defeq & \ttree{\thole}, & \quad \text{\thole is fresh} \\
@@ -596,7 +612,7 @@ and $\trace' \defeq \trace, \step{e}{\vsu}{\tsu}{e'}{\vsu'}{\tsu'}$
 % and $\trace'$ is a single-step extension of $\trace$
 and $\ptype{\trace}{f} \neq \ptype{\trace'}{f}$
 % and $\resolve{\thole}{\tsu} \neq \resolve{\thole}{\tsu'}$
-then $\tsu' = \tsu[\thole_1 \mapsto t_1] \ldots [\thole_n \mapsto t_n]$.
+then $\tsu' = \tsu + \{\thole_1 \mapsto t_1, \ldots, \thole_n \mapsto t_n\}$.
 \end{lem}
 \begin{proof}
   By case analysis on the evaluation rules.
@@ -606,7 +622,7 @@ then $\tsu' = \tsu[\thole_1 \mapsto t_1] \ldots [\thole_n \mapsto t_n]$.
   %
   Only \forcesym\ can change \tsu,
   %, and it can only do so via \unifysym
-  via \unifysym, which can only extend \tsu.
+  via \U, which can only extend \tsu.
   % and only the first case,
   % when we extend \vsu\ with $[\ehole \mapsto v]$,
   % does.
@@ -693,10 +709,12 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
   % $\vcompat{\resolve{\vhole{\thole}}{\vsu}}{\resolve{\thole}{\tsu}}$.
   %
   By Lemma~\ref{lem:vsu-ext} we know that
-  $\tsu_{i} = \tsu_{i-1}[\thole_1 \mapsto t_1] \ldots [\thole_n \mapsto t_n]$.
+  $\tsu_{i} = \tsu_{i-1} + \{\thole_1 \mapsto t_1, \ldots, \thole_n \mapsto t_n\}$.
+  % $\tsu_{i} = \tsu_{i-1}[\thole_1 \mapsto t_1] \ldots [\thole_n \mapsto t_n]$.
   %
   We will assume, without loss of generality, that
-  $\tsu_{i} = \tsu_{i-1}[\thole' \mapsto t']$.
+  $\tsu_{i} = \tsu_{i-1} + \{\thole' \mapsto t'\}$.
+  % $\tsu_{i} = \tsu_{i-1}[\thole' \mapsto t']$.
   %
   Since $\tsu_{i-1}$ and $\tsu_{i}$ differ only in $\thole'$ but the resolved
   types differ, we have
@@ -711,7 +729,8 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
   %
   We show by case analysis on the evaluation rules that
   %
-  $\step{e_{i-1}}{\vsu_{i-1}}{\tsu_{i-1}[\thole' \mapsto s]}{\stuck}{\vsu}{\tsu}$.
+  $\step{e_{i-1}}{\vsu_{i-1}}{\extendsu{\tsu_{i-1}}{\thole'}{s}}{\stuck}{\vsu}{\tsu}$.
+  % $\step{e_{i-1}}{\vsu_{i-1}}{\tsu_{i-1}[\thole' \mapsto s]}{\stuck}{\vsu}{\tsu}$.
 
   Finally, by Lemma~\ref{lem:resolve-compat} we know that
   % $\vsub{\resolve{\thole}{\tsu_{i-1}}}{\resolve{\ehole}{\vsu_{i-1}}}$,
@@ -722,7 +741,7 @@ if $\steptr{\trace}{\eapp{f}{\vhole{\thole}}}{\emptysu}{\emptysu}{e}{\vsu}{\tsu}
   Let
   $u = \gen{s}{\tsu}$
   and
-  $v = \resolve{\vhole{\thole}}{\vsu_{i-1}}\sub{\ehole'[\thole']}{u}\sub{\thole'}{s}$.
+  $v = \resolve{\vhole{\thole}}{\vsu_{i-1}}\sub{\ehole'^{\thole'}}{u}\sub{\thole'}{s}$.
   %Then,
   $\steps{\eapp{f}{v}}{\emptysu}{\emptysu}{\stuck}{\vsu}{\tsu}$ in $i$ steps.
   %and
@@ -894,7 +913,7 @@ such that $\steps{e}{\emptysu}{\emptysu}{v \cup \stuck}{\vsu}{\tsu}$.
 We address the issue of currying by defining a procedure \genArgs{e},
 defined in Figure~\ref{fig:algo-gen-args}, that takes as input an
 expression $e$ and produces a \emph{saturated} expression of the form
-$\eapp{e}{\ehole_1[\thole_1] \ldots \ehole_n[\thole_n]}$ that
+$\eapp{e}{\ehole_1^{\thole_1} \ldots \ehole_n^{\thole_n}}$ that
 \emph{does not} evaluate to a lambda.
 %
 This is achieved with a simple loop that keeps adding holes to the
