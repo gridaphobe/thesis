@@ -35,7 +35,14 @@
 % \mypara{Localizing Errors}
 %
 
-In this chapter we tackle the problem of type error localization,
+In the previous chapter we presented a technique designed
+to help explain type errors, by searching for a witness to the error.
+%
+We found that, in addition to explaining the error, the witnesses can be
+used to localize the error, though they are not quite as effective
+as the state of the art in type error localization.
+
+In this chapter we tackle the problem of error localization,
 building on top of recent work that \emph{ranks} potentially
 erroneous terms by the likelihood that they are the source
 of the error.
@@ -75,10 +82,10 @@ likely, rather than
 adapting to the kinds of mistakes
 programmers actually make in practice.
 
-\mypara{A Data-Driven Approach}
+%\mypara{A Data-Driven Approach}
 %
-In this chapter, we introduce \toolname
-\footnote{``Numeric Analysis of Type Errors''; any resemblance to persons living or dead is purely coincidental.}
+We introduce \toolname
+\footnote{``Numeric Analysis of Type Errors''; any resemblance to persons living or dead is purely coincidental.},
 a \emph{data-driven} approach to error
 localization based on supervised
 learning (see \citealt{Kotsiantis2007-pj} for a survey).
