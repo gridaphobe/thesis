@@ -4,7 +4,7 @@
 
 \begin{figure}[t!]
 \small
-\begin{minipage}{0.45\linewidth}
+\begin{minipage}{0.47\linewidth}
 \begin{ecode}
   let rec sumList xs =
     match xs with
@@ -12,11 +12,10 @@
     | h::t -> h (*@\hlTree{+}@*) (*@\hlFix{sumList t}@*)
 \end{ecode}
 \end{minipage}
-\begin{minipage}{0.49\linewidth}
+\begin{minipage}{0.5\linewidth}
 \begin{verbatim}
-File "sumList.ml", line 4, characters 16-25:
-  This expression has type 'a list
-  but an expression was expected of type int
+This expression has type 'a list
+but an expression was expected of type int
 \end{verbatim}
 \end{minipage}
 \caption{(left) An ill-typed \ocaml program that should sum the elements of a
@@ -179,11 +178,14 @@ sometimes frustrating) back-and-forth with
 the type checker, eventually end up fixing
 their own programs.
 %
-Thus, we instrumented
-the \ocaml compiler to record
-this conversation, \ie record the sequence
-of programs submitted by each programmer and
-whether or not it was deemed type-correct.
+% Thus, we instrumented
+% the \ocaml compiler to record
+% this conversation, \ie record the sequence
+% of programs submitted by each programmer and
+% whether or not it was deemed type-correct.
+Thus, we can use the interaction traces described
+in \autoref{chp:data-collection} to extract a training
+set of ill-typed programs and fixes.
 %
 For each ill-typed program in
 a particular programmer's trace,
