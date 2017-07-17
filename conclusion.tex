@@ -91,8 +91,170 @@ specific errors made by students in their courses.
 We will conclude this dissertation with a brief discussion of some
 exciting future directions for this line of work.
 
-\paragraph{Other Type Systems}
+\paragraph{Other Type Systems and Analyses}
+This dissertation has focused on improving type errors for typed
+functional languages based on the Hindley-Milner type system, but
+there are a great many other type systems in use.
+%
+Thus, one promising direction for future work would be adapting our
+techniques to other systems.
 
+Both \tool{NanoMaLy} and \tool{Nate} have been designed to be parametric
+in the type system, so in principle it should be straightforward to
+adapt them to other languages and type systems.
+%
+\tool{NanoMaLy}'s use of the type system is mostly confined to the
+\forcesym procedure that performs type-checking, thus one would need to
+adapt \forcesym to the target type system. If the dynamic semantics of
+the target language differ significantly from \ocaml's, one would also
+need to replace the evaluation rules, but this is not a significant
+burden either. \tool{NanoMaLy}'s evaluation rules are just those of
+\ocaml, with a call to \forcesym inserted before every primitive
+reduction.
+%
+In contrast, \tool{Nate} only uses the type system as a source of
+features, so one would only need to extract alternative features from
+the target type system.
+
+We will next briefly outline a few classes of type systems and how
+supporting them might differ from \ocaml.
+
+\subparagraph{Dependent Types}
+%
+Dependent types~\citep{Bertot2013-ao,Norell2007-cj,Brady2013-nl}
+and their close cousins,
+refinement types~\citep{Xi1998-we,Dunfield2007-ei,Rondon2008-ea,Swamy2011-rq},
+%
+allow the programmer to specify complex invariants on their programs and
+data, and can statically prevent many runtime errors that \ocaml cannot.
+%
+These systems have been used to prove
+%
+the absence out-of-bounds accesses~\citep{Xi1998-we,Rondon2008-ea,Vazou2014-xk},
+%
+complex data-structure invariants (\eg red-black tree balancing)~\citep{Vazou2014-xk,Kawaguchi2009-cl},
+%
+security policies~\citep{Bengtson2011-ep,Swamy2011-rq},
+%
+and even compiler correctness~\citep{Leroy2009-zs}.
+
+As one might expect, it is much harder to prove such properties about
+your programs than traditional type-safety, and thus programmers using
+such systems may spend much more time investigating type errors.
+%
+Another consequence of the increased expressiveness is that these
+systems generally do not support global type inference as it becomes
+undecidable.
+%
+Thus, the debugging type errors in these systems is more about
+\emph{understanding} the error than \emph{localizing} it.
+%
+A crucial question the programmer must answer is whether the error is a
+legitimate bug in her program, or if the type checker simply lacks
+enough information to \emph{prove} the program correct.
+
+\tool{NanoMaLy}'s approach to searching for witnesses to type errors
+could thus be quite helpful in these systems.
+%
+The presence of a witness proves that there is an actual bug, while the
+absence may suggest that the programmer needs to supply some additional
+lemmas to convince the type checker.
+%
+We have done some preliminary work in this area, showing that dependent
+and refinement type signatures can be thought of as generators and
+oracles for comprehensive test suites~\citep{Seidel2015-pe}.
+%
+However, that work only checked that a function satisfies its top-level
+signature, we did not search for witnesses to the misuse of other
+functions internally.
+%
+\citet{Petiot2016-fe} present a technique for determining if a proof
+failure is due to a legitimate bug or a lack of available information,
+but they only evaluate it in the context of first-order, imperative C
+programs.
+%
+It would be very interesting to apply these techniques to dependent
+and refinement type systems for functional languages.
+
+\subparagraph{Objects}
+%
+Objects are a common feature in popular languages like \tool{C++},
+\tool{Java}, and \tool{C\#}, offering code reuse via inheritance and
+behavioral abstraction via interfaces.
+%
+A core feature of type systems that support objects is \emph{subtyping},
+allowing values of the sub-type to be seamlessly used anywhere values of
+the super-type are expected.
+%
+While these languages are gradually adopting type inference for local
+variables, they generally require type annotations for
+functions\footnote{\ocaml's own object system is a notable exception
+  here.} as the addition of subtyping would force the compiler to guess
+the programmer's intent for the input types.
+%
+For instance, did she want the function to accept objects of a specific
+type, or objects of any type that implement a particular interface?
+
+Since the type checker is (generally) not responsible for guessing the
+programmer's intent in these systems, we suspect that type error
+localization is unlikely to be as serious problem as it is in \ocaml;
+however, these languages may still benefit from \tool{NanoMaLy}'s
+approach to explaining type errors in terms of runtime errors.
+%
+Novice users, in particular, may find it easier to understand the error
+when presented as a concrete runtime trace.
+%
+\citet{Bayne2011-cn} demonstrate a tool similar to \tool{NanoMaLy} that
+allows programmers to execute ill-typed \tool{Java} programs, though
+their aim is user-driven testing of a program in spite of potentially
+irrelevant type errors, while ours is automated explanations of
+type errors.
+%
+Furthermore, subtyping adds a similar question of whether the type error
+is legitimate or if a function was simply being too conservative in its
+input and output types, thus testing may help guide the programmer to a
+solution as suggested above.
+
+% \subparagraph{Gradual Types}
+% %
+% \ES{TODO}
+
+\subparagraph{Information Flow Control}
+%
+Several authors have proposed type systems for tracking who may access
+or modify certain pieces of data, \eg medical records or paper reviews,
+in order to ensure confidentiality~\citep{Denning1977-kk,Heintze1998-hu,Myers2000-zd,Pottier2003-et,Stefan2011-cd}.
+%
+These systems typically associate a security label --- ranging from
+simple ``high'' or ``low'' security label, to a set of privileged actors
+--- in addition to a type with each object in the system, and ensure
+that only actors with sufficient privileges can access restricted
+objects.
+%
+A major complication from traditional type-checking is that \emph{implicit}
+information flows must be tracked in addition to explicit flows.
+%
+While an explicit information flow could be returning a row from a
+database table, an implicit flow occurs when the program makes an
+observable decision based on a piece of information, \eg by branching
+on the value of an object.
+%
+Implicit flows must be restricted so that malicious users cannot infer
+privileged data by carefully constructed inputs to a system;
+%
+a common tactic is to conservatively propagate security labels via
+implicit flows.
+
+As with objects, these type systems do not perform global inference for
+the security labels, thus the type checker is not trying to infer the
+programmer's intent; however, the implicit flows can create a similar
+issue of errors being reported far from their source.
+%
+Thus, we suspect that these systems could benefit from both approaches
+presented in this dissertation: \tool{Nate}'s data-driven localizations
+could improve the accuracy of error reports, and \tool{NanoMaLy}'s
+witnesses could help explain the errors in terms of the undesirable
+leaking of privileged data.
 
 \paragraph{Fixing Type Errors}
 Throughout this entire dissertation we have focused on localizing and
