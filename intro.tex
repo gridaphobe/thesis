@@ -51,8 +51,8 @@ Then, we will outline our novel contributions to the field.
 \begin{ecode}
 let rec sumList xs =
   match xs with
-  | []   -> (*@\hlSherrloc{[]}@*)
-  | h::t -> h + (*@\hlTree{sumList t}@*)
+  | []   -> []
+  | h::t -> h + (*@\hlRed{sumList t}@*)
 \end{ecode}
 \end{minipage}
 \begin{minipage}{0.5\linewidth}
@@ -62,11 +62,12 @@ but an expression was expected of type int
 \end{verbatim}
 \end{minipage}
 \caption{(left) An ill-typed \ocaml program that should sum the elements of a
-  list, with highlights indicating two possible blame assignments based on:
+  list, \hlRed{highlighting} the location blamed by the \ocaml compiler.
+  % list, with highlights indicating two possible blame assignments based on:
   %
-  (1) the \hlTree{\ocaml} compiler; and
-  %
-  (2) the student's \hlSherrloc{fix}.
+  % (1) the \hlTree{\ocaml} compiler; and
+  % %
+  % (2) the student's \hlSherrloc{fix}.
   %
   % The \underline{underlined} expressions are equally valid
   % locations to blame. The expression blamed by the \ocaml compiler

@@ -42,21 +42,25 @@
 \begin{minipage}{.49\linewidth}
 \centering
 \begin{ecode}
-  let rec fac n =
-    if n <= 0 then
-      true
-    else
-      n * (*@\hlOcaml{fac (n-1)}@*)
+let rec sumList xs =
+  match xs with
+  | []   -> []
+  | h::t -> h + (*@\hlRed{sumList t}@*)
 \end{ecode}
 \vspace{2em}
-\includegraphics[height=1.5in]{nanomaly/fac-overview.png}
+\includegraphics[height=1.5in]{nanomaly/sumList-overview.png}
 \end{minipage}
 \begin{minipage}{.49\linewidth}
 \centering
-\includegraphics[height=3in]{nanomaly/fac-long.png}
+\includegraphics[height=3in]{nanomaly/sumList-long.png}
 \end{minipage}
 \vspace{1em}
-\caption{(top-left) An ill-typed \texttt{fac} function \hlOcaml{highlighting} the error location reported by \ocaml. (bottom-left) Dynamically witnessing the type error in \texttt{fac}, showing only function call-return pairs. (right) The same trace, fully expanded to show each small-step reduction in the computation.}
+\caption{(top-left) The ill-typed \texttt{sumList} function
+  \hlRed{highlighting} the error location reported by
+  \ocaml. (bottom-left) Dynamically witnessing the type error in
+  \texttt{sumList}, showing only function call-return pairs. (right) The
+  same trace, fully expanded to show each small-step reduction in the
+  computation.}
 \label{fig:factorial}
 \end{figure}
 
@@ -86,8 +90,8 @@ We have developed \toolname, an interactive tool that uses
 the source of the ill-typed function to automatically synthesize
 the result on the bottom-left in Figure~\ref{fig:factorial}, which
 shows how the recursive calls reduce to a configuration where
-the program ``goes wrong'' --- \ie\ the @int@ value @1@ is to be
-multiplied with the @bool@ value @true@.
+the program ``goes wrong'' --- \ie\ the @int@ value @0@ is to be
+added to the @list@ value @[]@.
 We achieve this via three concrete contributions.
 
 \paragraph{1. Finding Witnesses}
@@ -179,8 +183,8 @@ Our third contribution is an extensive evaluation of our approach
 on two different sets of ill-typed programs obtained by instrumenting
 compilers used in beginner's classes~(\S~\ref{sec:nanomaly:evaluation}).
 %
-The first is the \uwbench\ dataset~\cite{Lerner2007-dt}
-comprising \uwsize\ ill-typed programs.
+The first is the \uwbench\ dataset~\cite{Lerner2007-dt}, standard in the
+literature, comprising \uwsize\ ill-typed programs.
 %
 The second comes from the new dataset described in \autoref{chp:data-collection}, comprising \ucsdsize\
 ill-typed programs.

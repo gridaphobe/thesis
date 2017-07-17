@@ -48,12 +48,15 @@ overloading them for each type.
 While convenient to use, they pose a challenge for \toolname's
 combination of execution and inference.
 %
-For example, consider the \hbox{@n <= 0@} test in our @fac@ example.
-%
-The @<=@ operator is polymorphic, but in this case we can make progress because
-the literal @0@ is not.
-%
-Suppose, however, we parameterized @fac@ by a lower bound, \eg
+For example, % consider the \hbox{@n <= 0@} test in our @fac@ example.
+% %
+% The @<=@ operator is polymorphic, but in this case we can make progress because
+% the literal @0@ is not.
+% %
+% Suppose, however, we parameterized @fac@ by a lower bound, \eg
+% %
+consider the following ill-typed factorial function, parameterized by a
+lower bound.
 %
 \begin{code}
   let rec fac n m =
@@ -64,8 +67,8 @@ Suppose, however, we parameterized @fac@ by a lower bound, \eg
 \end{code}
 %
 When given @fac@, \toolname will generate two fresh holes
-$\nu_1[\alpha_1]$ and $\nu_2[\alpha_2]$ and proceed directly into the
-@n < m@ comparison.
+$\nu_1^{\alpha_1}$ and $\nu_2^{\alpha_2}$ and proceed directly into the
+@n <= m@ comparison.
 %
 We cannot (yet) instantiate either hole because we have no constraints
 on the $\alpha$s (we know they must be equal, but nothing else), and

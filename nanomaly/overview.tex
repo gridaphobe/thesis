@@ -28,7 +28,7 @@ use them to execute the program until we find one that
 causes the program to go wrong.
 %
 Unfortunately, this approach quickly runs aground.
-Recall the erroneous @fac@ function from Figure~\ref{fig:factorial}.
+Recall the erroneous @sumList@ function from Figure~\ref{fig:factorial}.
 %~\S~\ref{sec:nanomaly:introduction}:
 %
 % \begin{code}
@@ -40,15 +40,15 @@ Recall the erroneous @fac@ function from Figure~\ref{fig:factorial}.
 % \end{code}
 % \ES{having two copies of \texttt{fac} seems silly, but the back-reference across a page boundary is no good either...}
 %
-What \emph{types} of inputs should we test @fac@ with?
+What \emph{types} of inputs should we test @sumList@ with?
 %
-Values of type @int@ are fair game, but values of type, say,
-@string@ or @int list@ will cause the program to go wrong
+Values of type @int list@ are fair game, but values of type, say,
+@string@ or @bool@ will cause the program to go wrong
 in an \emph{irrelevant} manner.
 %
-Concretely, we want to avoid testing @fac@ with any type other
-than @int@ because any other type would cause @fac@ to get stuck
-immediately in the @n <= 0@ test.
+Concretely, we want to avoid testing @sumList@ with any type other
+than @int list@ because any other type would cause it to get stuck
+immediately in the @match@ expression.
 
 \paragraph{Solution: Don't generate inputs until forced.}
 Our solution is to avoid generating a concrete value for the input at
@@ -67,7 +67,7 @@ A hole --- written \vhole{\thole} --- is a \emph{placeholder} for a
 value \ehole of some unknown type \thole.
 %
 We leave all inputs as uninstantiated holes until they are demanded by
-the program, \eg due to a primitive operation like the @<=@ test.
+the program, \eg due to a built-in operation like the @match@ expression.
 
 \paragraph{Narrowing Input Types}
 Primitive operations, data construction, and case-analysis \emph{narrow}
@@ -110,14 +110,25 @@ We call this type approximate because we only see a single path through
 the program, and thus will miss narrowing points that only occur in
 other paths.
 
-Returning to @fac@, given a hole as input we will narrow the hole
-to an @int@ upon reaching the @<=@ test.
+Returning to @sumList@, given a hole as input we will narrow the hole to
+a @list@\footnote{At this point we do not know it must be an
+  \texttt{int list}.} upon reaching the @match@ expression.
 %
-At this point we choose a
-random @int@\footnote{With standard heuristics~\cite{Claessen2000-lj} to favor small values.}
+At this point we construct a
+random @list@\footnote{With standard heuristics~\cite{Claessen2000-lj} to favor small values.} with new holes as the values
 for the instantiation and
-concrete execution takes over entirely, leading us to the expected crash
-in the multiplication.
+concrete execution takes over.
+%
+Assuming we have generated a non-empty list, we will move into the
+@h::t@ branch and reach the @+@ expression, which will narrow
+@h@ to a concrete @int@.
+%
+We will then recurse via @sumList t@ until we reach the last element of
+the list, at which point @sumList t@ will return the empty list @[]@
+and the program will crash as expected at the @+@ expression.
+
+% , leading us to the expected crash
+% in the multiplication.
 
 \paragraph{Witness Generality}
 We show in \S~\ref{sec:nanomaly:soundness} that our lazy instantiation of holes
@@ -135,10 +146,10 @@ that will cause the function to go wrong.
 \paragraph{Problem: How many inputs does a function take?}
 %
 There is another wrinkle, though; how did we know
-that @fac@ takes a single argument instead of two
+that @sumList@ takes a single argument instead of two
 (or none)?
 %
-It is clear, syntactically, that @fac@ takes \emph{at least} one
+It is clear, syntactically, that @sumList@ takes \emph{at least} one
 argument, but in a higher-order language with currying, syntax can be
 deceiving.
 %
