@@ -1,13 +1,14 @@
 Static type systems are a marvelous invention.
 %
-They rule out, at compile-time, an entire class of run-time failures,
-\eg dereferencing a |null|-pointer or passing an |int| where a |bool|
-was expected.
+They allow programmers to rule out, at compile-time, entire classes of
+run-time failures, ranging from the mundane but ubiquitous null-pointer
+dereference to the construction of invalid SQL
+queries~\citep{Leijen1999-pd,Cook2005-tq} and beyond.
 %
 Languages like \ocaml and \haskell make
 the value-proposition for types even more
-appealing by using constraints to automatically
-synthesize the types for all program terms,
+appealing by automatically
+synthesizing the types for all program terms,
 without troubling the programmer for any
 annotations.
 %
