@@ -5,14 +5,14 @@
 We have implemented our technique for localizing type errors for a
 purely functional subset of \ocaml with polymorphic types and functions.
 %
-We seek to answer three questions in our evaluation:
+We seek to answer four questions in our evaluation:
 %
 \begin{itemize}
 \item \textbf{Blame Accuracy}
   %
   How often does \toolname
   blame a \emph{correct}
-  location for the type error?
+  location for the error?
   (\autoref{sec:nate:quantitative})
   %
   % We compare our technique with a variety of off-the-shelf classifiers
@@ -32,9 +32,12 @@ We seek to answer three questions in our evaluation:
   %% Do the models learned by \toolname
   %% correspond to our intuition about
   %% the real causes of errors?
-  Are the models \emph{interpretable} using
-  our intuition about the causes of type errors?
+  Do the models match our intuition about type errors?
   (\autoref{sec:nate:qualitative})
+\item \textbf{Blame Utility}
+  Do \toolname's blame assignments help
+  users diagnose type errors?
+  (\autoref{sec:nate:user-study})
 \end{itemize}
 %
 %\mypara{Summary of Results}
@@ -246,9 +249,12 @@ of each tool.
 We evaluate each tool on whether a changed expression occurred in its
 top one, top two, or top three predictions.
 
+\input{nate/threats}
+
 \input{nate/evaluation-accuracy}
 \input{nate/evaluation-utility}
-
+\input{nate/qualitative}
+\input{nate/evaluation-user-study}
 
 %%% Local Variables:
 %%% mode: latex
