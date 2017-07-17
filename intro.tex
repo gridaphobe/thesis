@@ -129,26 +129,67 @@ In addition to the usual variables, $\lambda$-abstractions, and
 applications, we have equipped the language with integers and lists, so
 that it can easily represent our |sumList| program.
 %
+The types of our language are, as usual, split into \emph{monomorphic}
+types $t$ and \emph{polymorphic} types $s$.
+%
+
 To describe type inference, we will also need type environments and
 substitutions.
 %
-A type environment $\Gamma$ is a mapping from variables to types,
-written $\{x_1:t_1, \ldots, x_n:t_n \}$, and denotes that each variable
-$x_i$ has type $t_i$.
+A type environment $\Gamma$ is a mapping from program variables $x$ to
+(polymorphic) types $s$, written $\{\overline{x:s}\}$, and denotes that
+each variable $x_i$ has a quantified type $s_i$.
 %
 Type environments are used to propagate typing information from outer
 expressions to inner expressions. %, \eg the $\lambda$ form will extend the
 % current type environment with a new binding for the variable $x$.
 %
-A substitution is a mapping from \emph{type} variables to concrete
-types, written
-$\{\alpha_1 \mapsto t_1, \ldots, \alpha_n \mapsto t_n \}$, and denotes
-that each type variable $\alpha_i$ has been \emph{refined} to a concrete
-type $t_i$.
+Types and type environments may have \emph{free} type variables.
+%
+The free variables of a type, written $FV(s)$, are all type
+variables that are not quantified over by a $\forall$.
+%
+\[
+\begin{array}{rcl}
+FV(\alpha) &=& \{\alpha\} \\
+FV(\tint)  &=& \emptysu \\
+FV(\tarr{t_1}{t_2}) &=& FV(t_1) \cup FV(t_2)\\
+FV(\forall \overline{\alpha}. t) &=& FV(t) - \overline{\alpha}
+\end{array}
+\]
+%
+The free variables of a type environment is the union of the free variables
+of the contained types $FV(\Gamma) = \cup_{x:s \in \Gamma}FV(s)$.
+
+A substitution is a mapping from \emph{type} variables $\alpha$ to types
+$t$, written $\{\overline{\alpha \mapsto t}\}$, and denotes that each
+type variable $\alpha_i$ has been \emph{refined} to a type $t_i$.
+%
+A substitution may be applied to a type scheme or type environment, written
+$\tsu(s)$, and replaces free type variables by the corresponding type.
+%
+\[
+\begin{array}{rcl}
+\tsu(\alpha) &=& \begin{cases}
+  t \quad \text{if } \alpha \mapsto t \in \tsu \\
+  \alpha \quad \text{otherwise}
+  \end{cases} \\
+\tsu(\tint)  &=& \tint \\
+\tsu(\tarr{t_1}{t_2}) &=& \tarr{\tsu(t_1)}{\tsu(t_2)}\\
+\tsu(\forall \overline{\alpha}. t) &=& \{\alpha' \mapsto t' \spmid \alpha' \notin \overline{\alpha}\}(t)
+\end{array}
+\]
+%
+The application of a substitution may similarly be lifted to operate
+over type environments.
+%
+The composition of two substitutions, written $\tsu_2\tsu_1$, denotes
+the substitution formed by first applying $\tsu_1$ and then $\tsu_2$.
 %
 Substitutions are used to propagate typing information from inner expressions
 back to the outer expressions.
-%
+
+
 %For example, given the expression $\efun{x}{\eplus{x}{1}}$, we will extend
 
 \begin{figure}
@@ -170,18 +211,17 @@ back to the outer expressions.
 \mathbf{Types}
 & t & ::= & \alpha \spmid % \tbool \spmid
             \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
-            \tlist{t} \\[0.2in]
+            \tlist{t} \\
+& s & ::= & \forall \overline{\alpha}. t \\[0.2in]
 
 \mathbf{Environments}
-& \Gamma & ::= &
-  \{x_1:t_1, \ldots, x_n:t_n \}
+& \Gamma & ::= & \{\overline{x:s}\}
   % \cdot \spmid \Gamma;x:t
 \\[0.2in]
 
 \mathbf{Substitutions}
-& \sigma & ::= &
-  \{\alpha_1 \mapsto t_1, \ldots, \alpha_n \mapsto t_n \}
-  % \cdot \spmid \sigma \cup \{\alpha \mapsto t\}
+& \tsu & ::= & \{\overline{\alpha \mapsto t}\}
+  % \cdot \spmid \tsu \cup \{\alpha \mapsto t\}
 \\
 \end{array}
 }
@@ -219,23 +259,28 @@ has examined the body $e$ to determine how $x$ is used.
 \judgementHead{Typing}{\jtype{\Gamma}{e}{t}}
 \begin{gather*}
 \inference[\textsc{Var}]
-  {x:t \in \Gamma}
-  {\jtype{\Gamma}{x}{t}}
+  {\Gamma(x) = \forall \overline{\alpha}. t
+   \quad \overline{\beta} \text{ are fresh}
+  }
+  {\jtype{\Gamma}{x}{\{\overline{\alpha \mapsto \beta}\}(t)}}
 \quad
 \inference[\textsc{Lam}]
   {\jtype{\Gamma \cup \{x:t_1\}}{e}{t_2}}
   {\jtype{\Gamma}{\efun{x}{e}}{\tarr{t_1}{t_2}}}
-\quad
+\\[0.1in]
 \inference[\textsc{App}]
   {\jtype{\Gamma}{e_1}{\tarr{t_1}{t_2}}
    \quad
    \jtype{\Gamma}{e_2}{t_1}}
   {\jtype{\Gamma}{\eapp{e_1}{e_2}}{t_2}}
-\\[0.1in]
+%\\[0.1in]
+\quad
 \inference[\textsc{Let}]
   {\jtype{\Gamma}{e_1}{t_1}
    \quad
-   \jtype{\Gamma \cup \{x:t_1\}}{e_2}{t_2}}
+   \overline{\alpha} = FV(t_1) - FV(\Gamma)
+   \\
+   \jtype{\Gamma \cup \{x : \forall \overline{\alpha}. t_1\}}{e_2}{t_2}}
   {\jtype{\Gamma}{\elet{x}{e_1}{e_2}}{t_2}}
 \\[0.1in]
 \inference[\textsc{Lit}]
@@ -269,9 +314,9 @@ has examined the body $e$ to determine how $x$ is used.
   % This
   % language lacks common features like recursion and polymorphic
   % functions since they do not
-  We omit the usual rules for generalization and instantiation of type
-  schemes since they do not have a significant effect on the location or
-  content of type errors.  
+  % We omit the usual rules for generalization and instantiation of type
+  % schemes since they do not have a significant effect on the location or
+  % content of type errors.
 }
 \label{fig:intro:hindley-milner}
 \end{figure}
@@ -281,58 +326,60 @@ has examined the body $e$ to determine how $x$ is used.
 \[
 \boxed{
 \begin{array}{lcl}
-\W & : & \Gamma \times e \rightarrow \sigma \times t
+\W & : & \Gamma \times e \rightarrow \tsu \times t
 \\[0.1in]
-\W(\Gamma, x)
-   & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t
+\W(\Gamma,\ x)
+   & = & \text{let } \Gamma(x) = \forall \overline{\alpha}. t \\
+   &   & \text{in } (\emptysu,\ \{\overline{\alpha \mapsto \alpha'}\}(t)),\quad \overline{\alpha'} \text{ are fresh}
 \\[0.05in]
-\W(\Gamma, \efun{x}{e})
-   & = & \text{let } (\sigma, t) = \W(\Gamma \cup \{x:\alpha\}, e),\ \alpha \text{ is fresh} \\
-   &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t}))
+\W(\Gamma,\ \efun{x}{e})
+   & = & \text{let } (\tsu,\ t) = \W(\Gamma \cup \{x:\alpha\}, e),\quad \alpha \text{ is fresh} \\
+   &   & \text{in  } (\tsu,\ \tsu(\tarr{\alpha}{t}))
 \\[0.05in]
-\W(\Gamma, \eapp{e_1}{e_2})
-   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \U(\sigma_2(t_1),\tarr{t_2}{\alpha}),\ \alpha \text{ is fresh} \\
-   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha))
+\W(\Gamma,\ \eapp{e_1}{e_2})
+   & = & \text{let } (\tsu_1,\ t_1) = \W(\Gamma,\ e_1) \\
+   &   & \quad\ (\tsu_2,\ t_2) = \W(\tsu_1(\Gamma),\ e_2) \\
+   &   & \quad\ \tsu_3 = \U(\tsu_2(t_1),\ \tarr{t_2}{\alpha}),\quad \alpha \text{ is fresh} \\
+   &   & \text{in } (\tsu_3\tsu_2\tsu_1,\ \tsu_3(\alpha))
 \\[0.05in]
-\W(\Gamma, \elet{x}{e_1}{e_2})
-   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ \Gamma' = \Gamma \cup \{x_1:t_1\} \\
-   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma'), e_2) \\
-   &   & \text{in } (\sigma_2(\sigma_1), t_2)
+\W(\Gamma,\ \elet{x}{e_1}{e_2})
+   & = & \text{let } (\tsu_1,\ t_1) = \W(\Gamma,\ e_1) \\
+   &   & \quad\ \overline{\alpha} = FV(t_1) - FV(\Gamma) \\
+   &   & \quad\ \Gamma' = \Gamma \cup \{x_1 : \forall \overline{\alpha}. t_1\} \\
+   &   & \quad\ (\tsu_2,\ t_2) = \W(\tsu_1(\Gamma'),\ e_2) \\
+   &   & \text{in } (\tsu_2\tsu_1,\ t_2)
 \\[0.05in]
-\W(\Gamma, n)
-   & = & (\cdot, \tint)
+\W(\Gamma,\ n)
+   & = & (\emptysu,\ \tint)
 \\[0.05in]
-\W(\Gamma, \eplus{e_1}{e_2})
-   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \U(t_1,\tint) \\
-   &   & \quad\ \sigma_4 = \U(t_2,\tint) \\
-   &   & \text{in } (\sigma_4(\sigma_3(\sigma_2(\sigma_1))), \tint)
+\W(\Gamma,\ \eplus{e_1}{e_2})
+   & = & \text{let } (\tsu_1,\ t_1) = \W(\Gamma,\ e_1) \\
+   &   & \quad\ (\tsu_2,\ t_2) = \W(\tsu_1(\Gamma),\ e_2) \\
+   &   & \quad\ \tsu_3 = \U(\tsu_2(t_1),\ \tint) \\
+   &   & \quad\ \tsu_4 = \U(t_2,\ \tint) \\
+   &   & \text{in } (\tsu_4\tsu_3\tsu_2\tsu_1,\ \tint)
 \\[0.05in]
-\W(\Gamma, \enil)
-   & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh}
+\W(\Gamma,\ \enil)
+   & = & (\emptysu,\ \tlist{\alpha}), \quad \alpha \text{ is fresh}
 \\[0.05in]
-\W(\Gamma, \econs{e_1}{e_2})
-   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-   &   & \quad\ \sigma_3 = \U(t_2,\sigma_2(\tlist{t_1})) \\
-   &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1}))
+\W(\Gamma,\ \econs{e_1}{e_2})
+   & = & \text{let } (\tsu_1,\ t_1) = \W(\Gamma,\ e_1) \\
+   &   & \quad\ (\tsu_2,\ t_2) = \W(\tsu_1(\Gamma),\ e_2) \\
+   &   & \quad\ \tsu_3 = \U(t_2,\ \tsu_2(\tlist{t_1})) \\
+   &   & \text{in } (\tsu_3\tsu_2\tsu_1,\ \tsu_3(t_2))
 \\[0.05in]
-\W(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3})
-   & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-   &   & \quad\ \sigma_2 = \U(t_1,\tlist{\alpha}),\ \alpha \text{ is fresh} \\
-   &   & \quad\ (\sigma_3, t_2) = \W(\sigma_2(\Gamma), e_2) \\
+\W(\Gamma,\ \elcase{e_1}{e_2}{x_1}{x_2}{e_3})
+   & = & \text{let } (\tsu_1,\ t_1) = \W(\Gamma,\ e_1) \\
+   &   & \quad\ \tsu_2 = \U(t_1,\ \tlist{\alpha}),\ \alpha \text{ is fresh} \\
+   &   & \quad\ (\tsu_3,\ t_2) = \W(\tsu_2(\Gamma),\ e_2) \\
    &   & \quad\ \Gamma' = \Gamma \cup \{x_1:\alpha,\ x_2:\tlist{\alpha}\} \\
-   &   & \quad\ (\sigma_4, t_3) = \W(\sigma_3(\sigma_2(\Gamma')), e_3) \\
-   &   & \quad\ \sigma_5 = \U(t_2,\sigma_4(t_1)) \\
-   &   & \text{in } (\sigma_5(\sigma_4(\sigma_3(\sigma_2(\sigma_1)))), \sigma_5(t_1)) \\
+   &   & \quad\ (\tsu_4,\ t_3) = \W(\tsu_3\tsu_2(\Gamma'),\ e_3) \\
+   &   & \quad\ \tsu_5 = \U(t_3,\ \tsu_4(t_2)) \\
+   &   & \text{in } (\tsu_5\tsu_4\tsu_3\tsu_2\tsu_1,\ \tsu_5(t_3)) \\
 \end{array}
 }
 \]
-\caption{Algorithm $\mathcal{W}$~\citep{Damas1982-uw}, adapted to our language. \ES{TODO: CHECK THE NEW RULES}}
+\caption{Algorithm $\mathcal{W}$, adapted to our language.}
 \label{fig:intro:algo-w}
 \end{figure}
 
@@ -342,7 +389,7 @@ $\mathcal{W}$~\citep{Damas1982-uw}, extended to our language in
 type variable $\alpha$ (\ie one that does not occur in the environment).
 %
 It takes as input a typing environment $\Gamma$ and an expression $e$,
-and returns a substitution $\sigma$ and an inferred type $t$.
+and returns a substitution $\tsu$ and an inferred type $t$.
 %
 In the $\lambda$ case, it then applies the substitution to the function
 type $\tarr{\alpha}{t}$ before returning it, crucially refining $\alpha$
@@ -350,14 +397,14 @@ based on the body of the lambda.
 
 A key component of Algorithm \W is Robinson's unification algorithm,
 \U~\citep{Robinson1965-rk}, which takes two types $t_1$ and $t_2$ and
-returns a substitution $\sigma$ such that $\sigma(t_1) = \sigma(t_2)$.
+returns a substitution $\tsu$ such that $\tsu(t_1) = \tsu(t_2)$.
 %
 For example,
 $\U(\tarr{\alpha_1}{\tint},\ \tarr{\tlist{\tint}}{\alpha_2}) = \{\alpha_1 \mapsto \tlist{\tint},\ \alpha_2 \mapsto \tint\}$.
 %
 It is the combination of fresh type variables to defer the choice of
 concrete types and Robinson's \U to instantiate them that allows \W to
-efficiently compute the type of an expression without any user
+efficiently compute the type of any expression without any user
 annotations.
 
 Unfortunately, that is also precisely the source of the poor error
@@ -435,47 +482,46 @@ $\mathcal{W}$ would, \ie at an expression deeper in the tree.
 \[
 \boxed{
 \begin{array}{lcl}
-\M & : & \Gamma \times e \times t \rightarrow \sigma \\
+\M & : & \Gamma \times e \times t \rightarrow \tsu \\
 % \W(\Gamma, x)
 %    & = & (\cdot, t) \quad \text{ where } \Gamma(x) = t \\
 % \W(\Gamma, \efun{x}{e})
-%    & = & \text{let } (\sigma, t) = \W(\Gamma;x:\alpha, e),\ \alpha \text{ is fresh} \\
-%    &   & \text{in  } (\sigma, \sigma(\tarr{\alpha}{t})) \\
+%    & = & \text{let } (\tsu, t) = \W(\Gamma;x:\alpha, e),\ \alpha \text{ is fresh} \\
+%    &   & \text{in  } (\tsu, \tsu(\tarr{\alpha}{t})) \\
 % \W(\Gamma, \eapp{e_1}{e_2})
-%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-%    &   & \quad\ \sigma_3 = \unify{\sigma_2(t_1)}{\tarr{t_2}{\alpha}},\ \alpha \text{ is fresh} \\
-%    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\alpha)) \\
+%    & = & \text{let } (\tsu_1, t_1) = \W(\Gamma, e_1) \\
+%    &   & \quad\ (\tsu_2, t_2) = \W(\tsu_1(\Gamma), e_2) \\
+%    &   & \quad\ \tsu_3 = \unify{\tsu_2(t_1)}{\tarr{t_2}{\alpha}},\ \alpha \text{ is fresh} \\
+%    &   & \text{in } (\tsu_3(\tsu_2(\tsu_1)), \tsu_3(\alpha)) \\
 % \W(\Gamma, \elet{x}{e_1}{e_2})
-%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
+%    & = & \text{let } (\tsu_1, t_1) = \W(\Gamma, e_1) \\
 %    &   & \quad\ \Gamma' = \Gamma;\ x_1:t_1 \\
-%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma'), e_2) \\
-%    &   & \text{in } (\sigma_2(\sigma_1), t_2) \\
+%    &   & \quad\ (\tsu_2, t_2) = \W(\tsu_1(\Gamma'), e_2) \\
+%    &   & \text{in } (\tsu_2(\tsu_1), t_2) \\
 % \W(\Gamma, n)
 %    & = & (\cdot, \tint) \\
-\M(\Gamma, \eplus{e_1}{e_2}, t)
-   & = & \text{let } \sigma_1 = \U(t,\tint) \\
-   &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_1, \tint) \\
-   &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma)), e_2, \tint) \\
-   &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
+\M(\Gamma,\ \eplus{e_1}{e_2},\ t)
+   & = & \text{let } \tsu_1 = \U(t,\ \tint) \\
+   &   & \quad\ \tsu_2 = \M(\tsu_1(\Gamma),\ e_1,\ \tint) \\
+   &   & \quad\ \tsu_3 = \M(\tsu_2\tsu_1(\Gamma)),\ e_2,\ \tint) \\
+   &   & \text{in } \tsu_3\tsu_2\tsu_1 \\
 % \W(\Gamma, \enil)
 %    & = & (\cdot, \tlist{\alpha}), \quad \alpha \text{ is fresh} \\
 % \W(\Gamma, \econs{e_1}{e_2})
-%    & = & \text{let } (\sigma_1, t_1) = \W(\Gamma, e_1) \\
-%    &   & \quad\ (\sigma_2, t_2) = \W(\sigma_1(\Gamma), e_2) \\
-%    &   & \quad\ \sigma_3 = \unify{t_2}{\sigma_2(\tlist{t_1})} \\
-%    &   & \text{in } (\sigma_3(\sigma_2(\sigma_1)), \sigma_3(\tlist{t_1})) \\
-\M(\Gamma, \elcase{e_1}{e_2}{x_1}{x_2}{e_3}, t)
-   & = & \text{let } \sigma_1 = \M(\Gamma, e_1, \tlist{\alpha_1}), \alpha_1 \text{ is fresh} \\
-   &   & \quad\ \sigma_2 = \M(\sigma_1(\Gamma), e_2, \alpha_2), \alpha_2 \text{ is fresh} \\
+%    & = & \text{let } (\tsu_1, t_1) = \W(\Gamma, e_1) \\
+%    &   & \quad\ (\tsu_2, t_2) = \W(\tsu_1(\Gamma), e_2) \\
+%    &   & \quad\ \tsu_3 = \unify{t_2}{\tsu_2(\tlist{t_1})} \\
+%    &   & \text{in } (\tsu_3(\tsu_2(\tsu_1)), \tsu_3(\tlist{t_1})) \\
+\M(\Gamma,\ \elcase{e_1}{e_2}{x_1}{x_2}{e_3},\ t)
+   & = & \text{let } \tsu_1 = \M(\Gamma,\ e_1,\ \tlist{\alpha_1}),\ \alpha_1 \text{ is fresh} \\
+   &   & \quad\ \tsu_2 = \M(\tsu_1(\Gamma),\ e_2,\ \alpha_2),\ \alpha_2 \text{ is fresh} \\
    &   & \quad\ \Gamma' = \Gamma \cup \{x_1:\alpha_1,\ x_2:\tlist{\alpha_1}\} \\
-   &   & \quad\ \sigma_3 = \M(\sigma_2(\sigma_1(\Gamma')), e_3, \sigma_2(\alpha_2)) \\
-   &   & \text{in } \sigma_3(\sigma_2(\sigma_1)) \\
+   &   & \quad\ \tsu_3 = \M(\tsu_2\tsu_1(\Gamma')),\ e_3,\ \tsu_2(\alpha_2)) \\
+   &   & \text{in } \tsu_3\tsu_2\tsu_1 \\
 \end{array}
 }
 \]
-\caption{A selection of rules from algorithm \M~\citep{Lee1998-ys},
-  extended to our language.}
+\caption{A selection of rules from algorithm \M, extended to our language.}
 \label{fig:intro:algo-m}
 \end{figure}
 
@@ -519,7 +565,7 @@ Rather, the constraint propagation happens between branches of the
 program's abstract syntax tree.
 %
 See, \eg the $\eapp{e_1}{e_2}$ case of \W\ --- we apply the substitution
-$\sigma_1$ from $e_1$ to the environment when checking $e_2$.
+$\tsu_1$ from $e_1$ to the environment when checking $e_2$.
 %
 Thus, any expression with multiple children will be subject to the
 left-to-right bias.
