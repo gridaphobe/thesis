@@ -122,16 +122,55 @@ the programmer.
 \label{sec:intro:simple-type}
 
 To illustrate the difficulty of pinpointing the source of type errors,
-let us consider the simple $\lambda$-calculus in
+let us consider the $\lambda$-calculus in
 \autoref{fig:intro:simple-lambda}.
 %
 In addition to the usual variables, $\lambda$-abstractions, and
 applications, we have equipped the language with integers and lists, so
 that it can easily represent our |sumList| program.
 %
-The types of our language are, as usual, split into \emph{monomorphic}
-types $t$ and \emph{polymorphic} types $s$.
+The types of our language are split into \emph{monomorphic} types $t$
+and \emph{polymorphic} types $s$.
 %
+
+\begin{figure}
+\centering
+\[
+\boxed{
+\begin{array}{rrcl}
+\mathbf{Expressions}
+& e & ::=    & x \spmid \efun{x}{e} \spmid \eapp{e}{e} \spmid \elet{x}{e}{e} \\
+&   & \spmid & n \spmid \eplus{e}{e}\\
+    % & \spmid & b \spmid \eif{e}{e}{e} \\
+    % & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
+&   & \spmid & \enil \spmid \econs{e}{e} \spmid \elcase{e}{e}{x}{x}{e} \\[0.1in]
+
+%\mathbf{Numbers}
+& n & ::= &  0, 1, -1, \ldots \\[0.1in]
+
+% b & ::= &  \etrue \spmid \efalse \\[0.05in]
+\mathbf{Types}
+& t & ::= & \alpha \spmid % \tbool \spmid
+            \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
+            \tlist{t} \\
+& s & ::= & \forall \overline{\alpha}. t \\[0.1in]
+
+\mathbf{Environments}
+& \Gamma & ::= & \{\overline{x:s}\}
+  % \cdot \spmid \Gamma;x:t
+\\[0.1in]
+
+\mathbf{Substitutions}
+& \tsu & ::= & \{\overline{\alpha \mapsto t}\}
+  % \cdot \spmid \tsu \cup \{\alpha \mapsto t\}
+\\
+\end{array}
+}
+\]
+\caption{A simple $\lambda$-calculus with integers and lists.}
+\label{fig:intro:simple-lambda}
+\end{figure}
+
 
 To describe type inference, we will also need type environments and
 substitutions.
@@ -146,39 +185,20 @@ expressions to inner expressions. %, \eg the $\lambda$ form will extend the
 %
 Types and type environments may have \emph{free} type variables.
 %
-The free variables of a type, written $FV(s)$, are all type
-variables that are not quantified over by a $\forall$.
-%
-\[
-\begin{array}{rcl}
-FV(\alpha) &=& \{\alpha\} \\
-FV(\tint)  &=& \emptysu \\
-FV(\tarr{t_1}{t_2}) &=& FV(t_1) \cup FV(t_2)\\
-FV(\forall \overline{\alpha}. t) &=& FV(t) - \overline{\alpha}
-\end{array}
-\]
+The free variables of a type, written $FV(s)$ and defined in
+\autoref{fig:intro:free-subst}, are all type variables that are not
+quantified over. % by a $\forall$.
 %
 The free variables of a type environment is the union of the free variables
-of the contained types $FV(\Gamma) = \cup_{x:s \in \Gamma}FV(s)$.
-
+of the types it contains. % $FV(\Gamma) = \cup_{x:s \in \Gamma}FV(s)$.
+%
 A substitution is a mapping from \emph{type} variables $\alpha$ to types
-$t$, written $\{\overline{\alpha \mapsto t}\}$, and denotes that each
-type variable $\alpha_i$ has been \emph{refined} to a type $t_i$.
+$t$, written $\{\overline{\alpha \mapsto t}\}$ and defined in
+\autoref{fig:intro:free-subst}, and denotes that each type variable
+$\alpha_i$ has been \emph{refined} to a type $t_i$.
 %
-A substitution may be applied to a type scheme or type environment, written
-$\tsu(s)$, and replaces free type variables by the corresponding type.
-%
-\[
-\begin{array}{rcl}
-\tsu(\alpha) &=& \begin{cases}
-  t \quad \text{if } \alpha \mapsto t \in \tsu \\
-  \alpha \quad \text{otherwise}
-  \end{cases} \\
-\tsu(\tint)  &=& \tint \\
-\tsu(\tarr{t_1}{t_2}) &=& \tarr{\tsu(t_1)}{\tsu(t_2)}\\
-\tsu(\forall \overline{\alpha}. t) &=& \{\alpha' \mapsto t' \spmid \alpha' \notin \overline{\alpha}\}(t)
-\end{array}
-\]
+A substitution may be applied to a type or type environment, written
+$\tsu(s)$, and replaces free variables by the corresponding type.
 %
 The application of a substitution may similarly be lifted to operate
 over type environments.
@@ -189,46 +209,40 @@ the substitution formed by first applying $\tsu_1$ and then $\tsu_2$.
 Substitutions are used to propagate typing information from inner expressions
 back to the outer expressions.
 
-
-%For example, given the expression $\efun{x}{\eplus{x}{1}}$, we will extend
-
-\begin{figure}
+\begin{figure}[t]
 \centering
+\begin{minipage}[c]{0.49\textwidth}
 \[
 \boxed{
-\begin{array}{rrcl}
-\mathbf{Expressions}
-& e & ::=    & x \spmid \efun{x}{e} \spmid \eapp{e}{e} \spmid \elet{x}{e}{e} \\
-&   & \spmid & n \spmid \eplus{e}{e}\\
-    % & \spmid & b \spmid \eif{e}{e}{e} \\
-    % & \spmid & \epair{e}{e} \spmid \epcase{e}{x}{x}{e} \\
-&   & \spmid & \enil \spmid \econs{e}{e} \spmid \elcase{e}{e}{x}{x}{e} \\[0.05in]
-
-%\mathbf{Numbers}
-& n & ::= &  0, 1, -1, \ldots \\[0.2in]
-
-% b & ::= &  \etrue \spmid \efalse \\[0.05in]
-\mathbf{Types}
-& t & ::= & \alpha \spmid % \tbool \spmid
-            \tint \spmid \tarr{t}{t} \spmid % \tprod{t}{t} \spmid
-            \tlist{t} \\
-& s & ::= & \forall \overline{\alpha}. t \\[0.2in]
-
-\mathbf{Environments}
-& \Gamma & ::= & \{\overline{x:s}\}
-  % \cdot \spmid \Gamma;x:t
-\\[0.2in]
-
-\mathbf{Substitutions}
-& \tsu & ::= & \{\overline{\alpha \mapsto t}\}
-  % \cdot \spmid \tsu \cup \{\alpha \mapsto t\}
-\\
+\begin{array}{rcl}
+FV(\alpha) &=& \{\alpha\} \\
+FV(\tint)  &=& \emptysu \\
+FV(\tarr{t_1}{t_2}) &=& FV(t_1) \cup FV(t_2)\\
+FV(\forall \overline{\alpha}. t) &=& FV(t) - \overline{\alpha}
 \end{array}
 }
 \]
-\caption{A simple $\lambda$-calculus with integers and lists.}
-\label{fig:intro:simple-lambda}
+\end{minipage}
+\begin{minipage}[c]{0.49\textwidth}
+\[
+\boxed{
+\begin{array}{rcl}
+\tsu(\alpha) &=& \begin{cases}
+  t \quad \text{if } \alpha \mapsto t \in \tsu \\
+  \alpha \quad \text{otherwise}
+  \end{cases} \\
+\tsu(\tint)  &=& \tint \\
+\tsu(\tarr{t_1}{t_2}) &=& \tarr{\tsu(t_1)}{\tsu(t_2)}\\
+\tsu(\forall \overline{\alpha}. t) &=& \{\alpha' \mapsto t' \spmid \alpha' \notin \overline{\alpha}\}(t)
+\end{array}
+}
+\]
+\end{minipage}
+\caption{Free variable computation and application of substitutions.}
+\label{fig:intro:free-subst}
 \end{figure}
+
+%For example, given the expression $\efun{x}{\eplus{x}{1}}$, we will extend
 
 \ocaml's type system, like many other typed functional languages, is
 based on the Hindley-Milner type
