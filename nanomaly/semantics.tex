@@ -218,6 +218,7 @@ a set of types, and that takes and updates an existing substitution.
 %
 \begin{figure}[t]
 \[
+\boxed{
 \begin{array}{lll}
 %% \multicolumn{3}{l}{\forcesym \ :: \  (e, t) \rightarrow \pair{e}{\vsu}} \\
 \forcesym                  & : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu} \\[0.1in]
@@ -257,6 +258,7 @@ a set of types, and that takes and updates an existing substitution.
 \force{\vcons{t_1}{v_1}{v_2}}{\tlist{t_2}}{\vsu}{\tsu} \hspace{-3mm} & \defeq \triple{\vcons{t_1}{v_1}{v_2}}{\vsu}{\tsu'} \hspace{0.64in} \textbf{if} \begin{array}{l} \tsu' = \unify{\{t_1, t_2\}}{\tsu} \end{array} \\[0.05in]
 \force{v}{t}{\vsu}{\tsu} & \defeq \triple{\stuck}{\vsu}{\tsu}
 \end{array}
+}
 \]
 \caption{Narrowing values}
 \label{fig:narrow}
@@ -293,6 +295,7 @@ in later, on demand.
 
 \begin{figure}[t]
 \[
+\boxed{
 \begin{array}{lcll}
 \gensym       & :   & t \times \tsu \rightarrow v \\
 \gen{\thole}{\tsu}  & \defeq  & \gen{\subst{\tsu}{\thole}}{\tsu} &  \text{if } \thole \in dom(\tsu) \\
@@ -305,6 +308,7 @@ in later, on demand.
 \gen{\tfun}{\tsu}   & \defeq & \efun{x}{\vhole{\thole}} &  \text{\ehole, \thole are fresh} \\
 \gen{\thole}{\tsu}  & \defeq & \vhole{\thole} & \text{\ehole is fresh} \\
 \end{array}
+}
 \]
 \caption{Generating values}
 \label{fig:gen}
@@ -442,7 +446,9 @@ The types of (polymorphic) trees are obtained from the labels on their
 values, and the types of tuples directly from their values.
 
 \begin{figure}[t]
-\[ \begin{array}{lcll}
+\[
+\boxed{
+  \begin{array}{lcll}
     \typeof{n}   & \defeq & \tint & \\
     \typeof{b}   & \defeq & \tbool & \\
     \typeof{\efun{x}{e}} & \defeq & \tfun \\
@@ -455,7 +461,9 @@ values, and the types of tuples directly from their values.
     % \typeof{\eleaf} & \defeq & \ttree{\thole}, & \quad \text{\thole is fresh} \\
     % \typeof{\enode{v_1}{v_2}{v_3}} & \defeq & \ttree{\thole}, & \quad \text{\thole is fresh} \\
     % \typeof{e} & \defeq & \thole, & \quad \text{\thole is fresh} \\
-  \end{array} \]
+  \end{array}
+}
+\]
 \caption{The \emph{dynamic type} of a value.}
 \label{fig:typeof}
 \end{figure}
@@ -939,12 +947,14 @@ target application until evaluating the term yields a non-lambda value.
 % \end{array}
 % $$
 $$
+\boxed{
 \begin{array}{lclr}
 \genArgsN   & : & e \rightarrow e \\
 \genArgs{e} & = & \mbox{\textbf{case }} \evalfn{e} \mbox{\textbf{ of}} \\
  \quad \triple{\efun{x}{e}}{\vsu}{\tsu},\ldots &\rightarrow& \genArgs{\eapp{e}{\vhole{\thole}}} & (\ehole, \thole \mbox{ are fresh}) \\
  \quad \_ &\rightarrow& e \\
 \end{array}
+}
 $$
 \caption{Generating a saturated application.}
 \label{fig:algo-gen-args}
@@ -991,6 +1001,7 @@ We obtain the following corollary of Theorem~\ref{thm:soundness}:
 \begin{figure}[t]
 \centering
 $$
+\boxed{
 \begin{array}{lclr}
 \genWitnessN       & : & \mathsf{Nat} \times e \rightarrow e^{*} & \\
 \genWitness{n}{e}  & = & \{ \resolve{e_{sat}}{\vsu} \mid \vsu \in \Sigma \} & \\
@@ -999,6 +1010,7 @@ $$
 \quad \quad res    & = & \takefn{n}{\evalfn{e_{sat}}} & (2) \\
 \quad \quad \Sigma & = & \{ \vsu\ \mid \triple{\stuck}{\vsu}{\tsu} \in res\} & (3)
 \end{array}
+}
 $$
 %% \begin{mcode}
 %% $\genWitnessN :: (\mathsf{Nat} \times e) \rightarrow 2^{e}$
