@@ -529,9 +529,9 @@ $\mathcal{W}$ would, \ie at an expression deeper in the tree.
 %    &   & \text{in } (\tsu_3(\tsu_2(\tsu_1)), \tsu_3(\tlist{t_1})) \\
 \M(\Gamma,\ \elcase{e_1}{e_2}{x_1}{x_2}{e_3},\ t)
    & = & \text{let } \tsu_1 = \M(\Gamma,\ e_1,\ \tlist{\alpha_1}),\ \alpha_1 \text{ is fresh} \\
-   &   & \quad\ \tsu_2 = \M(\tsu_1(\Gamma),\ e_2,\ \alpha_2),\ \alpha_2 \text{ is fresh} \\
+   &   & \quad\ \tsu_2 = \M(\tsu_1(\Gamma),\ e_2,\ t) \\
    &   & \quad\ \Gamma' = \Gamma \cup \{x_1:\alpha_1,\ x_2:\tlist{\alpha_1}\} \\
-   &   & \quad\ \tsu_3 = \M(\tsu_2\tsu_1(\Gamma')),\ e_3,\ \tsu_2(\alpha_2)) \\
+   &   & \quad\ \tsu_3 = \M(\tsu_2\tsu_1(\Gamma')),\ e_3,\ \tsu_2(t)) \\
    &   & \text{in } \tsu_3\tsu_2\tsu_1 \\
 \end{array}
 }
@@ -548,9 +548,9 @@ a series of recursive calls.
 Rather, the |+| rule is now responsible for checking that its
 surrounding context expects it to return an $\tint$.
 %
-Crucially, \M \emph{infers} a type for the |[]| case\footnote{Note how
-  we pass a fresh type variable $\alpha_2$ as the ``expected'' type.}
-and then checks that the |::| case returns the same type.
+% Crucially, \M \emph{infers} a type for the |[]| case\footnote{Note how
+%   we pass a fresh type variable $\alpha_2$ as the ``expected'' type.}
+% and then checks that the |::| case returns the same type.
 %
 This is a subtle change from \W's behavior, but as a result \M will
 blame the |+| expression for producing an $\tint$ rather than the
