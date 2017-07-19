@@ -40,7 +40,7 @@ We seek to answer four questions in our evaluation:
   (\autoref{sec:nate:user-study})
 \end{itemize}
 %
-%\mypara{Summary of Results}
+%\paragraph{Summary of Results}
 %
 In the sequel we present our experimental
 methodology \autoref{sec:nate:methodology} and
@@ -55,7 +55,7 @@ with a quick summary of our main results:
 %
 %\item \textbf
 
-\mypara{1. Data Beats Algorithms}
+\paragraph{1. Data Beats Algorithms}
 Our main result is that for type error
 localization, data is indeed unreasonably
 effective \citep{Halevy2009-so}.
@@ -81,7 +81,7 @@ When the top three predictions are considered,
 \toolname is correct \HiddenFhTopThree\% of the time.
 
 % \item \textbf
-\mypara{2. Slicing Is Critical}
+\paragraph{2. Slicing Is Critical}
 %
 However, data is effective \emph{only}
 when irrelevant sub-terms have been
@@ -100,7 +100,7 @@ perform as well as the
 state-of-the-art.
 
 %\item \textbf
-\mypara{3. Size Doesn't Matter, Types Do}
+\paragraph{3. Size Doesn't Matter, Types Do}
 %
 We find that (after slices)
 typing features
@@ -122,7 +122,7 @@ smaller expressions would be simpler, and
 hence, more likely causes.
 
 % \item \textbf
-\mypara{4. Models Learn Typing Rules}
+\paragraph{4. Models Learn Typing Rules}
 %
 Finally, by investigating a few of the
 predictions made by the \emph{decision tree}-based
@@ -174,7 +174,7 @@ The extracted programs are relatively small, but they demonstrate a
 range of functional programming idioms, \eg higher-order functions and
 (polymorphic) algebraic data types.
 
-\mypara{Feature Selection}
+\paragraph{Feature Selection}
 We extract 282 features from each sub-expression in a
 program, including:
 %
@@ -206,7 +206,7 @@ program, including:
   \autoref{sec:nate:feature-utility}.
 \end{enumerate}
 
-\mypara{Blame Oracle}
+\paragraph{Blame Oracle}
 Recall from \autoref{sec:nate:labels} that we automatically extract a blame
 oracle for each ill-typed program from the (AST) diff between it and the
 student's eventual fix.
@@ -233,7 +233,7 @@ This accounts for roughly 14\% of each dataset, leaving us with
 % % here would take some of the pressure off.
 
 
-\mypara{Accuracy Metric}
+\paragraph{Accuracy Metric}
 All of the tools we compare (with the exception of the standard \ocaml
 compiler) can produce a list of potential error locations.
 %

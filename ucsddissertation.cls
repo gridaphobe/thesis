@@ -578,6 +578,14 @@ command!}{Uh oh}}
 	{\thesubsection}{1em}{}
 \titleformat\subsubsection{\sectioningformatting\normalsize\bfseries}
 	{\thesubsubsection}{1em}{}
+\titleformat\paragraph{\sectioningformatting\normalsize\bfseries}
+	{\theparagraph}{1em}{}
+% \titleformat\paragraph[runin]{\normalfont\normalsize\bfseries}
+%         {\theparagraph}{1em}{\indent}
+
+
+% \renewcommand{\paragraph}[1]{\par \textbf{#1}}
+% \renewcommand{\subparagraph}[1]{\par \textit{#1}}
 
 \AfterPreamble{%
 	\ifdefined\urlstyle

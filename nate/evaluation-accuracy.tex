@@ -4,11 +4,11 @@
 First, we compare the accuracy of our predictions to the
 state of the art in type error localization.
 
-\mypara{Baseline}
+\paragraph{Baseline}
 We provide two baselines for the comparison: a random choice of location
 from the minimized type error slice, and the standard \ocaml compiler.
 
-\mypara{State of the Art}
+\paragraph{State of the Art}
 \mycroft~\citep{Loncaric2016-uk} localizes type errors by searching for
 a minimal subset of typing constraints that can be removed, such that
 the resulting system is satisfiable.
@@ -41,7 +41,7 @@ out (after one minute) or where they encountered an unsupported language
 feature: another 5\% for \mycroft and 12\% for \sherrloc.
 %
 
-\mypara{Our Classifiers}
+\paragraph{Our Classifiers}
 We evaluate five classifiers, each trained on the full feature set.
 % features: 44 local syntactic features, 176 contextual syntactic
 % features, 55 typing features, and a single expression size feature.
@@ -92,7 +92,7 @@ descent that has been found to converge faster.
 
 \input{nate/evaluation-accuracy-graph}
 
-\mypara{Results}
+\paragraph{Results}
 \autoref{fig:accuracy-results} shows the results of our experiment.
 %
 Localizing the type errors in our benchmarks amounted, on average, to

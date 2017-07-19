@@ -59,7 +59,7 @@ interesting than a decision that does not.
 % Decision Tree made its prediction, by analyzing the paths induced
 % by the programs.
 
-\mysubsubsection{Failed Predictions}
+\paragraph{Failed Predictions}
 \label{sec:nate:failed-predictions}
 
 We begin with a few programs where our classifier fails to
@@ -68,7 +68,7 @@ make the correct prediction.
 For these programs we will additionally \hlFix{highlight} the
 correct blame location.
 
-\mypara{Constructing a List of Duplicates}
+\paragraph{Constructing a List of Duplicates}
 % data/sp14/0967.ml
 Our first program is a simple recursive function |clone| that takes an
 item |x| and a count |n|, and produces a list containing |n| copies of
@@ -125,7 +125,7 @@ enabled features on the path are:
 The model seems to have learned that programmers typically call the
 correct function.
 
-\mypara{Currying Considered Harmful?}
+\paragraph{Currying Considered Harmful?}
 % data/sp14/1080.ml
 Our next example is another ill-fated attempt at |clone|.
 %
@@ -170,7 +170,7 @@ With this in mind, we can explain our failure to blame the definition of
 Thus it appears to the model that the outer |fun| is simply part of a
 function definition, a common and innocuous phenomenon.
 
-% \mypara{Composing Functions}
+% \paragraph{Composing Functions}
 % % data/sp14/3203.ml
 % Next, let us consider the |pipe| function that composes a list of
 % functions, \ie given a list of functions |[f;g;h]|, |pipe| produces the
@@ -192,14 +192,14 @@ function definition, a common and innocuous phenomenon.
 % %
 % \ES{this has the same explanation as the 1st clone above}
 
-\mysubsubsection{Correct Predictions}
+\paragraph{Correct Predictions}
 \label{sec:nate:correct-predictions}
 
 Next, we present a few indicative programs where our first prediction is
 correct, and all of the other tools' top three predictions are
 incorrect.
 
-\mypara{Extracting the Digits of an Integer}
+\paragraph{Extracting the Digits of an Integer}
 % data/sp14/1732.ml
 Consider first a simple recursive function |digitsOfInt| that extracts
 the digits of an |int|.
@@ -241,7 +241,7 @@ Interestingly, \dectree incorrectly predicts that the child application
 should change as well, but it is less confident of this prediction and
 ranks it below the correct blame assignment.
 
-\mypara{Padding a list}
+\paragraph{Padding a list}
 % data/sp14/1389.ml
 Our next program, |padZero|, is given two |int list|s as input, and must
 left-pad the shorter one with enough zeros that the two output lists
@@ -326,7 +326,7 @@ constructor application.
 % \end{ecode}
 
 % \ES{I don't much like this example anymore..}
-% \mypara{Computing the Fixed Point of a Function}
+% \paragraph{Computing the Fixed Point of a Function}
 % % data/sp14/1266.ml
 % Finally, our students must write a |fixpoint| function that computes the
 % fixed point of a given function |f|, starting from an initial value |b|.

@@ -20,7 +20,7 @@ features.
 Thus, to answer our question we investigate the performance of
 classifiers trained on various subsets of the feature classes.
 
-\mysubsubsection{Type Error Slice}
+\paragraph{Type Error Slice}
 \label{sec:nate:type-error-slice}
 First we must justify our decision to automatically exclude expressions
 outside the minimal type error slice from consideration.
@@ -117,7 +117,7 @@ never changes.
 %   \end{tabular}
 % \end{table}
 
-\mypara{Results}
+\paragraph{Results}
 \autoref{fig:slice-utility} shows the results of our experiment.
 %
 As expected, the baseline performs the worst, with a mere 25\% \linear
@@ -142,7 +142,7 @@ of filtering by \InSlice % out expressions that do not belong to the type error 
 --- shrinking the search space and guaranteeing our predictions are actionable ---
 we choose to filter all programs by \InSlice.
 
-\mysubsubsection{Contextual Features}
+\paragraph{Contextual Features}
 \label{sec:nate:contextual-features}
 
 We investigate the relative impact of the other
@@ -209,7 +209,7 @@ but we train for a full 20 epochs to make the differences more apparent.
 %   % \end{minipage}
 % \end{table}
 %
-\mypara{Results}
+\paragraph{Results}
 \autoref{fig:context-utility} summarizes the results of this experiment.
 %
 The \linear classifier and the \hiddenFH start off

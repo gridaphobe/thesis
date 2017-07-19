@@ -99,7 +99,7 @@ transform each sub-expression into a single feature vector.
 We group the features into five categories, using \autoref{tab:sumList}
 as a running example of the feature extraction process.
 
-\mypara{Local syntactic features}
+\paragraph{Local syntactic features}
 These features describe the syntactic category of each expression $e$.
 %
 In other words, for each production of $e$ in \autoref{fig:syntax} we
@@ -123,7 +123,7 @@ easily add features that specify whether a match \emph{contains} a
 particular pattern, and thus have a match expression that enables multiple
 features.
 
-\mypara{Contextual syntactic features}
+\paragraph{Contextual syntactic features}
 These are similar to local syntactic features, but lifted to describe the
 parent and children of an expression.
 %
@@ -154,7 +154,7 @@ models \citep{Hindle2012-hf,Gabel2010-el}.
 % We will investigate (\ES{maybe..}) the impact of these alternatives
 % in \autoref{sec:nate:evaluation}.
 
-\mypara{Expression size}
+\paragraph{Expression size}
 We also propose a feature representing the \emph{size} of each expression,
 \ie how many sub-expressions does it contain?
 %
@@ -165,7 +165,7 @@ the two variables and the application itself.
 This allows the model to learn that, \eg, expressions closer to the
 leaves are more likely to be blamed than expressions closer to the root.
 
-\mypara{Typing features}
+\paragraph{Typing features}
 A natural way of summarizing the context in which an expression occurs
 is with \emph{types}.
 %
@@ -204,7 +204,7 @@ $\tint$.
 Our models will have to learn good localizations in spite this bias (see
 \autoref{sec:nate:evaluation}).
 
-\mypara{Type error slice}
+\paragraph{Type error slice}
 Finally, we wish to distinguish between changes that could fix the
 error, and changes that \emph{cannot possibly} fix the error.
 %
@@ -344,7 +344,7 @@ when its training performance is high.
 % describing the details? This is a PL paper. } \ES{KC: I completely agree. Perhaps we can add a table here. Judging from what we use, the features we need are: (a) expressivity (b) proneness to overfitting and (c) interpretability. We can rate the four classifiers in these three areas.
 % }
 
-\mypara{Logistic Regression}
+\paragraph{Logistic Regression}
 The simplest classifier we investigate is logistic regression:
 a linear model where the goal is to learn a set of weights $W$
 that describe the following model for predicting a label
@@ -453,7 +453,7 @@ or cubic) features, this often requires substantial domain knowledge.
 % to the model (\eg combinations of the existing features \ES{CITE?}), but
 % the fundamental issue remains.
 
-\mypara{Decision Trees}
+\paragraph{Decision Trees}
 Decision tree algorithms learn a tree of binary predicates over the
 features, recursively partitioning the input space until a final
 classification can be made.
@@ -508,7 +508,7 @@ well, though this can be somewhat mitigated by \emph{pruning} the tree.
 %
 %Both disadvantages are addressed by random forests.
 
-\mypara{Random Forests}
+\paragraph{Random Forests}
 %
 Random forests improve generalization by training an
 \emph{ensemble} of distinct decision trees and using a majority
@@ -546,7 +546,7 @@ also makes the learned model more difficult to interpret.
 %hyper-parameter that must be set manually.
 
 
-\mypara{Neural Networks}
+\paragraph{Neural Networks}
 %
 The last (and most complex) model we use is a type of neural network
 called a \emph{multi-layer perceptron} (see \citealt{Nielsen2015-pu} for

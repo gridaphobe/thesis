@@ -34,7 +34,7 @@ localization.
 % and our approach contains \ES{TODO}, which is not present in previous
 % work.
 
-% \mypara{Localizing Type Errors}
+% \paragraph{Localizing Type Errors}
 % It is well-known that the original Damas-Milner
 % algorithm $\mathcal{W}$ produces errors far
 % from their source, that novices percieve as
@@ -60,7 +60,7 @@ localization.
 % error when two inconsistent sets of constraints are
 % merged~\citep{McAdam1998-ub,Yang1999-yr}.
 % %
-% %\mypara{Slicing}
+% %\paragraph{Slicing}
 % Type error \emph{slicing}~\citep{Haack2003-vc,Tip2001-qp,Rahli2010-ps}
 % overcomes the constraint-order bias by extracting a
 % complete and minimal subset
@@ -77,7 +77,7 @@ localization.
 % information, producing a slice that is not much smaller than
 % the input. %original. % input program.
 
-% \mypara{Finding Likely Errors}
+% \paragraph{Finding Likely Errors}
 % Thus, recent work has focused on finding the \emph{most likely} source
 % of a type error.
 % %
@@ -109,7 +109,7 @@ localization.
 % It may be profitable to combine both approaches, \ie learn a set of good
 % weights for one of the above techniques from our training data.
 
-% \mypara{Explaining Type Errors}
+% \paragraph{Explaining Type Errors}
 % In this paper we have focused solely on the task of \emph{localizing} a
 % type error, but a good error report should also \emph{explain} the
 % error.
@@ -136,7 +136,7 @@ localization.
 % \citet{Serrano2016-oo} extend the ability to customize error messages to
 % library authors, enabling \emph{domain-specific} errors.
 % %
-% %\mypara{Interactive Explanations}
+% %\paragraph{Interactive Explanations}
 % Such \emph{static} explanations of type errors run the risk of
 % overwhelming the user with too much information, it may be preferable to
 % treat type error diagnosis as an \emph{interactive} debugging session.
@@ -155,7 +155,7 @@ localization.
 % present users with an interactive visualization of the erroneous
 % computation.
 
-%% RJ-CUT-ME \mypara{Programmatic Explanations}
+%% RJ-CUT-ME \paragraph{Programmatic Explanations}
 %% RJ-CUT-ME %
 %% RJ-CUT-ME The best explanation of a type error, however, might be given by an
 %% RJ-CUT-ME expert, \eg the compiler or library author.
@@ -175,7 +175,7 @@ localization.
 % but not for ordinary unification failures.
 
 
-% \mypara{Fixing Type Errors}
+% \paragraph{Fixing Type Errors}
 % Some techniques go beyond explaining or locating a type error,
 % and actually attempt to \emph{fix} the error automatically.
 % %
@@ -198,7 +198,7 @@ localization.
 % syntactic class of each expression in the \emph{fixed} program --- we
 % believe this is an exciting direction for future work.
 
-\mypara{Fault Localization}
+\paragraph{Fault Localization}
 %
 Given a defect, \emph{fault localization} is the task of identifying
 ``suspicious'' program elements (\eg lines, statements) that are likely

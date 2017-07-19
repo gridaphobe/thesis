@@ -18,7 +18,10 @@ This expression has type 'a list
 but an expression was expected of type int
 \end{verbatim}
 \end{minipage}
-\caption{(left) An ill-typed \ocaml program that should sum the elements of a
+\caption[(left) An ill-typed \ocaml program that should sum the elements of a
+  list, with highlights indicating three possible blame assignments. (right) The
+  error reported by \ocaml.]{
+  (left) An ill-typed \ocaml program that should sum the elements of a
   list, with highlights indicating three possible blame assignments based on:
   %
   (1) the \hlFix{\ocaml} compiler;
@@ -45,7 +48,7 @@ approach to localizing type errors by
 collectively learning from the mistakes
 programmers actually make.
 
-\mypara{The Problem}
+\paragraph{The Problem}
 %
 Consider our familiar |sumList| program, reproduced in
 \autoref{fig:sumList}. % , written by
@@ -96,7 +99,7 @@ Thus, these state-of-the-art techniques
 are forced to either blame \emph{both}
 locations, or choose one \emph{arbitrarily}.
 
-\mypara{Solution: Localization via Supervised Classification}
+\paragraph{Solution: Localization via Supervised Classification}
 %
 Our approach is to view error localization as a
 \emph{supervised classification}
@@ -165,7 +168,7 @@ More importantly, this approach
 fails to capture the \emph{frequency}
 with which errors occur in practice.
 
-\mypara{Solution: Interaction Traces}
+\paragraph{Solution: Interaction Traces}
 %
 We solve both the scale and
 frequency problems by instead
@@ -203,7 +206,7 @@ sub-tree in the diff.
 %  get is that we use student fixes to extract AST-diffs, which is
 %  already said in CHALLENGE 1}
 
-\mypara{Example}
+\paragraph{Example}
 Suppose our student
 fixed the |sumList| program in
 \autoref{fig:sumList} by replacing
@@ -244,7 +247,7 @@ or decompilation \citep{Raychev2015-jg,Bielik2016-br}
 are suitable for our problem of
 assigning blame for type errors.
 
-\mypara{Solution: Bags-of-Abstracted-Terms}
+\paragraph{Solution: Bags-of-Abstracted-Terms}
 %
 We present a new representation of programs
 that draws inspiration from the theory of
@@ -275,7 +278,7 @@ as type-checkers operate on the same representation.
 
 
 
-\mypara{Modeling Contexts}
+\paragraph{Modeling Contexts}
 %
 Each expression occurs in some surrounding
 \emph{context}, and we would like the
@@ -338,7 +341,7 @@ captures the
 \emph{syntax}, \emph{types}, and
 \emph{context} of each expression.
 
-\mypara{Syntax and Type Features}
+\paragraph{Syntax and Type Features}
 %
 We start by observing that
 at the very least, the
@@ -375,7 +378,7 @@ We will discuss handling
 arbitrary, user-defined types
 in~\autoref{sec:nate:discussion}.
 
-\mypara{Contextual Features: Error Slices}
+\paragraph{Contextual Features: Error Slices}
 %
 Our contextual features include the
 syntactic class of the neighboring
@@ -418,7 +421,7 @@ insight is crucial for learning
 classifiers that significantly
 outperform the state-of-the-art.
 
-\mypara{Example}
+\paragraph{Example}
 %
 When \toolname is tasked with localizing
 the error in the example program of \autoref{fig:sumList},
@@ -465,7 +468,7 @@ Thus, we should limit our predictions
 to a select few to be presented to
 the user.
 
-\mypara{Solution: Rank Locations by Confidence}
+\paragraph{Solution: Rank Locations by Confidence}
 %
 Fortunately, many machine learning
 classifiers produce not only a predicted

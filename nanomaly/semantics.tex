@@ -201,10 +201,10 @@ that ``dynamically'' perform type-checking and hole-filling
 respectively.
 
 \paragraph{Narrowing Types}
-The procedure % $\force{v}{t}{\vsu}{\tsu}$,
-\[
-\forcesym : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu}
-\]%
+The procedure $\force{v}{t}{\vsu}{\tsu}$,
+% \[
+% \forcesym : v \times t \times \vsu \times \tsu \rightarrow \triple{v \cup \stuck}{\vsu}{\tsu}
+% \]%
 defined in Figure~\ref{fig:narrow}, takes as input a value $v$, a type
 $t$, and the current value and type substitutions, and refines $v$ to
 have type $t$ by yielding a triple of either the same value and

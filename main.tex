@@ -207,17 +207,22 @@ group/every plot/.code = {%
 \definecolor{fix}{HTML}{bebada}
 
 \tcbset{every box/.style={on line,colframe=black,size=fbox,boxrule=1pt}}
-\newtcbox{\hlTree}{colback=tree,toprule=0pt,bottomrule=0pt}
-\newtcbox{\hlOcaml}{colback=tree,toprule=0pt,bottomrule=0pt}
-\newtcbox{\hlSherrloc}{colback=sherrloc,leftrule=0pt,rightrule=0pt}
-\newtcbox{\hlFix}{colback=fix!50}
-\newtcbox{\hlRed}{colback=red!25,boxrule=0pt}
+% \newtcbox{\hlTree}{colback=tree,toprule=0pt,bottomrule=0pt}
+% \newtcbox{\hlOcaml}{colback=tree,toprule=0pt,bottomrule=0pt}
+% \newtcbox{\hlSherrloc}{colback=sherrloc,leftrule=0pt,rightrule=0pt}
+% \newtcbox{\hlFix}{colback=fix!50}
+% \newtcbox{\hlRed}{colback=red!25,boxrule=0pt}
+\newtcbox{\hlTree}{colback=white,toprule=0pt,bottomrule=0pt}
+\newtcbox{\hlOcaml}{colback=white,toprule=0pt,bottomrule=0pt}
+\newtcbox{\hlSherrloc}{colback=white,leftrule=0pt,rightrule=0pt}
+\newtcbox{\hlFix}{colback=white}
+\newtcbox{\hlRed}{colback=white}
 
 
 % Required information
-\title{Data-Driven Techniques for Improving Type Error Diagnosis}
+\title{Data-Driven Techniques for Type Error Diagnosis}
 \author{Eric Lee Seidel}
-\degree{Computer Science \& Engineering}{Doctor of Philosophy}
+\degree{Computer Science}{Doctor of Philosophy}
 % Each member of the committee should be listed as Professor Foo Bar.
 % If Professor is not the correct title for one, then titles should be
 % omitted entirely.
@@ -537,6 +542,7 @@ This chapter contains material adapted from the following publications:
 % \bibliographystyle{abbrvnat}
 % \bibliography{main}
 %\bibliography{nate/main,target/sw}
+\singlespacing
 \printbibliography
 
 \end{document}

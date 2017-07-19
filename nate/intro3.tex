@@ -32,7 +32,7 @@
 % that novices often focus their attention on the \emph{location}
 % reported and disregard the \emph{message}.
 
-% \mypara{Localizing Errors}
+% \paragraph{Localizing Errors}
 %
 
 In the previous chapter we presented a technique designed
@@ -82,7 +82,7 @@ likely, rather than
 adapting to the kinds of mistakes
 programmers actually make in practice.
 
-%\mypara{A Data-Driven Approach}
+%\paragraph{A Data-Driven Approach}
 %
 We introduce \toolname
 \footnote{``Numeric Analysis of Type Errors''; any resemblance to persons living or dead is purely coincidental.},
@@ -125,7 +125,7 @@ the top \emph{three}.
 We achieve these advances by identifying
 and then solving three key challenges.
 
-\mypara{Challenge 1: Acquiring Labeled Programs}
+\paragraph{Challenge 1: Acquiring Labeled Programs}
 %
 The first challenge for supervised learning
 is to acquire a corpus of training data, in our setting
@@ -179,7 +179,7 @@ Finally, we compute the blame labels using a
 \emph{tree-diff} between the two terms to find
 the exact sub-terms that changed in the fix.
 
-\mypara{Challenge 2: Modeling Programs as Vectors}
+\paragraph{Challenge 2: Modeling Programs as Vectors}
 %
 Modern supervised learning algorithms work on %sets of
 \emph{feature vectors}: real-valued points in an
@@ -220,7 +220,7 @@ in contrast to, \eg, \citet{Raychev2015-jg}, who had
 to develop their own variants of classifiers to obtain
 their results.
 
-\mypara{Challenge 3: Training Precise Classifiers}
+\paragraph{Challenge 3: Training Precise Classifiers}
 %
 Finally, the last and most important challenge is to
 use our BOAT representation to train classifiers that
