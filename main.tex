@@ -54,6 +54,12 @@
 \AtEveryBibitem{%
     \clearfield{pages}%
 }
+\AtEveryCitekey{%
+  \clearfield{pages}%
+  \clearfield{doi}%
+  \clearfield{booktitle}%
+  \clearlist{publisher}%
+}
 \addbibresource{main.bib}
 
 
@@ -467,11 +473,20 @@ improving the error messages produced by type checkers.
 \input{nanomaly/related2}
 \section*{Endnotes}
 \paragraph{Acknowledgments}
-This chapter contains material adapted from the following publications:
-\begin{itemize}
-\item \fullcite{Seidel2016-ul}
-\item \fullcite{Seidel2017-gw}
-\end{itemize}
+  This chapter, in part, is a reprint of the material
+  as it appears, or may appear, in:
+  %
+  \fullcite{Seidel2016-ul}; and
+  %
+  \fullcite{Seidel2017-gw}.
+  %
+  The dissertation author was the primary investigator and author of
+  these papers.
+% This chapter contains material adapted from the following publications:
+% \begin{itemize}
+% \item \fullcite{Seidel2016-ul}
+% \item \fullcite{Seidel2017-gw}
+% \end{itemize}
 \lstDeleteShortInline{@}
 
 %\chapter{Type Targeted Testing}
@@ -500,10 +515,17 @@ This chapter contains material adapted from the following publications:
 %\input{nate/conclusion}
 \section*{Endnotes}
 \paragraph{Acknowledgments}
-This chapter contains material adapted from the following publications:
-\begin{itemize}
-\item \fullcite{Seidel2017-pj}
-\end{itemize}
+  This chapter, in part, has been submitted for publication of
+  the material as it may appear in:
+  %
+  \fullcite{Seidel2017-pj}.
+  %
+  The dissertation author was the primary investigator and author of
+  this paper.
+% This chapter contains material adapted from the following publications:
+% \begin{itemize}
+% \item \fullcite{Seidel2017-pj}
+% \end{itemize}
 
 %\part{Conclusion}
 \chapter{Conclusion}

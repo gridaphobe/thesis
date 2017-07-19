@@ -2,7 +2,7 @@
 \label{sec:nate:learning}
 In this section, we describe our approach to localizing type errors, in the
 context
-of \lang (\autoref{fig:syntax}), a simple lambda calculus with integers,
+of \lang (\autoref{fig:nate:syntax}), a simple lambda calculus with integers,
 booleans, pairs, and lists.
 %
 Our goal is to instantiate the $\blamesym$ function of
@@ -102,7 +102,7 @@ as a running example of the feature extraction process.
 \paragraph{Local syntactic features}
 These features describe the syntactic category of each expression $e$.
 %
-In other words, for each production of $e$ in \autoref{fig:syntax} we
+In other words, for each production of $e$ in \autoref{fig:nate:syntax} we
 introduce a feature that is enabled (set to $1$) if the expression was
 built with that production, and disabled (set to $0$) otherwise.
 %
