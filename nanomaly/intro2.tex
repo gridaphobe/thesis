@@ -55,7 +55,12 @@ let rec sumList xs =
 \includegraphics[height=3in]{nanomaly/sumList-long.png}
 \end{minipage}
 \vspace{1em}
-\caption{(top-left) The ill-typed \texttt{sumList} function
+\caption[(top-left) The ill-typed \texttt{sumList} function
+  highlighting the error location reported by
+  \ocaml. (bottom-left) Dynamically witnessing the type error in
+  \texttt{sumList}, showing only function call-return pairs. (right) The
+  same trace, fully expanded to show each small-step reduction in the
+  computation.]{(top-left) The ill-typed \texttt{sumList} function
   \hlRed{highlighting} the error location reported by
   \ocaml. (bottom-left) Dynamically witnessing the type error in
   \texttt{sumList}, showing only function call-return pairs. (right) The
