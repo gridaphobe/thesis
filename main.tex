@@ -35,7 +35,12 @@
 % \usepackage[numbers,sort&compress,square]{natbib}
 % \usepackage{bibentry}
 % \nobibliography*
-\usepackage[natbib=true,style=trad-abbrv,firstinits=true,isbn=false,maxbibnames=99,maxcitenames=1]{biblatex}
+% \newcommand{\fullcite}[1]{\bibentry{#1}}
+\usepackage[natbib=true,style=trad-abbrv,firstinits=true,isbn=false,maxbibnames=99,maxcitenames=1,sortcites=true,date=year]{biblatex}
+\defbibheading{mybibliography}[\refname]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}%
+}
 \makeatletter
 \DeclareCiteCommand{\fullcite}
   {\defcounter{maxnames}{\blx@maxbibnames}%
@@ -46,6 +51,9 @@
   {\multicitedelim}
   {\usebibmacro{postnote}}
 \makeatother
+\AtEveryBibitem{%
+    \clearfield{pages}%
+}
 \addbibresource{main.bib}
 
 
@@ -539,10 +547,9 @@ This chapter contains material adapted from the following publications:
 
 % Stuff at the end of the dissertation goes in the back matter
 \backmatter
-% \bibliographystyle{abbrvnat}
-% \bibliography{main}
-%\bibliography{nate/main,target/sw}
 \singlespacing
-\printbibliography
+% \bibliographystyle{abbrv}
+% \bibliography{main}
+\printbibliography[heading=mybibliography]
 
 \end{document}
