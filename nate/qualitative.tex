@@ -68,7 +68,7 @@ make the correct prediction.
 For these programs we will additionally \hlFix{highlight} the
 correct blame location.
 
-\paragraph{Constructing a List of Duplicates}
+\subparagraph{Constructing a List of Duplicates.}
 % data/sp14/0967.ml
 Our first program is a simple recursive function |clone| that takes an
 item |x| and a count |n|, and produces a list containing |n| copies of
@@ -97,7 +97,7 @@ item |x| and a count |n|, and produces a list containing |n| copies of
 The student has defined a helper function |loop| with an accumulator
 |acc|, likely meant to call itself tail-recursively.
 %
-Unfortunately, she has called the top-level function |clone| rather than
+Unfortunately, she has called |clone| rather than
 |loop| in the |else| branch, this induces a cyclic constraint |'a = 'a list|
 for the |x| argument to |clone|.
 
@@ -125,9 +125,9 @@ enabled features on the path are:
 The model seems to have learned that programmers typically call the
 correct function.
 
-\paragraph{Currying Considered Harmful?}
+\subparagraph{Currying Considered Harmful?}
 % data/sp14/1080.ml
-Our next example is another ill-fated attempt at |clone|.
+Next, another ill-fated attempt at |clone|.
 %
 \begin{ecode}
   let rec clone x n =
@@ -199,7 +199,7 @@ Next, we present a few indicative programs where our first prediction is
 correct, and all of the other tools' top three predictions are
 incorrect.
 
-\paragraph{Extracting the Digits of an Integer}
+\subparagraph{Extracting the Digits of an Integer.}
 % data/sp14/1732.ml
 Consider first a simple recursive function |digitsOfInt| that extracts
 the digits of an |int|.
@@ -241,7 +241,7 @@ Interestingly, \dectree incorrectly predicts that the child application
 should change as well, but it is less confident of this prediction and
 ranks it below the correct blame assignment.
 
-\paragraph{Padding a list}
+\subparagraph{Padding a list.}
 % data/sp14/1389.ml
 Our next program, |padZero|, is given two |int list|s as input, and must
 left-pad the shorter one with enough zeros that the two output lists

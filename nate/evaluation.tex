@@ -249,12 +249,29 @@ of each tool.
 We evaluate each tool on whether a changed expression occurred in its
 top one, top two, or top three predictions.
 
-\input{nate/threats}
+\paragraph{Blame Utility}
+Finally, to test the explanatory power of our blame assigments, we
+ran a user study at the University of Virginia (UVA IRB \#2014009900).
+%
+We included three problems in an exam in the Spring 2017 session of UVA's
+undergraduate Programming Languages course (CS 4501).
+%
+We presented the 31 students in the course with ill-typed \ocaml\
+programs and asked them to
+%
+(1) \emph{explain} the type error, and
+%
+(2) \emph{fix} the type error.
+%
+For each problem the student was given the ill-typed program and
+either \sherrloc or \toolname's blame assignment, with no error message.
 
+\input{nate/threats}
 \input{nate/evaluation-accuracy}
 \input{nate/evaluation-utility}
 \input{nate/qualitative}
 \input{nate/evaluation-user-study}
+
 
 %%% Local Variables:
 %%% mode: latex

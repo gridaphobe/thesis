@@ -1,75 +1,112 @@
-\begin{figure}[t]
+\begin{figure}[p]
 \centering
+%% EXPLAIN
 \begin{tikzpicture}
 \begin{axis}[
   ybar,
-  width=6cm,
+  width=10cm,
   height=6cm,
-  title={Explanation},
+  title={\large Explanation},
   ylabel={\% Correct},
   bar width=0.5cm,
-  ymin=0.2,
+  ymin=0,
   ymax=1,
-  ytick={0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0},
   yticklabel={\pgfmathparse{\tick*100}\pgfmathprintnumber{\pgfmathresult}\,\%},
   ytick style={draw=none},
   ymajorgrids = true,
-  symbolic x coords={{1: sepConcat explain (1.0 pts)},
-                     {3: padZero explain (1.0 pts)},
-                     {5: mulByDigit explain (1.0 pts)}},
-  %enlarge x limits=0.07,
+  enlarge x limits=0.25,
+  symbolic x coords={{sepConcat}, {padZero}, {mulByDigit}},
   xtick=data,
   xtick style={draw=none},
-  xticklabels={\texttt{sepConcat}, \texttt{padZero}, \texttt{mulByDigit}},
-  x tick label style={rotate=45, anchor=north east},
+  xticklabel style={align=center},
+  xticklabels={
+    {\texttt{sepConcat}\\($p=0.48$)},
+    {\texttt{padZero}\\($p=0.097$)},
+    {\texttt{mulByDigit}\\($p=0.083$)}
+  },
+  % x tick label style={rotate=45, anchor=north east},
   %x tick label style={font=\small},
   y tick label style={font=\small},
   reverse legend,
-  transpose legend,
-  legend style={legend pos = north west, legend columns=4, font=\footnotesize},
+  %transpose legend,
+  legend style={legend pos = south west, legend columns=2, font=\footnotesize},
 ]
 
 % ES: NOTE: ORDER OF PLOTS/LEGEND ENTRIES MATTERS
 
-\addplot[draw=black, fill=green1, bar shift=.25cm] table[x=tool, y=top-1] {\FallBench};
-\addlegendentry{Top-1}
-\addplot[draw=black, fill=green2, bar shift=.25cm] table[x=tool, y expr=\thisrow{top-2} - \thisrow{top-1}] {\FallBench};
-\addlegendentry{Top-2}
-\addplot[draw=black, fill=green3, bar shift=.25cm] table[x=tool, y expr=\thisrow{top-3} - \thisrow{top-2}] {\FallBench};
-\addlegendentry{Top-3}
-\addlegendimage{empty legend}
-\addlegendentry{\FALL}
+\addplot[draw=black, fill=green2, bar shift=.25cm, error bars/.cd, y dir=both, y explicit] coordinates {
+  (sepConcat, 0.8125)  +- (0, 0.0976)
+  (padZero, 1.00)      +- (0, 0)
+  (mulByDigit, 0.8125) +- (0, 0.0976)
+};
+\addlegendentry{\toolname}
 
-\resetstackedplots
-
-\addplot[draw=black, fill=blue1, bar shift=-.25cm] table[x=tool, y=top-1] {\SpringBench};
-\addlegendentry{Top-1}
-\addplot[draw=black, fill=blue2, bar shift=-.25cm] table[x=tool, y expr=\thisrow{top-2} - \thisrow{top-1}] {\SpringBench};
-\addlegendentry{Top-2}
-\addplot[draw=black, fill=blue3, bar shift=-.25cm] table[x=tool, y expr=\thisrow{top-3} - \thisrow{top-2}] {\SpringBench};
-\addlegendentry{Top-3}
-\addlegendimage{empty legend}
-\addlegendentry{\SPRING}
-
-
-%\legend{Top-1, Top-2, Top-3}
+\addplot[draw=black, fill=blue2, bar shift=-.25cm, error bars/.cd, y dir=both, y explicit] coordinates {
+  (sepConcat, 0.80)    +- (0, 0.1033)
+  (padZero, 0.875)     +- (0, 0.0827)
+  (mulByDigit, 0.5714) +- (0, 0.1323)
+};
+\addlegendentry{\sherrloc}
 \end{axis}
 \end{tikzpicture}
-\caption{
+%% FIX
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  width=10cm,
+  height=6cm,
+  title={\large Fix},
+  ylabel={\% Correct},
+  bar width=0.5cm,
+  ymin=0,
+  ymax=1,
+  yticklabel={\pgfmathparse{\tick*100}\pgfmathprintnumber{\pgfmathresult}\,\%},
+  ytick style={draw=none},
+  ymajorgrids = true,
+  enlarge x limits=0.25,
+  symbolic x coords={{sepConcat}, {padZero}, {mulByDigit}},
+  xtick=data,
+  xtick style={draw=none},
+  xticklabel style={align=center},
+  xticklabels={
+    {\texttt{sepConcat}\\($p=0.57$)},
+    {\texttt{padZero}\\($p=0.33$)},
+    {\texttt{mulByDigit}\\($p=0.31$)}
+  },
+  % x tick label style={rotate=45, anchor=north east},
+  %x tick label style={font=\small},
+  y tick label style={font=\small},
+  reverse legend,
+  %transpose legend,
+  legend style={legend pos = south west, legend columns=2, font=\footnotesize},
+]
+
+% ES: NOTE: ORDER OF PLOTS/LEGEND ENTRIES MATTERS
+
+\addplot[draw=black, fill=green2, bar shift=.25cm, error bars/.cd, y dir=both, y explicit] coordinates {
+  (sepConcat, 0.8125)  +- (0, 0.0976)
+  (padZero, 0.9286)    +- (0, 0.0688)
+  (mulByDigit, 0.7143) +- (0, 0.1207)
+};
+\addlegendentry{\toolname}
+
+\addplot[draw=black, fill=blue2, bar shift=-.25cm, error bars/.cd, y dir=both, y explicit] coordinates {
+  (sepConcat, 0.83)    +- (0, 0.1076)
+  (padZero, 0.875)     +- (0, 0.0827)
+  (mulByDigit, 0.6154) +- (0, 0.1349)
+};
+\addlegendentry{\sherrloc}
+\end{axis}
+\end{tikzpicture}
+\caption[A classification of students' explanations and fixes for type
+  errors, given either \sherrloc or \toolname's blame assignment.]
+  {A classification of students' explanations and fixes for type
+  errors, given either \sherrloc or \toolname's blame assignment.
   %
-  Results of our comparison of type error localization
-  techniques.
+  The students given \toolname's location generally scored
+  better than those given \sherrloc's.
   %
-  We evaluate all techniques separately on two cohorts of
-  students from different instances of an undergraduate
-  Programming Languages course.
-  %
-  Our classifiers were trained on one cohort and evaluated on the other.
-  %
-  All of our classifiers outperform the state-of-the-art techniques
-  \mycroft and \sherrloc.%  by a 10--15\% margin in Top-1 accuracy (with
-%   the exception of \linear which is only slightly better than \sherrloc).
-%
-}
-\label{fig:nate:user-study-results}
+  We report the result of a one-sided Mann-Whitney $U$ test for
+  statistical significance in parentheses.}
+\label{fig:nate:results-user-study}
 \end{figure}
