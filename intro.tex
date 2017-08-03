@@ -278,9 +278,9 @@ has examined the body $e$ to determine how $x$ is used.
 \begin{gather*}
 \inference[\textsc{Var}]
   {\Gamma(x) = \forall \overline{\alpha}. t
-   \quad \overline{\beta} \text{ are fresh}
+   \quad \overline{\alpha'} \text{ are fresh}
   }
-  {\jtype{\Gamma}{x}{\{\overline{\alpha \mapsto \beta}\}(t)}}
+  {\jtype{\Gamma}{x}{\{\overline{\alpha \mapsto \alpha'}\}(t)}}
 \quad
 \inference[\textsc{Lam}]
   {\jtype{\Gamma \cup \{x:t_1\}}{e}{t_2}}
