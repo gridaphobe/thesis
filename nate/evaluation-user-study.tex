@@ -93,7 +93,7 @@ We reject the null hypothesis in favor of the alternative if the test
 produces a significance level $p < 0.05$, a standard threshold for
 determining statistical significance.
 
-\input{evaluation-user-study-graph}
+\input{nate/evaluation-user-study-graph}
 
 % \begin{figure}[t]
 % \centering
@@ -118,7 +118,7 @@ determining statistical significance.
 % \label{fig:results-user-study}
 % \end{figure}
 
-\mypara{Results}
+\paragraph{Results}
 %
 The measured kappa values were $\kappa = 0.68$ for the explanations and
 $\kappa = 0.77$ for the fixes; while there is no formal notion for what
@@ -144,12 +144,12 @@ in this experiment; further investigation is merited.
 % however, none rise to the level of statistical significance.
 %
 
-\mypara{Threats to Validity}
+\paragraph{Threats to Validity}
 %
 Measuring understanding is difficult, and comes with its own
 set of threats. % to validity.
 
-\paragraph{Construct.}
+\subparagraph{Construct.}
 %
 We used the correctness of the student's explanation of, and fix for,
 the type error as a proxy for her understanding, but it is possible
@@ -168,7 +168,7 @@ For example, \textsc{Reason} uses the notation |[h, ...t]| for the list
 It is quite possible that \textsc{Reason}'s syntax could help students
 remember that |h| is a single element while |t| is a list.
 
-\paragraph{Internal.}
+\subparagraph{Internal.}
 %
 We assigned students randomly to two groups. The first was given
 \sherrloc's blame assignment for |sepConcat| and |mulByDigit|, and
@@ -179,7 +179,7 @@ assignment. This ensured that each student was given \sherrloc and
 nature of an exam. Thus, we excluded any answers left blank
 from our analysis.
 
-\paragraph{External.}
+\subparagraph{External.}
 %
 Our experiment used students in the process of learning \textsc{Reason},
 and thus may not generalize to all developers. The three programs were
@@ -188,7 +188,7 @@ from the \SPRING dataset, where \toolname's top prediction was correct
 but \sherrloc's was incorrect. A different selection of programs may
 lead to different results.
 
-\paragraph{Subjects.}
+\subparagraph{Subjects.}
 %
 We collected exams from 31 students, though due to the nature of the
 study not every student completed every problem.
