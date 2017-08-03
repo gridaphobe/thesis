@@ -598,11 +598,18 @@ Mechanically, this means that we no longer apply the substitution from
 one branch to the other, but rather unify the substitutions from both
 branches after they have been individually checked.
 %
-One might think we would then be right back at the issue we observed
+An important, and unfortunate, consequence of unifying substitutions
+between branches is that we can no longer implement type variables with
+mutable references to avoid the overhead of passing explicit substitutions
+around, as is commonly done in production-grade compilers.
+%
+One might also think that we would be right back at the issue we observed
 with algorithm $\mathcal{W}$, with an error reported at the |match|
 expression, but \citeauthor{Yang1999-yr} annotates each constraint with
 its source location, so that they can report the conflict between the
 |[]| on line 3 and the |+| on line 4.
+
+
 
 \paragraph{Type Error Slicing}
 \citet{Tip2001-qp} and \citet{Haack2003-vc} extend the idea of
